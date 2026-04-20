@@ -19,7 +19,10 @@ export default async function DashboardOverview() {
   // 1. Fetch Data
   const [todaysClosedTabs, lowStockItems, outletStocks] = await Promise.all([
     prisma.tab.findMany({
-      where: { status: "CLOSED", closedAt: { gte: startOfDay, lte: endOfDay } },
+      where: { 
+        status: { in: ["CLOSED", "PAID_HOLD"] }, 
+        closedAt: { gte: startOfDay, lte: endOfDay } 
+      },
       include: { 
         Outlet: true,
         Items: {

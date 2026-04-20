@@ -22,33 +22,33 @@ returns void language plpgsql as $$
 begin
   insert into public.daily_transaction_snapshot (day, total_cash, total_card_upi, total_amount, last_refreshed_at)
   select
-    date((closedAt at time zone 'UTC') at time zone 'Asia/Kolkata') as day,
+    date(("closedAt" at time zone 'UTC') at time zone 'Asia/Kolkata') as day,
     sum(
       case
-        when paymentMode = 'CASH' then coalesce(totalAmount, 0)
-        when paymentMode = 'SPLIT' then coalesce(splitCashAmount, 0)
+        when "paymentMode" = 'CASH' then coalesce("totalAmount", 0)
+        when "paymentMode" = 'SPLIT' then coalesce("splitCashAmount", 0)
         else 0
       end
     ) as total_cash,
     sum(
       case
-        when paymentMode in ('ONLINE', 'UPI') then coalesce(totalAmount, 0)
-        when paymentMode = 'SPLIT' then coalesce(splitOnlineAmount, 0)
+        when "paymentMode" in ('ONLINE', 'UPI', 'CARD') then coalesce("totalAmount", 0)
+        when "paymentMode" = 'SPLIT' then coalesce("splitOnlineAmount", 0)
         else 0
       end
     ) as total_card_upi,
     sum(
       case
-        when paymentMode = 'CASH' then coalesce(totalAmount, 0)
-        when paymentMode in ('ONLINE', 'UPI') then coalesce(totalAmount, 0)
-        when paymentMode = 'SPLIT' then coalesce(splitCashAmount, 0) + coalesce(splitOnlineAmount, 0)
+        when "paymentMode" = 'CASH' then coalesce("totalAmount", 0)
+        when "paymentMode" in ('ONLINE', 'UPI', 'CARD') then coalesce("totalAmount", 0)
+        when "paymentMode" = 'SPLIT' then coalesce("splitCashAmount", 0) + coalesce("splitOnlineAmount", 0)
         else 0
       end
     ) as total_amount,
     now() as last_refreshed_at
   from public."Tab"
-  where status = 'CLOSED'
-    and closedAt >= now() - interval '3 months'
+  where status in ('CLOSED', 'PAID_HOLD')
+    and "closedAt" >= now() - interval '3 months'
   group by day
   on conflict (day) do update
     set total_cash = excluded.total_cash,

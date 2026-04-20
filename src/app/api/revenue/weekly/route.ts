@@ -22,7 +22,7 @@ export async function GET() {
 
     const tabs = await prisma.tab.findMany({
       where: {
-        status: "CLOSED",
+        status: { in: ["CLOSED", "PAID_HOLD"] },
         closedAt: { gte: startUTC, lte: endUTC },
       },
       select: { totalAmount: true, paymentMode: true },
