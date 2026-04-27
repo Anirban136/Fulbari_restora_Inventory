@@ -9,6 +9,7 @@ import { logStockIn } from "./actions"
 import { revertLedgerEntry } from "../actions"
 import { Truck, Search, Undo2 } from "lucide-react"
 import { StockInForm } from "./StockInForm"
+import { BulkStockManager } from "@/components/BulkStockManager"
 import {
   Table,
   TableBody,
@@ -55,13 +56,18 @@ export default async function StockInPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
+      <div className="space-y-8 relative z-10">
         
-        {/* Left Form */}
-        <StockInForm items={items} vendors={vendors} />
+        {/* Bulk Stock Management Section */}
+        <BulkStockManager />
 
-        {/* Right Table */}
-        <div className="lg:col-span-2 glass-panel rounded-3xl overflow-hidden flex flex-col">
+        {/* Individual Stock Entry Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Left Form */}
+          <StockInForm items={items} vendors={vendors} />
+
+          {/* Right Table */}
+          <div className="lg:col-span-2 glass-panel rounded-3xl overflow-hidden flex flex-col">
           <div className="p-6 border-b border-border/50 bg-white/5 backdrop-blur-md flex items-center justify-between">
             <h3 className="text-lg font-bold text-foreground tracking-wide">Recent Deliveries Overview</h3>
             {isOwner && (
@@ -150,6 +156,7 @@ export default async function StockInPage() {
               </TableBody>
             </Table>
           </div>
+        </div>
         </div>
       </div>
     </div>
