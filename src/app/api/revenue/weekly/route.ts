@@ -25,7 +25,7 @@ export async function GET() {
         status: { in: ["CLOSED", "PAID_HOLD"] },
         closedAt: { gte: startUTC, lte: endUTC },
       },
-      select: { totalAmount: true, paymentMode: true },
+      select: { totalAmount: true, paymentMode: true, splitCashAmount: true, splitOnlineAmount: true },
     });
 
     let cash = 0,
@@ -34,7 +34,11 @@ export async function GET() {
     for (const tab of tabs) {
       if (tab.paymentMode === "CASH") cash += tab.totalAmount;
       else if (tab.paymentMode === "ONLINE") online += tab.totalAmount;
-      else if (tab.paymentMode === "SPLIT") split += tab.totalAmount;
+      else if (tab.paymentMode === "SPLIT") {
+        cash += tab.splitCashAmount || 0;
+        online += tab.splitOnlineAmount || 0;
+        split += tab.totalAmount;
+      }
     }
 
     // Label in IST
