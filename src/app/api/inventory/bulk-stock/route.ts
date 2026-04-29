@@ -49,22 +49,30 @@ export async function GET() {
     const templateData = [
       {
         "Item ID": "",
-        "Item Name": "Example: Sugar",
+        "Product Detail": "Example: Sugar",
         "Category": "Example: RAW_MATERIAL",
-        "Quantity": 100,
-        "Unit Type": "pieces", // pieces, box, packet, plate
-        "Cost per Unit": 45.50,
+        "Inventory Status": "Visible here",
+        "Base Unit": "pieces", // pieces, box, packet, plate
+        "Multiplier (PCS/Box)": 1,
+        "Buy Rate": 45.50,
+        "Sell Rate": 60.00,
+        "Add Stock": 100,
+        "New Total Stock": "",
         "Vendor Name": "Example: ABC Suppliers",
         "Vendor ID": "",
         "Notes": "Delivery note or invoice reference"
       },
       ...items.map(item => ({
         "Item ID": item.id,
-        "Item Name": item.name,
+        "Product Detail": item.name,
         "Category": item.category || "Uncategorized",
-        "Quantity": "",
-        "Unit Type": "pieces",
-        "Cost per Unit": "",
+        "Inventory Status": item.currentStock || 0,
+        "Base Unit": item.unit || "pcs",
+        "Multiplier (PCS/Box)": item.piecesPerBox || 1,
+        "Buy Rate": item.costPerUnit || "",
+        "Sell Rate": item.sellPrice || "",
+        "Add Stock": "",
+        "New Total Stock": item.currentStock || 0,
         "Vendor Name": "",
         "Vendor ID": "",
         "Notes": ""
@@ -76,18 +84,22 @@ export async function GET() {
     // Set column widths
     const colWidths = [
       { wch: 15 }, // Item ID
-      { wch: 25 }, // Item Name
+      { wch: 25 }, // Product Detail
       { wch: 20 }, // Category
-      { wch: 12 }, // Quantity
-      { wch: 12 }, // Unit Type
-      { wch: 12 }, // Cost per Unit
+      { wch: 15 }, // Inventory Status
+      { wch: 12 }, // Base Unit
+      { wch: 18 }, // Multiplier (PCS/Box)
+      { wch: 15 }, // Buy Rate
+      { wch: 15 }, // Sell Rate
+      { wch: 15 }, // Add Stock
+      { wch: 15 }, // New Total Stock
       { wch: 25 }, // Vendor Name
       { wch: 15 }, // Vendor ID
       { wch: 30 }, // Notes
     ]
     ws['!cols'] = colWidths
 
-    XLSX.utils.book_append_sheet(wb, ws, "Bulk Stock Template")
+    XLSX.utils.book_append_sheet(wb, ws, "Global Catalog Stock")
 
     // Create vendors reference sheet
     const vendorData = vendors.map(vendor => ({
@@ -106,13 +118,12 @@ export async function GET() {
 
     // Create instructions sheet
     const instructionsData = [
-      { "Step": "1", "Description": "Fill in the 'Bulk Stock Template' sheet with your stock data" },
-      { "Step": "2", "Description": "Use Item ID for existing items or fill Item Name for new items" },
-      { "Step": "3", "Description": "Unit Type options: pieces, box, packet, plate" },
-      { "Step": "4", "Description": "Vendor Name or Vendor ID - fill either one" },
-      { "Step": "5", "Description": "Cost per Unit is optional but recommended for tracking" },
+      { "Step": "1", "Description": "To ADD stock: Enter the amount in the 'Add Stock' column" },
+      { "Step": "2", "Description": "To UPDATE total stock: Change the number in the 'New Total Stock' column" },
+      { "Step": "3", "Description": "Use Item ID for existing items or fill Product Detail for new items" },
+      { "Step": "4", "Description": "Base Unit options: pieces, box, packet, plate, kg, liter" },
+      { "Step": "5", "Description": "Vendor Name or Vendor ID - fill either one" },
       { "Step": "6", "Description": "Save the Excel file and upload it back" },
-      { "Step": "7", "Description": "System will automatically calculate vendor balances" },
     ]
     
     const instructionsWs = XLSX.utils.json_to_sheet(instructionsData)
@@ -224,10 +235,13 @@ export async function POST(req: NextRequest) {
         }
 
         // Validate required fields
-        const itemName = row["Item Name"]
-        const quantity = parseFloat(row["Quantity"] || 0)
-        const unitType = row["Unit Type"] || "pieces"
-        const costPerUnit = parseFloat(row["Cost per Unit"] || 0)
+        const itemName = row["Product Detail"] || row["Item Name"]
+        const addStock = parseFloat(row["Add Stock"] || row["Quantity (To Add)"] || row["Quantity"] || 0)
+        const newTotalStock = row["New Total Stock"] !== undefined && row["New Total Stock"] !== "" ? parseFloat(row["New Total Stock"]) : undefined
+        const unitType = (row["Base Unit"] || row["Unit Type"] || "pieces").toString().toLowerCase()
+        const costPerUnit = parseFloat(row["Buy Rate"] || row["Cost per Unit"] || 0)
+        const sellPrice = row["Sell Rate"] !== undefined && row["Sell Rate"] !== "" ? parseFloat(row["Sell Rate"]) : undefined
+        const piecesPerBox = row["Multiplier (PCS/Box)"] !== undefined && row["Multiplier (PCS/Box)"] !== "" ? parseInt(row["Multiplier (PCS/Box)"]) : undefined
         const vendorName = row["Vendor Name"]
         const vendorId = row["Vendor ID"]
         const notes = row["Notes"] || ""
@@ -237,13 +251,9 @@ export async function POST(req: NextRequest) {
           continue
         }
 
-        if (isNaN(quantity) || quantity <= 0) {
-          errors.push(`Row ${rowNum}: Invalid quantity`)
-          continue
-        }
-
-        if (!["pieces", "box", "packet", "plate"].includes(unitType)) {
-          errors.push(`Row ${rowNum}: Invalid unit type. Must be pieces, box, packet, or plate`)
+        const validUnits = ["pieces", "pcs", "box", "packet", "plate", "kg", "liter", "l", "g", "ml", "gm"]
+        if (!validUnits.includes(unitType)) {
+          errors.push(`Row ${rowNum}: Invalid unit type. Must be one of: ${validUnits.join(", ")}`)
           continue
         }
 
@@ -260,9 +270,11 @@ export async function POST(req: NextRequest) {
             data: {
               name: itemName,
               category,
-              unit: "pcs",
+              unit: unitType,
               currentStock: 0,
-              costPerUnit: costPerUnit || undefined
+              costPerUnit: costPerUnit || undefined,
+              sellPrice: sellPrice || undefined,
+              piecesPerBox: piecesPerBox || undefined,
             }
           })
         }
@@ -289,30 +301,50 @@ export async function POST(req: NextRequest) {
           })
         }
 
-        // Calculate final quantity (handle boxes/packets)
+        // Calculate stock difference
+        const currentStock = item.currentStock || 0
         const piecesPerBox = item.piecesPerBox || 1
         const isContainer = unitType === "box" || unitType === "packet" || unitType === "plate"
-        const finalQuantity = isContainer ? quantity * piecesPerBox : quantity
-        const unitCost = isContainer ? costPerUnit / piecesPerBox : costPerUnit
-        const totalCost = unitCost * finalQuantity
+        
+        let stockDifference = 0
+        let isAdjustment = false
+
+        if (newTotalStock !== undefined && !isNaN(newTotalStock)) {
+          // If 'New Total Stock' is provided, we treat it as the final absolute stock level
+          stockDifference = newTotalStock - currentStock
+          isAdjustment = true
+        } else if (!isNaN(addStock) && addStock !== 0) {
+          // 'Add Stock' respects the container multiplier (e.g. 1 box = 20 pieces)
+          stockDifference = isContainer ? addStock * piecesPerBox : addStock
+        }
+
+        if (stockDifference === 0) {
+          continue // Nothing to do for this row
+        }
+
+        const unitCost = isContainer && !isNaN(costPerUnit) ? costPerUnit / piecesPerBox : costPerUnit
+        const totalCost = (unitCost || 0) * Math.abs(stockDifference)
+        const finalQuantity = currentStock + stockDifference
 
         // Create inventory ledger entry
         await prisma.$transaction([
           prisma.inventoryLedger.create({
             data: {
-              type: "STOCK_IN",
+              type: stockDifference >= 0 ? "STOCK_IN" : "ADJUSTMENT",
               itemId: item.id,
-              quantity: finalQuantity,
+              quantity: Math.abs(stockDifference),
               vendorId: vendor?.id || null,
               userId: session.user.id,
-              notes: `[BULK-IMPORT: Row ${rowNum}] ${unitType.toUpperCase()}-ENTRY: ${quantity} ${unitType}s @ ₹${costPerUnit}/${unitType}. Cost Info: Cost=${isNaN(unitCost) ? 0 : unitCost.toFixed(4)}. ${notes}`,
+              notes: `[BULK-IMPORT: Row ${rowNum}] ${isAdjustment ? "TOTAL_UPDATE" : "ENTRY"}: Diff=${stockDifference > 0 ? "+" : ""}${stockDifference} ${unitType}. Old=${currentStock}, New=${finalQuantity}. Cost Info: UnitCost=${isNaN(unitCost) ? 0 : unitCost.toFixed(4)}. ${notes}`,
             }
           }),
           prisma.item.update({
             where: { id: item.id },
             data: {
-              currentStock: { increment: finalQuantity },
+              currentStock: finalQuantity,
               costPerUnit: isNaN(unitCost) ? undefined : (unitCost || undefined),
+              sellPrice: isNaN(sellPrice) ? undefined : (sellPrice || undefined),
+              piecesPerBox: isNaN(piecesPerBox) ? undefined : (piecesPerBox || undefined),
             }
           })
         ])

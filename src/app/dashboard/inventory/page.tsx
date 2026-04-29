@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth"
 import { AddItemDialog } from "./AddItemDialog"
 import { GlobalCatalogFeed } from "./GlobalCatalogFeed"
 import { Layers } from "lucide-react"
+import { BulkStockManager } from "@/components/BulkStockManager"
 
 export default async function GlobalCatalogPage() {
   const session = await getServerSession(authOptions)
@@ -47,6 +48,13 @@ export default async function GlobalCatalogPage() {
           <AddItemDialog existingCategories={existingCategories} />
         </div>
       </header>
+
+      {/* Bulk Stock Management */}
+      {(isOwner || isManager) && (
+        <div className="w-full">
+          <BulkStockManager />
+        </div>
+      )}
 
       {/* Main Dynamic Table Feed (Client Component) */}
       <div className="w-full">
