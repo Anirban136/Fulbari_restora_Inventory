@@ -9,19 +9,38 @@ export const dynamic = "force-dynamic"
 // GET: Export Excel template with existing items
 export async function GET() {
   try {
+    console.log("Bulk stock export API called")
+    
     const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER")) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    console.log("Session check:", session?.user?.role)
+    
+    if (!session) {
+      console.log("No session found")
+      return NextResponse.json({ error: "Authentication required. Please log in." }, { status: 401 })
+    }
+    
+    if (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER") {
+      console.log("Insufficient permissions:", session.user.role)
+      return NextResponse.json({ error: "Insufficient permissions. Owner or Inventory Manager role required." }, { status: 403 })
     }
 
     // Get all items and vendors
+    console.log("Fetching items and vendors...")
     const items = await prisma.item.findMany({
       orderBy: { category: 'asc' }
+    }).catch(error => {
+      console.error("Error fetching items:", error)
+      throw new Error("Failed to fetch items from database")
     })
     
     const vendors = await prisma.vendor.findMany({
       orderBy: { name: 'asc' }
+    }).catch(error => {
+      console.error("Error fetching vendors:", error)
+      throw new Error("Failed to fetch vendors from database")
     })
+    
+    console.log(`Found ${items.length} items and ${vendors.length} vendors`)
 
     // Create Excel workbook
     const wb = XLSX.utils.book_new()
@@ -104,7 +123,14 @@ export async function GET() {
     XLSX.utils.book_append_sheet(wb, instructionsWs, "Instructions")
 
     // Generate Excel file
+    console.log("Generating Excel file...")
     const excelBuffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" })
+
+    if (!excelBuffer || excelBuffer.length === 0) {
+      throw new Error("Failed to generate Excel file")
+    }
+
+    console.log(`Excel file generated successfully (${excelBuffer.length} bytes)`)
 
     // Return file
     return new NextResponse(excelBuffer, {
@@ -116,41 +142,72 @@ export async function GET() {
 
   } catch (error) {
     console.error("Export error:", error)
-    return NextResponse.json({ error: "Failed to export template" }, { status: 500 })
+    const errorMessage = error instanceof Error ? error.message : "Failed to export template"
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }
 
 // POST: Import Excel file and process bulk stock
 export async function POST(req: NextRequest) {
   try {
+    console.log("Bulk stock import API called")
+    
     const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER")) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
+    console.log("Session check:", session?.user?.role)
+    
+    if (!session) {
+      console.log("No session found")
+      return NextResponse.json({ error: "Authentication required. Please log in." }, { status: 401 })
+    }
+    
+    if (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER") {
+      console.log("Insufficient permissions:", session.user.role)
+      return NextResponse.json({ error: "Insufficient permissions. Owner or Inventory Manager role required." }, { status: 403 })
     }
 
     const formData = await req.formData()
     const file = formData.get("file") as File
 
     if (!file) {
+      console.log("No file provided")
       return NextResponse.json({ error: "No file provided" }, { status: 400 })
     }
 
+    console.log(`File received: ${file.name}, size: ${file.size} bytes`)
+
     // Check file type
     if (!file.name.match(/\.(xlsx|xls)$/)) {
+      console.log("Invalid file type:", file.name)
       return NextResponse.json({ error: "Please upload an Excel file (.xlsx or .xls)" }, { status: 400 })
     }
 
+    // Check file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      console.log("File too large:", file.size)
+      return NextResponse.json({ error: "File size must be less than 10MB" }, { status: 400 })
+    }
+
     // Read Excel file
+    console.log("Reading Excel file...")
     const buffer = await file.arrayBuffer()
     const wb = XLSX.read(buffer, { type: "buffer" })
     
+    if (!wb.SheetNames || wb.SheetNames.length === 0) {
+      console.log("No worksheets found in Excel file")
+      return NextResponse.json({ error: "Excel file has no worksheets" }, { status: 400 })
+    }
+    
     // Get the first worksheet (template)
+    console.log(`Processing worksheet: ${wb.SheetNames[0]}`)
     const ws = wb.Sheets[wb.SheetNames[0]]
     const data = XLSX.utils.sheet_to_json(ws)
 
     if (!data || data.length === 0) {
+      console.log("Excel file is empty or invalid")
       return NextResponse.json({ error: "Excel file is empty or invalid" }, { status: 400 })
     }
+
+    console.log(`Found ${data.length} rows in Excel file`)
 
     // Process each row
     const results = []

@@ -45,12 +45,27 @@ export function BulkStockManager() {
   const handleExportTemplate = async () => {
     setIsExporting(true)
     try {
-      const response = await fetch("/api/inventory/bulk-stock")
+      const response = await fetch("/api/inventory/bulk-stock", {
+        method: "GET",
+        credentials: "include", // Important for authentication
+        headers: {
+          "Content-Type": "application/json",
+        }
+      })
+      
       if (!response.ok) {
-        throw new Error("Failed to export template")
+        const errorData = await response.json().catch(() => ({}))
+        const errorMessage = errorData.error || `HTTP ${response.status}: ${response.statusText}`
+        throw new Error(errorMessage)
       }
       
       const blob = await response.blob()
+      
+      // Check if the response is actually an Excel file
+      if (blob.size === 0) {
+        throw new Error("Received empty file")
+      }
+      
       const url = window.URL.createObjectURL(blob)
       const a = document.createElement("a")
       a.href = url
@@ -63,7 +78,15 @@ export function BulkStockManager() {
       toast.success("Excel template downloaded successfully!")
     } catch (error) {
       console.error("Export error:", error)
-      toast.error("Failed to download template")
+      const errorMessage = error instanceof Error ? error.message : "Failed to download template"
+      
+      if (errorMessage.includes("401") || errorMessage.includes("Unauthorized")) {
+        toast.error("Authentication required. Please log in with appropriate permissions.")
+      } else if (errorMessage.includes("403")) {
+        toast.error("Insufficient permissions. Owner or Inventory Manager role required.")
+      } else {
+        toast.error(`Export failed: ${errorMessage}`)
+      }
     } finally {
       setIsExporting(false)
     }
@@ -74,18 +97,34 @@ export function BulkStockManager() {
     setIsImporting(true)
     setImportResult(null)
     
+    // Validate file type
+    if (!file.name.match(/\.(xlsx|xls)$/)) {
+      toast.error("Please upload an Excel file (.xlsx or .xls)")
+      setIsImporting(false)
+      return
+    }
+    
+    // Validate file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File size must be less than 10MB")
+      setIsImporting(false)
+      return
+    }
+    
     const formData = new FormData()
     formData.append("file", file)
     
     try {
       const response = await fetch("/api/inventory/bulk-stock", {
         method: "POST",
+        credentials: "include", // Important for authentication
         body: formData
       })
       
       if (!response.ok) {
-        const error = await response.json()
-        throw new Error(error.error || "Import failed")
+        const errorData = await response.json().catch(() => ({}))
+        const errorMessage = errorData.error || `HTTP ${response.status}: ${response.statusText}`
+        throw new Error(errorMessage)
       }
       
       const result: BulkImportResult = await response.json()
@@ -101,7 +140,19 @@ export function BulkStockManager() {
       
     } catch (error) {
       console.error("Import error:", error)
-      toast.error(error instanceof Error ? error.message : "Import failed")
+      const errorMessage = error instanceof Error ? error.message : "Import failed"
+      
+      if (errorMessage.includes("401") || errorMessage.includes("Unauthorized")) {
+        toast.error("Authentication required. Please log in with appropriate permissions.")
+      } else if (errorMessage.includes("403")) {
+        toast.error("Insufficient permissions. Owner or Inventory Manager role required.")
+      } else if (errorMessage.includes("413") || errorMessage.includes("too large")) {
+        toast.error("File too large. Please use a file smaller than 10MB.")
+      } else if (errorMessage.includes("Excel") || errorMessage.includes("file")) {
+        toast.error(`File error: ${errorMessage}`)
+      } else {
+        toast.error(`Import failed: ${errorMessage}`)
+      }
     } finally {
       setIsImporting(false)
     }
