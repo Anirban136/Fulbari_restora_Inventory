@@ -303,7 +303,7 @@ export async function POST(req: NextRequest) {
 
         // Calculate stock difference
         const currentStock = item.currentStock || 0
-        const piecesPerBox = item.piecesPerBox || 1
+        const itemPiecesPerBox = item.piecesPerBox || 1
         const isContainer = unitType === "box" || unitType === "packet" || unitType === "plate"
         
         let stockDifference = 0
@@ -315,14 +315,14 @@ export async function POST(req: NextRequest) {
           isAdjustment = true
         } else if (!isNaN(addStock) && addStock !== 0) {
           // 'Add Stock' respects the container multiplier (e.g. 1 box = 20 pieces)
-          stockDifference = isContainer ? addStock * piecesPerBox : addStock
+          stockDifference = isContainer ? addStock * itemPiecesPerBox : addStock
         }
 
         if (stockDifference === 0) {
           continue // Nothing to do for this row
         }
 
-        const unitCost = isContainer && !isNaN(costPerUnit) ? costPerUnit / piecesPerBox : costPerUnit
+        const unitCost = isContainer && !isNaN(costPerUnit) ? costPerUnit / itemPiecesPerBox : costPerUnit
         const totalCost = (unitCost || 0) * Math.abs(stockDifference)
         const finalQuantity = currentStock + stockDifference
 
