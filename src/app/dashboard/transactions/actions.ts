@@ -102,7 +102,12 @@ export async function deleteClosedTab(tabId: string, pin: string) {
     }
   }
 
-  // Delete the record
+  // 3. Delete associated items first (Fix for foreign key constraint)
+  await prisma.tabItem.deleteMany({
+    where: { tabId: tabId }
+  })
+
+  // 4. Delete the record
   await prisma.tab.delete({
     where: { id: tabId }
   })
