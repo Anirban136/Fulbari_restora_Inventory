@@ -343,8 +343,8 @@ export async function POST(req: NextRequest) {
             data: {
               currentStock: finalQuantity,
               costPerUnit: isNaN(unitCost) ? undefined : (unitCost || undefined),
-              sellPrice: isNaN(sellPrice) ? undefined : (sellPrice || undefined),
-              piecesPerBox: isNaN(piecesPerBox) ? undefined : (piecesPerBox || undefined),
+              sellPrice: isNaN(Number(sellPrice)) ? undefined : (sellPrice || undefined),
+              piecesPerBox: isNaN(Number(piecesPerBox)) ? undefined : (piecesPerBox || undefined),
             }
           })
         ])
