@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ArrowLeftRight, AlertTriangle, CheckCircle2 } from "lucide-react"
 import { ItemSearchableSelect } from "@/components/inventory/ItemSearchableSelect"
+import { toast } from "sonner"
 
 type Item = {
   id: string
@@ -28,6 +29,14 @@ export function DispatchForm({ items, outlets }: { items: Item[]; outlets: Outle
   const [state, formAction, isPending] = useActionState(
     async (_prev: typeof initialState, formData: FormData) => {
       const result = await dispatchStock(formData)
+      if (result?.error) {
+        toast.error(result.error)
+      } else {
+        toast.success("Dispatch approved successfully!", {
+          description: `Shipment for ${selectedItem?.name || "Product"} is now in transit.`,
+          icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+        })
+      }
       return { error: result.error }
     },
     initialState

@@ -10,6 +10,7 @@ import { AddVendorDialog } from "../AddVendorDialog"
 import { AddItemDialog } from "../AddItemDialog"
 import { logStockIn } from "./actions"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 interface Item {
   id: string
@@ -55,8 +56,13 @@ export function StockInForm({ items, vendors }: { items: Item[], vendors: Vendor
       const result = await logStockIn(formData)
       if (result?.error) {
         setStatus({ error: result.error })
+        toast.error(result.error)
       } else {
         setStatus({ success: true })
+        toast.success("Inventory synchronization successful!", {
+          description: `Logged delivery for ${selectedItem?.name || "Product"}`,
+          icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+        })
         setSelectedItem(null)
         setTimeout(() => setStatus(null), 3000)
         const form = document.getElementById("stock-in-form") as HTMLFormElement
@@ -64,6 +70,7 @@ export function StockInForm({ items, vendors }: { items: Item[], vendors: Vendor
       }
     } catch (err) {
       setStatus({ error: "A network error occurred." })
+      toast.error("Network synchronization failed.")
     } finally {
       setLoading(false)
     }

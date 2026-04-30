@@ -14,6 +14,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { payVendor } from "./actions"
+import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
 
 interface PayVendorDialogProps {
   vendor: {
@@ -28,16 +30,30 @@ export function PayVendorDialog({ vendor, balanceDue, wasteDeductions = 0 }: Pay
   const [open, setOpen] = useState(false)
   const [customAmount, setCustomAmount] = useState("")
   const [useFullAmount, setUseFullAmount] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   const effectiveAmount = useFullAmount ? balanceDue.toFixed(2) : customAmount
 
   async function handleSubmit(formData: FormData) {
-    // Override with effective amount
-    formData.set("amount", effectiveAmount)
-    await payVendor(formData)
-    setOpen(false)
-    setCustomAmount("")
-    setUseFullAmount(false)
+    if (!effectiveAmount || parseFloat(effectiveAmount) <= 0) return
+    
+    setLoading(true)
+    try {
+      // Override with effective amount
+      formData.set("amount", effectiveAmount)
+      await payVendor(formData)
+      toast.success("Payment recorded successfully!", {
+        description: `₹${parseFloat(effectiveAmount).toLocaleString('en-IN')} paid to ${vendor.name}.`,
+        icon: <IndianRupee className="w-5 h-5 text-emerald-500" />
+      })
+      setOpen(false)
+      setCustomAmount("")
+      setUseFullAmount(false)
+    } catch (error) {
+      toast.error("Failed to record payment.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -137,10 +153,10 @@ export function PayVendorDialog({ vendor, balanceDue, wasteDeductions = 0 }: Pay
 
           <Button
             type="submit"
-            disabled={!effectiveAmount || parseFloat(effectiveAmount) <= 0}
+            disabled={loading || !effectiveAmount || parseFloat(effectiveAmount) <= 0}
             className="w-full h-12 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-sm tracking-wide shadow-[0_0_20px_-5px_rgba(16,185,129,0.5)] transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Confirm Payment of ₹{effectiveAmount ? parseFloat(effectiveAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 }) : "0.00"}
+            {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : `Confirm Payment of ₹${effectiveAmount ? parseFloat(effectiveAmount).toLocaleString('en-IN', { minimumFractionDigits: 2 }) : "0.00"}`}
           </Button>
         </form>
       </DialogContent>

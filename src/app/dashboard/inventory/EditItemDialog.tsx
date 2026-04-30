@@ -16,14 +16,28 @@ import {
 } from "@/components/ui/dialog"
 import { updateItem } from "./actions"
 import { CategoryCombobox } from "../menus/CategoryCombobox"
+import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
 
 export function EditItemDialog({ item, existingCategories = [] }: { item: any; existingCategories?: string[] }) {
   const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [unit, setUnit] = useState(item.unit || "")
 
   async function handleSubmit(formData: FormData) {
-    await updateItem(formData)
-    setOpen(false)
+    setLoading(true)
+    try {
+      await updateItem(formData)
+      toast.success("Global item updated successfully!", {
+        description: `${formData.get("name")} has been reconfigured.`,
+        icon: <Edit className="w-5 h-5 text-amber-500" />
+      })
+      setOpen(false)
+    } catch (error) {
+      toast.error("Update failed. Please check your inputs.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   const showPiecesPerBox = unit === "box" || unit === "packet" || unit === "plate"
@@ -120,8 +134,8 @@ export function EditItemDialog({ item, existingCategories = [] }: { item: any; e
             )}
 
             <div className="pt-4 pb-4">
-              <Button type="submit" className="w-full h-16 text-sm font-black uppercase tracking-[0.4em] bg-foreground text-background hover:bg-foreground/90 rounded-2xl shadow-2xl transition-all active:scale-95 flex items-center justify-center gap-3">
-                SAVE CHANGES <ArrowRight className="w-4 h-4" />
+              <Button type="submit" disabled={loading} className="w-full h-16 text-sm font-black uppercase tracking-[0.4em] bg-foreground text-background hover:bg-foreground/90 rounded-2xl shadow-2xl transition-all active:scale-95 flex items-center justify-center gap-3">
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "SAVE CHANGES"} <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
           </form>

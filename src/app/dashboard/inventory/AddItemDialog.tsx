@@ -16,15 +16,29 @@ import {
 } from "@/components/ui/dialog"
 import { addItem } from "./actions"
 import { CategoryCombobox } from "../menus/CategoryCombobox"
+import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
 
 export function AddItemDialog({ existingCategories = [], variant = "default" }: { existingCategories?: string[], variant?: "default" | "compact" }) {
   const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [unit, setUnit] = useState("")
 
   async function handleSubmit(formData: FormData) {
-    await addItem(formData)
-    setOpen(false)
-    setUnit("")
+    setLoading(true)
+    try {
+      await addItem(formData)
+      toast.success("Global item created successfully!", {
+        description: `${formData.get("name")} is now available in the catalog.`,
+        icon: <Package className="w-5 h-5 text-primary" />
+      })
+      setOpen(false)
+      setUnit("")
+    } catch (error) {
+      toast.error("Failed to create item. Please try again.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   const showPiecesPerBox = unit === "box" || unit === "packet" || unit === "plate"
@@ -124,8 +138,8 @@ export function AddItemDialog({ existingCategories = [], variant = "default" }: 
             </div>
 
             <div className="pt-6 pb-4">
-              <Button type="submit" className="w-full h-16 text-sm font-black uppercase tracking-[0.4em] bg-foreground text-background hover:opacity-90 rounded-2xl shadow-2xl transition-all active:scale-95 flex items-center justify-center gap-3">
-                SUBMIT <ArrowRight className="w-4 h-4" />
+              <Button type="submit" disabled={loading} className="w-full h-16 text-sm font-black uppercase tracking-[0.4em] bg-foreground text-background hover:opacity-90 rounded-2xl shadow-2xl transition-all active:scale-95 flex items-center justify-center gap-3">
+                {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : "SUBMIT"} <ArrowRight className="w-4 h-4" />
               </Button>
             </div>
           </form>

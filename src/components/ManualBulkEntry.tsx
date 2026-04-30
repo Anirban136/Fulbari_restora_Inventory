@@ -234,12 +234,19 @@ export function ManualBulkEntry({
       return [...prev, editingRow]
     })
     closeEditor()
-    toast.success("Added to intake basket")
+    toast.success("Product staged successfully", {
+      description: `${editingRow.itemName} added to the intake basket.`,
+      icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+    })
   }
 
   const removeRow = (id: string) => {
+    const row = rows.find(r => r.id === id)
     setRows(prev => prev.filter(r => r.id !== id))
-    toast.info("Removed from basket")
+    toast.info("Item removed from basket", {
+      description: row ? `${row.itemName} has been cleared.` : undefined,
+      icon: <Trash2 className="w-5 h-5 text-amber-500" />
+    })
   }
 
   const handleItemSelect = (itemName: string, isNew: boolean) => {
@@ -287,7 +294,7 @@ export function ManualBulkEntry({
 
   const handleSubmitBatch = async () => {
     if (rows.length === 0) {
-      toast.error("Intake basket is empty.")
+      toast.error("Basket is empty", { description: "Please add products before syncing." })
       return
     }
 
@@ -303,12 +310,25 @@ export function ManualBulkEntry({
       if (!response.ok) throw new Error("Processing failed")
       const result: ImportResult = await response.json()
       setImportResult(result)
+      
       if (result.summary.successful > 0) {
-        toast.success(`Success: ${result.summary.successful} items synced!`)
+        toast.success("Inventory synchronization successful!", {
+          description: `Processed ${result.summary.successful} products into the warehouse ledger.`,
+          icon: <Sparkles className="w-5 h-5 text-emerald-500" />,
+          duration: 5000,
+        })
         if (result.summary.failed === 0) setRows([])
       }
+
+      if (result.summary.failed > 0) {
+        toast.error("Sync partial failure", {
+          description: `${result.summary.failed} items failed to update. Check report below.`,
+        })
+      }
     } catch (error) {
-      toast.error("Submit failed.")
+      toast.error("Critical synchronization error", {
+        description: "The warehouse server did not respond. Check your connection.",
+      })
     } finally {
       setIsSubmitting(false)
     }
@@ -421,12 +441,13 @@ export function ManualBulkEntry({
              </div>
 
              {/* Clear Basket Option (Subtle Cancel) */}
-             <div className="flex justify-center mt-6">
+              <div className="flex justify-center mt-6">
                 <Button 
                   variant="ghost" 
                   onClick={() => {
                     if (confirm("Are you sure you want to clear the entire intake basket?")) {
                       setRows([])
+                      toast.info("Basket cleared", { description: "All staged items have been removed." })
                     }
                   }}
                   className="text-[10px] font-black uppercase tracking-[0.2em] opacity-30 hover:opacity-100 text-red-500 hover:bg-red-500/10 flex items-center gap-2"

@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { ItemSearchableSelect } from "@/components/inventory/ItemSearchableSelect"
 import { logWaste } from "./actions"
+import { toast } from "sonner"
 
 interface Item {
   id: string
@@ -53,8 +54,13 @@ export function WasteForm({ items, vendors }: { items: Item[], vendors: Vendor[]
       const result = await logWaste(formData)
       if (result?.error) {
         setStatus({ error: result.error })
+        toast.error(result.error)
       } else {
         setStatus({ success: true })
+        toast.success("Waste logged successfully!", {
+          description: `Penalized vendor for ${selectedItem?.name || "Product"}.`,
+          icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />
+        })
         setSelectedItem(null)
         setTimeout(() => setStatus(null), 3000)
         const form = document.getElementById("waste-form") as HTMLFormElement
@@ -62,6 +68,7 @@ export function WasteForm({ items, vendors }: { items: Item[], vendors: Vendor[]
       }
     } catch (err) {
       setStatus({ error: "A network error occurred. Please check your connection." })
+      toast.error("Network error. Please try again.")
     } finally {
       setLoading(false)
     }

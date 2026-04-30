@@ -9,6 +9,8 @@ import { Edit, Settings2, Plus, Trash2, UtensilsCrossed } from "lucide-react"
 import { updateMenuItem } from "./actions"
 import { CategoryCombobox } from "./CategoryCombobox"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
 
 export function EditMenuItemDialog({
   menuItem,
@@ -22,6 +24,7 @@ export function EditMenuItemDialog({
   existingCategories: string[]
 }) {
   const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
   const [selectedOutletId, setSelectedOutletId] = useState(menuItem.outletId || "")
   const [ingredients, setIngredients] = useState<{ itemId: string, quantity: number }[]>(
     menuItem.ingredients?.map((i: any) => ({ itemId: i.itemId, quantity: i.quantity })) || []
@@ -56,6 +59,23 @@ export function EditMenuItemDialog({
     setIngredients(newIngs)
   }
 
+  async function handleSubmit(formData: FormData) {
+    setLoading(true)
+    try {
+      formData.set("ingredients", JSON.stringify(ingredients))
+      await updateMenuItem(formData)
+      toast.success("Menu item updated!", {
+        description: `Changes to ${menuItem.name} have been saved.`,
+        icon: <UtensilsCrossed className="w-5 h-5 text-primary" />
+      })
+      setOpen(false)
+    } catch (error) {
+      toast.error("Failed to update menu item.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={
@@ -71,10 +91,7 @@ export function EditMenuItemDialog({
           <DialogTitle className="text-2xl font-black text-foreground tracking-tight uppercase">Update Menu Entry</DialogTitle>
         </DialogHeader>
 
-        <form action={async (formData) => {
-          await updateMenuItem(formData)
-          setOpen(false)
-        }} className="p-6 pt-4 space-y-6 overflow-y-auto max-h-[80vh]">
+        <form action={handleSubmit} className="p-6 pt-4 space-y-6 overflow-y-auto max-h-[80vh]">
           <input type="hidden" name="id" value={menuItem.id} />
           <input type="hidden" name="ingredients" value={JSON.stringify(ingredients)} />
 
@@ -202,8 +219,8 @@ export function EditMenuItemDialog({
             </div>
           </div>
 
-          <Button type="submit" className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/20 active:scale-95 transition-all">
-            Commit Changes
+          <Button type="submit" disabled={loading} className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-black uppercase tracking-widest rounded-2xl shadow-xl shadow-primary/20 active:scale-95 transition-all flex items-center justify-center gap-2">
+            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Edit className="w-4 h-4" />} Commit Changes
           </Button>
         </form>
       </DialogContent>

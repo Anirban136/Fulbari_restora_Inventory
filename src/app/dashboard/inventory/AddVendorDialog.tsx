@@ -14,13 +14,27 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { addVendor } from "./actions"
+import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
 
 export function AddVendorDialog() {
   const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   async function handleSubmit(formData: FormData) {
-    await addVendor(formData)
-    setOpen(false)
+    setLoading(true)
+    try {
+      await addVendor(formData)
+      toast.success("Vendor registered successfully!", {
+        description: `${formData.get("name")} is now in your supply chain.`,
+        icon: <Users className="w-5 h-5 text-primary" />
+      })
+      setOpen(false)
+    } catch (error) {
+      toast.error("Failed to register vendor.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -53,7 +67,9 @@ export function AddVendorDialog() {
             <Label htmlFor="address" className="text-xs font-bold text-slate-400 uppercase tracking-widest">Address</Label>
             <Input id="address" name="address" placeholder="Vendor location..." className="h-12 bg-foreground/5 border-border text-foreground placeholder:text-muted-foreground/40 rounded-xl focus-visible:ring-primary/50" />
           </div>
-          <Button type="submit" className="w-full h-14 text-lg font-bold bg-primary text-primary-foreground hover:bg-primary/90 mt-4 rounded-xl shadow-lg transition-all active:scale-[0.98]">Save Vendor</Button>
+          <Button type="submit" disabled={loading} className="w-full h-14 text-lg font-bold bg-primary text-primary-foreground hover:bg-primary/90 mt-4 rounded-xl shadow-lg transition-all active:scale-[0.98]">
+            {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : "Save Vendor"}
+          </Button>
         </form>
       </DialogContent>
     </Dialog>

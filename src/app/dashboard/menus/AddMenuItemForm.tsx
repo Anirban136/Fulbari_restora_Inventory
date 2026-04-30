@@ -8,6 +8,8 @@ import { Settings2, Plus, Trash2, UtensilsCrossed } from "lucide-react"
 import { addMenuItem } from "./actions"
 import { CategoryCombobox } from "./CategoryCombobox"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
 
 export function AddMenuItemForm({
   outlets,
@@ -20,6 +22,7 @@ export function AddMenuItemForm({
 }) {
   const [selectedOutletId, setSelectedOutletId] = useState("")
   const [ingredients, setIngredients] = useState<{ itemId: string, quantity: number }[]>([])
+  const [loading, setLoading] = useState(false)
   const listId = useId()
 
   const selectedOutlet = outlets.find(o => o.id === selectedOutletId)
@@ -60,8 +63,29 @@ export function AddMenuItemForm({
     setIngredients(newIngs)
   }
 
+  async function handleSubmit(formData: FormData) {
+    setLoading(true)
+    try {
+      formData.set("ingredients", JSON.stringify(ingredients))
+      await addMenuItem(formData)
+      toast.success("Menu item added successfully!", {
+        description: `${formData.get("name")} is now available on the POS.`,
+        icon: <UtensilsCrossed className="w-5 h-5 text-indigo-500" />
+      })
+      // Clear form
+      const form = document.querySelector('form') as HTMLFormElement
+      form?.reset()
+      setIngredients([])
+      setSelectedOutletId("")
+    } catch (error) {
+      toast.error("Failed to add menu item.")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
-    <form action={addMenuItem} className="space-y-6">
+    <form action={handleSubmit} className="space-y-6">
       {/* Hidden ingredients JSON */}
       <input type="hidden" name="ingredients" value={JSON.stringify(ingredients)} />
 
@@ -197,9 +221,10 @@ export function AddMenuItemForm({
 
       <Button
         type="submit"
-        className="w-full h-14 mt-6 text-lg font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_0_20px_-5px_rgba(99,102,241,0.5)] rounded-xl transition-all active:scale-[0.98]"
+        disabled={loading}
+        className="w-full h-14 mt-6 text-lg font-bold bg-indigo-600 hover:bg-indigo-500 text-white shadow-[0_0_20px_-5px_rgba(99,102,241,0.5)] rounded-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2"
       >
-        Add to Menu
+        {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Plus className="w-5 h-5" />} Add to Menu
       </Button>
     </form>
   )

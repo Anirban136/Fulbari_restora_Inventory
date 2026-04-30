@@ -14,6 +14,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { editVendor } from "./actions"
+import { toast } from "sonner"
+import { Loader2 } from "lucide-react"
 
 interface Vendor {
   id: string
@@ -25,11 +27,23 @@ interface Vendor {
 
 export function EditVendorDialog({ vendor }: { vendor: Vendor }) {
   const [open, setOpen] = useState(false)
+  const [loading, setLoading] = useState(false)
 
   async function handleSubmit(formData: FormData) {
-    formData.append("vendorId", vendor.id)
-    await editVendor(formData)
-    setOpen(false)
+    setLoading(true)
+    try {
+      formData.append("vendorId", vendor.id)
+      await editVendor(formData)
+      toast.success("Vendor updated successfully!", {
+        description: `Changes to ${vendor.name} have been saved.`,
+        icon: <Users className="w-5 h-5 text-blue-500" />
+      })
+      setOpen(false)
+    } catch (error) {
+      toast.error("Failed to update vendor.")
+    } finally {
+      setLoading(false)
+    }
   }
 
   return (
@@ -67,7 +81,9 @@ export function EditVendorDialog({ vendor }: { vendor: Vendor }) {
             <Label htmlFor={`edit_address_${vendor.id}`} className="text-xs font-bold text-slate-400 uppercase tracking-widest">Address</Label>
             <Input id={`edit_address_${vendor.id}`} name="address" defaultValue={vendor.address || ""} placeholder="Vendor location..." className="h-12 bg-foreground/5 border-border text-foreground placeholder:text-muted-foreground/40 rounded-xl focus-visible:ring-blue-500/50" />
           </div>
-          <Button type="submit" className="w-full h-14 text-lg font-bold bg-blue-600 hover:bg-blue-500 text-white mt-4 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all">Save Changes</Button>
+          <Button type="submit" disabled={loading} className="w-full h-14 text-lg font-bold bg-blue-600 hover:bg-blue-500 text-white mt-4 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all">
+            {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : "Save Changes"}
+          </Button>
         </form>
       </DialogContent>
     </Dialog>

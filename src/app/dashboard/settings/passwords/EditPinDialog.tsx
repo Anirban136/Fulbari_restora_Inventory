@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import { Edit2, KeyRound, CheckCircle2 } from "lucide-react"
 import { updateUserPinAdmin } from "./actions"
+import { toast } from "sonner"
 
 export function EditPinDialog({ userId, userName, currentPin }: { userId: string, userName: string, currentPin: string }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -23,10 +24,15 @@ export function EditPinDialog({ userId, userName, currentPin }: { userId: string
     try {
       await updateUserPinAdmin(userId, newPin)
       setSuccess(true)
+      toast.success("PIN reset successful", {
+        description: `New passcode applied for ${userName}.`,
+        icon: <KeyRound className="w-5 h-5 text-emerald-500" />
+      })
       setNewPin("")
       setTimeout(() => setIsOpen(false), 2000)
     } catch (err: any) {
       setError(err.message)
+      toast.error("Failed to update PIN")
     } finally {
       setLoading(false)
     }

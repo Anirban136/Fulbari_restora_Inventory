@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { adjustOutletStock } from "../inventory/actions"
 import { cn } from "@/lib/utils"
+import { toast } from "sonner"
 
 export function AdjustStockForm({ outlets, onSuccess }: { outlets: any[], onSuccess?: () => void }) {
   const [mode, setMode] = useState<'ADD' | 'REMOVE'>('REMOVE')
@@ -58,6 +59,13 @@ export function AdjustStockForm({ outlets, onSuccess }: { outlets: any[], onSucc
       formData.append("mode", mode)
 
       await adjustOutletStock(formData)
+      
+      const itemName = availableItems.find(i => i.id === selectedItemId)?.name || "Product"
+      toast.success("Stock adjustment successful!", {
+        description: `${mode === 'ADD' ? 'Added' : 'Removed'} ${quantity} units for ${itemName}.`,
+        icon: mode === 'ADD' ? <Plus className="w-5 h-5 text-emerald-500" /> : <Minus className="w-5 h-5 text-purple-500" />
+      })
+
       setMessage({ type: 'success', text: `Stock ${mode === 'ADD' ? 'added' : 'removed'} successfully` })
       setQuantity("")
       setSelectedItemId("")
@@ -70,7 +78,9 @@ export function AdjustStockForm({ outlets, onSuccess }: { outlets: any[], onSucc
       // Clear message after 3 seconds
       setTimeout(() => setMessage(null), 3000)
     } catch (error: any) {
-      setMessage({ type: 'error', text: error.message || "Adjustment failed" })
+      const errorMsg = error.message || "Adjustment failed"
+      setMessage({ type: 'error', text: errorMsg })
+      toast.error(errorMsg)
     } finally {
       setIsSubmitting(false)
     }
