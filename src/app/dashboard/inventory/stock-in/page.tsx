@@ -59,7 +59,11 @@ export default async function StockInPage() {
       <div className="space-y-8 relative z-10">
         
         {/* Bulk Stock Management Section */}
-        <BulkStockManager items={JSON.parse(JSON.stringify(items))} categories={Array.from(new Set(items.map((item: any) => item.category).filter(Boolean))) as string[]} />
+        <BulkStockManager 
+          items={JSON.parse(JSON.stringify(items))} 
+          categories={Array.from(new Set(items.map((item: any) => item.category).filter(Boolean))) as string[]} 
+          vendors={JSON.parse(JSON.stringify(vendors))}
+        />
 
         {/* Individual Stock Entry Section */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

@@ -17,6 +17,11 @@ export default async function GlobalCatalogPage() {
     orderBy: { name: 'asc' }
   })
 
+  const vendors = await prisma.vendor.findMany({
+    select: { id: true, name: true },
+    orderBy: { name: 'asc' }
+  })
+
   // Gather unique categories dynamically from the existing catalog
   const existingCategories = Array.from(new Set(items.map((item: any) => item.category).filter(Boolean))) as string[]
 
@@ -52,7 +57,7 @@ export default async function GlobalCatalogPage() {
       {/* Bulk Stock Management */}
       {(isOwner || isManager) && (
         <div className="w-full">
-          <BulkStockManager items={JSON.parse(JSON.stringify(items))} categories={existingCategories} />
+          <BulkStockManager items={JSON.parse(JSON.stringify(items))} categories={existingCategories} vendors={JSON.parse(JSON.stringify(vendors))} />
         </div>
       )}
 

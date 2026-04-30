@@ -75,7 +75,13 @@ export async function POST(req: NextRequest) {
 
         // Find or create vendor
         let vendor = null
-        if (vendorName) {
+        const selectedVendorId = row.selectedVendorId
+        
+        if (selectedVendorId) {
+          vendor = await prisma.vendor.findUnique({ where: { id: selectedVendorId } })
+        }
+        
+        if (!vendor && vendorName) {
           vendor = await prisma.vendor.findFirst({ where: { name: vendorName } })
           if (!vendor) {
             vendor = await prisma.vendor.create({
@@ -99,10 +105,11 @@ export async function POST(req: NextRequest) {
           stockDifference = isContainer ? addStock * itemPiecesPerBox : addStock
         }
 
+        const unitCost = isContainer && !isNaN(costPerUnit) ? costPerUnit / itemPiecesPerBox : costPerUnit
+
         if (stockDifference === 0) {
            // Maybe just an update of price/vendor
            // Let's do an update to ensure price is updated even if quantity is 0
-           const unitCost = isContainer && !isNaN(costPerUnit) ? costPerUnit / itemPiecesPerBox : costPerUnit
            await prisma.item.update({
              where: { id: item.id },
              data: {
@@ -124,7 +131,6 @@ export async function POST(req: NextRequest) {
            continue 
         }
 
-        const unitCost = isContainer && !isNaN(costPerUnit) ? costPerUnit / itemPiecesPerBox : costPerUnit
         const totalCost = (unitCost || 0) * Math.abs(stockDifference)
         const finalQuantity = currentStock + stockDifference
 
@@ -137,7 +143,7 @@ export async function POST(req: NextRequest) {
               quantity: Math.abs(stockDifference),
               vendorId: vendor?.id || null,
               userId: session.user.id,
-              notes: `[MANUAL-BULK: Row ${rowNum}] ${isAdjustment ? "TOTAL_UPDATE" : "ENTRY"}: Diff=${stockDifference > 0 ? "+" : ""}${stockDifference} ${unitType}. Old=${currentStock}, New=${finalQuantity}. Cost Info: UnitCost=${isNaN(unitCost) ? 0 : unitCost.toFixed(4)}. ${notes}`,
+              notes: `[MANUAL-BULK] ${isAdjustment ? "TOTAL_UPDATE" : "ENTRY"}: Diff=${stockDifference > 0 ? "+" : ""}${stockDifference} ${unitType}. Cost=${isNaN(unitCost) ? 0 : unitCost.toFixed(4)}. ${notes}`,
             }
           }),
           prisma.item.update({

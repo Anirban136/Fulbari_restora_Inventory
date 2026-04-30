@@ -13,6 +13,11 @@ interface CatalogItem {
   piecesPerBox: number | null
 }
 
-export function BulkStockManager({ items, categories }: { items: CatalogItem[], categories: string[] }) {
-  return <ManualBulkEntry existingItems={items} existingCategories={categories} />
+interface VendorInfo {
+  id: string
+  name: string
+}
+
+export function BulkStockManager({ items, categories, vendors = [] }: { items: CatalogItem[], categories: string[], vendors?: VendorInfo[] }) {
+  return <ManualBulkEntry existingItems={items} existingCategories={categories} existingVendors={vendors} />
 }

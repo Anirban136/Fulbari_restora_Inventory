@@ -1,9 +1,9 @@
 "use client"
 
-import { useState, useRef, useEffect, useCallback } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Plus, Trash2, Save, Loader2, Package, TrendingUp, CheckCircle2, AlertCircle, ChevronDown, Search, Sparkles } from "lucide-react"
+import { Plus, Trash2, Save, Loader2, Package, TrendingUp, CheckCircle2, AlertCircle, ChevronDown, Search, Sparkles, IndianRupee } from "lucide-react"
 import { toast } from "sonner"
 
 // ── Types ──────────────────────────────────────────────────────────────────
@@ -18,10 +18,15 @@ interface CatalogItem {
   piecesPerBox: number | null
 }
 
+interface VendorInfo {
+  id: string
+  name: string
+}
+
 interface ManualRow {
-  id: string // unique key for React
+  id: string
   itemName: string
-  selectedItemId: string | null // null = new item
+  selectedItemId: string | null
   category: string
   addStock: number | ""
   unitType: string
@@ -29,8 +34,10 @@ interface ManualRow {
   costPerUnit: number | ""
   sellPrice: number | ""
   vendorName: string
+  selectedVendorId: string | null
   notes: string
-  isNew: boolean // true = new product not in catalog
+  isNew: boolean
+  isNewVendor: boolean
 }
 
 interface ImportResult {
@@ -50,7 +57,6 @@ function SearchableDropdown({
   placeholder,
   allowNew,
   newLabel,
-  renderOption,
 }: {
   options: string[]
   value: string
@@ -58,7 +64,6 @@ function SearchableDropdown({
   placeholder: string
   allowNew?: boolean
   newLabel?: string
-  renderOption?: (opt: string) => React.ReactNode
 }) {
   const [open, setOpen] = useState(false)
   const [search, setSearch] = useState("")
@@ -71,12 +76,9 @@ function SearchableDropdown({
 
   const exactMatch = options.some(o => o.toLowerCase() === search.toLowerCase())
 
-  // Close on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false)
-      }
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
     }
     document.addEventListener("mousedown", handler)
     return () => document.removeEventListener("mousedown", handler)
@@ -125,9 +127,9 @@ function SearchableDropdown({
               <button
                 key={opt}
                 onClick={() => handleSelect(opt, false)}
-                className="w-full text-left px-3 py-2 text-sm hover:bg-primary/10 transition-colors flex items-center gap-2"
+                className="w-full text-left px-3 py-2 text-sm hover:bg-primary/10 transition-colors truncate"
               >
-                {renderOption ? renderOption(opt) : <span className="truncate">{opt}</span>}
+                {opt}
               </button>
             ))}
             {allowNew && search.trim() && !exactMatch && (
@@ -136,7 +138,7 @@ function SearchableDropdown({
                 className="w-full text-left px-3 py-2 text-sm hover:bg-emerald-500/10 transition-colors flex items-center gap-2 border-t border-border text-emerald-500 font-semibold"
               >
                 <Plus className="w-3.5 h-3.5" />
-                {newLabel || "Add new"}: "{search.trim()}"
+                {newLabel || "Add new"}: &ldquo;{search.trim()}&rdquo;
               </button>
             )}
           </div>
@@ -159,22 +161,34 @@ const makeRow = (): ManualRow => ({
   costPerUnit: "",
   sellPrice: "",
   vendorName: "",
+  selectedVendorId: null,
   notes: "",
   isNew: true,
+  isNewVendor: false,
 })
+
+// ── Cost Calculator ─────────────────────────────────────────────────────────
+function calcRowTotal(row: ManualRow): number {
+  const qty = Number(row.addStock) || 0
+  const cost = Number(row.costPerUnit) || 0
+  return qty * cost
+}
 
 // ── Main Component ─────────────────────────────────────────────────────────
 export function ManualBulkEntry({
   existingItems,
   existingCategories,
+  existingVendors,
 }: {
   existingItems: CatalogItem[]
   existingCategories: string[]
+  existingVendors: VendorInfo[]
 }) {
   const [rows, setRows] = useState<ManualRow[]>([makeRow()])
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [importResult, setImportResult] = useState<ImportResult | null>(null)
   const [allCategories, setAllCategories] = useState<string[]>(existingCategories)
+  const [allVendors, setAllVendors] = useState<string[]>(existingVendors.map(v => v.name))
 
   const itemNames = existingItems.map(i => i.name)
 
@@ -188,7 +202,7 @@ export function ManualBulkEntry({
     setRows(prev => prev.map(r => r.id === id ? { ...r, ...patch } : r))
   }
 
-  // When user picks an existing item from dropdown → auto-fill row fields
+  // Pick existing item → auto-fill
   const handleItemSelect = (rowId: string, itemName: string, isNew: boolean) => {
     if (isNew) {
       updateRow(rowId, { itemName, selectedItemId: null, isNew: true })
@@ -208,7 +222,7 @@ export function ManualBulkEntry({
     })
   }
 
-  // When user picks/creates a category
+  // Pick or create category
   const handleCategorySelect = (rowId: string, cat: string, isNew: boolean) => {
     updateRow(rowId, { category: cat })
     if (isNew && !allCategories.includes(cat)) {
@@ -216,13 +230,28 @@ export function ManualBulkEntry({
     }
   }
 
+  // Pick or create vendor
+  const handleVendorSelect = (rowId: string, vendorName: string, isNew: boolean) => {
+    const existingVendor = existingVendors.find(v => v.name === vendorName)
+    updateRow(rowId, {
+      vendorName,
+      selectedVendorId: existingVendor?.id || null,
+      isNewVendor: isNew,
+    })
+    if (isNew && !allVendors.includes(vendorName)) {
+      setAllVendors(prev => [...prev, vendorName])
+    }
+  }
+
+  // Grand total across all rows
+  const grandTotal = rows.reduce((sum, r) => sum + calcRowTotal(r), 0)
+
   const handleSubmit = async () => {
     const validRows = rows.filter(r => r.itemName.trim() !== "")
     if (validRows.length === 0) {
       toast.error("Please add at least one item with a name.")
       return
     }
-    // Check that all rows have addStock
     const missingQty = validRows.filter(r => !r.addStock || Number(r.addStock) <= 0)
     if (missingQty.length > 0) {
       toast.error(`${missingQty.length} row(s) are missing a quantity. Please fill "Add Stock" for every item.`)
@@ -289,143 +318,187 @@ export function ManualBulkEntry({
         </div>
       </div>
 
+      {/* Grand Total Banner */}
+      {grandTotal > 0 && (
+        <div className="flex items-center gap-3 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20">
+          <IndianRupee className="w-5 h-5 text-amber-500" />
+          <div>
+            <p className="text-[10px] font-black text-amber-500 uppercase tracking-wider">Estimated Total Cost</p>
+            <p className="text-2xl font-black text-foreground tracking-tighter">
+              ₹{grandTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+            </p>
+          </div>
+          <span className="ml-auto text-[10px] font-black text-amber-500/60 uppercase tracking-wider">
+            {rows.filter(r => r.vendorName).length > 0 ? "Will reflect in Vendor Ledger" : "No vendor assigned"}
+          </span>
+        </div>
+      )}
+
       {/* Row Cards */}
       <div className="space-y-4">
-        {rows.map((row, index) => (
-          <div
-            key={row.id}
-            className="glass-panel rounded-2xl border border-border/50 bg-background/50 backdrop-blur-sm p-4 sm:p-5 hover:border-primary/20 transition-all relative group"
-          >
-            {/* Row number badge + delete */}
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-lg border border-border">
-                  #{index + 1}
-                </span>
-                {row.isNew && row.itemName && (
-                  <span className="text-[10px] font-semibold text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 flex items-center gap-1">
-                    <Sparkles className="w-3 h-3" /> NEW PRODUCT
+        {rows.map((row, index) => {
+          const rowTotal = calcRowTotal(row)
+          return (
+            <div
+              key={row.id}
+              className="glass-panel rounded-2xl border border-border/50 bg-background/50 backdrop-blur-sm p-4 sm:p-5 hover:border-primary/20 transition-all relative group"
+            >
+              {/* Row header badges */}
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-[10px] font-black text-muted-foreground bg-muted/50 px-2.5 py-1 rounded-lg border border-border">
+                    #{index + 1}
                   </span>
-                )}
-                {!row.isNew && row.itemName && (
-                  <span className="text-[10px] font-semibold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-lg border border-blue-500/20">
-                    EXISTING · Stock: {existingItems.find(i => i.name === row.itemName)?.currentStock ?? 0}
-                  </span>
-                )}
-              </div>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => handleRemoveRow(row.id)}
-                disabled={rows.length === 1}
-                className="h-8 w-8 text-red-500/40 hover:text-red-500 hover:bg-red-500/10 disabled:opacity-20"
-              >
-                <Trash2 className="w-4 h-4" />
-              </Button>
-            </div>
-
-            {/* Row 1: Item + Category + Unit */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Product *</label>
-                <SearchableDropdown
-                  options={itemNames}
-                  value={row.itemName}
-                  onChange={(val, isNew) => handleItemSelect(row.id, val, isNew)}
-                  placeholder="Search or add product..."
-                  allowNew
-                  newLabel="Add new product"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Category {row.isNew ? "*" : ""}</label>
-                <SearchableDropdown
-                  options={allCategories}
-                  value={row.category}
-                  onChange={(val, isNew) => handleCategorySelect(row.id, val, isNew)}
-                  placeholder="Select or create..."
-                  allowNew
-                  newLabel="Create category"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Unit</label>
-                <select
-                  value={row.unitType}
-                  onChange={(e) => updateRow(row.id, { unitType: e.target.value })}
-                  className="w-full h-10 px-3 rounded-xl border border-input bg-background text-sm font-medium"
+                  {row.isNew && row.itemName && (
+                    <span className="text-[10px] font-semibold text-emerald-500 bg-emerald-500/10 px-2.5 py-1 rounded-lg border border-emerald-500/20 flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" /> NEW PRODUCT
+                    </span>
+                  )}
+                  {!row.isNew && row.itemName && (
+                    <span className="text-[10px] font-semibold text-blue-400 bg-blue-500/10 px-2.5 py-1 rounded-lg border border-blue-500/20">
+                      EXISTING · Stock: {existingItems.find(i => i.name === row.itemName)?.currentStock ?? 0}
+                    </span>
+                  )}
+                  {row.isNewVendor && row.vendorName && (
+                    <span className="text-[10px] font-semibold text-purple-400 bg-purple-500/10 px-2.5 py-1 rounded-lg border border-purple-500/20 flex items-center gap-1">
+                      <Sparkles className="w-3 h-3" /> NEW VENDOR
+                    </span>
+                  )}
+                  {rowTotal > 0 && (
+                    <span className="text-[10px] font-black text-amber-500 bg-amber-500/10 px-2.5 py-1 rounded-lg border border-amber-500/20 flex items-center gap-1">
+                      <IndianRupee className="w-3 h-3" /> ₹{rowTotal.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                    </span>
+                  )}
+                </div>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handleRemoveRow(row.id)}
+                  disabled={rows.length === 1}
+                  className="h-8 w-8 text-red-500/40 hover:text-red-500 hover:bg-red-500/10 disabled:opacity-20"
                 >
-                  <option value="pcs">Pieces (pcs)</option>
-                  <option value="kg">Kilogram (kg)</option>
-                  <option value="gm">Gram (gm)</option>
-                  <option value="liter">Litre (l)</option>
-                  <option value="ml">Millilitre (ml)</option>
-                  <option value="packet">Packet</option>
-                  <option value="box">Box</option>
-                  <option value="plate">Plate</option>
-                </select>
+                  <Trash2 className="w-4 h-4" />
+                </Button>
               </div>
-            </div>
 
-            {/* Row 2: Qty + Buy + Sell + Multiplier + Vendor */}
-            <div className={`grid gap-3 ${showMultiplier(row.unitType) ? "grid-cols-2 sm:grid-cols-5" : "grid-cols-2 sm:grid-cols-4"}`}>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-emerald-500 uppercase tracking-wider">Add Stock *</label>
-                <Input
-                  type="number"
-                  placeholder="Qty"
-                  value={row.addStock}
-                  onChange={(e) => updateRow(row.id, { addStock: e.target.value === "" ? "" : Number(e.target.value) })}
-                  className="h-10 bg-emerald-500/5 border-emerald-500/20 text-emerald-500 font-bold rounded-xl placeholder:text-emerald-500/30"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Buy Price (₹)</label>
-                <Input
-                  type="number"
-                  placeholder="Cost"
-                  value={row.costPerUnit}
-                  onChange={(e) => updateRow(row.id, { costPerUnit: e.target.value === "" ? "" : Number(e.target.value) })}
-                  className="h-10 rounded-xl"
-                />
-              </div>
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Sell Price (₹)</label>
-                <Input
-                  type="number"
-                  placeholder="Sell"
-                  value={row.sellPrice}
-                  onChange={(e) => updateRow(row.id, { sellPrice: e.target.value === "" ? "" : Number(e.target.value) })}
-                  className="h-10 rounded-xl"
-                />
-              </div>
-              {showMultiplier(row.unitType) && (
+              {/* Row 1: Item + Category + Unit */}
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-3">
                 <div className="space-y-1.5">
-                  <label className="text-[10px] font-black text-blue-400 uppercase tracking-wider">Pcs / {row.unitType}</label>
-                  <Input
-                    type="number"
-                    placeholder="e.g. 20"
-                    value={row.multiplier}
-                    onChange={(e) => updateRow(row.id, { multiplier: e.target.value === "" ? "" : Number(e.target.value) })}
-                    className="h-10 bg-blue-500/5 border-blue-500/20 text-blue-400 font-bold rounded-xl placeholder:text-blue-400/30"
+                  <label className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Product *</label>
+                  <SearchableDropdown
+                    options={itemNames}
+                    value={row.itemName}
+                    onChange={(val, isNew) => handleItemSelect(row.id, val, isNew)}
+                    placeholder="Search or add product..."
+                    allowNew
+                    newLabel="Add new product"
                   />
                 </div>
-              )}
-              <div className="space-y-1.5">
-                <label className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Vendor</label>
-                <Input
-                  placeholder="Vendor name"
-                  value={row.vendorName}
-                  onChange={(e) => updateRow(row.id, { vendorName: e.target.value })}
-                  className="h-10 rounded-xl"
-                />
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Category {row.isNew ? "*" : ""}</label>
+                  <SearchableDropdown
+                    options={allCategories}
+                    value={row.category}
+                    onChange={(val, isNew) => handleCategorySelect(row.id, val, isNew)}
+                    placeholder="Select or create..."
+                    allowNew
+                    newLabel="Create category"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Unit</label>
+                  <select
+                    value={row.unitType}
+                    onChange={(e) => updateRow(row.id, { unitType: e.target.value })}
+                    className="w-full h-10 px-3 rounded-xl border border-input bg-background text-sm font-medium"
+                  >
+                    <option value="pcs">Pieces (pcs)</option>
+                    <option value="kg">Kilogram (kg)</option>
+                    <option value="gm">Gram (gm)</option>
+                    <option value="liter">Litre (l)</option>
+                    <option value="ml">Millilitre (ml)</option>
+                    <option value="packet">Packet</option>
+                    <option value="box">Box</option>
+                    <option value="plate">Plate</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Row 2: Qty + Buy + Sell + Multiplier */}
+              <div className={`grid gap-3 mb-3 ${showMultiplier(row.unitType) ? "grid-cols-2 sm:grid-cols-4" : "grid-cols-2 sm:grid-cols-3"}`}>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-emerald-500 uppercase tracking-wider">Add Stock *</label>
+                  <Input
+                    type="number"
+                    placeholder="Qty"
+                    value={row.addStock}
+                    onChange={(e) => updateRow(row.id, { addStock: e.target.value === "" ? "" : Number(e.target.value) })}
+                    className="h-10 bg-emerald-500/5 border-emerald-500/20 text-emerald-500 font-bold rounded-xl placeholder:text-emerald-500/30"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Buy Price (₹)</label>
+                  <Input
+                    type="number"
+                    placeholder="Cost per unit"
+                    value={row.costPerUnit}
+                    onChange={(e) => updateRow(row.id, { costPerUnit: e.target.value === "" ? "" : Number(e.target.value) })}
+                    className="h-10 rounded-xl"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Sell Price (₹)</label>
+                  <Input
+                    type="number"
+                    placeholder="Sell per unit"
+                    value={row.sellPrice}
+                    onChange={(e) => updateRow(row.id, { sellPrice: e.target.value === "" ? "" : Number(e.target.value) })}
+                    className="h-10 rounded-xl"
+                  />
+                </div>
+                {showMultiplier(row.unitType) && (
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-black text-blue-400 uppercase tracking-wider">Pcs / {row.unitType}</label>
+                    <Input
+                      type="number"
+                      placeholder="e.g. 20"
+                      value={row.multiplier}
+                      onChange={(e) => updateRow(row.id, { multiplier: e.target.value === "" ? "" : Number(e.target.value) })}
+                      className="h-10 bg-blue-500/5 border-blue-500/20 text-blue-400 font-bold rounded-xl placeholder:text-blue-400/30"
+                    />
+                  </div>
+                )}
+              </div>
+
+              {/* Row 3: Vendor + Notes */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-purple-400 uppercase tracking-wider">Vendor</label>
+                  <SearchableDropdown
+                    options={allVendors}
+                    value={row.vendorName}
+                    onChange={(val, isNew) => handleVendorSelect(row.id, val, isNew)}
+                    placeholder="Select or add vendor..."
+                    allowNew
+                    newLabel="Create vendor"
+                  />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-muted-foreground uppercase tracking-wider">Notes / Invoice</label>
+                  <Input
+                    placeholder="Invoice ref, delivery note..."
+                    value={row.notes}
+                    onChange={(e) => updateRow(row.id, { notes: e.target.value })}
+                    className="h-10 rounded-xl text-xs"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          )
+        })}
       </div>
 
-      {/* Quick Add Row Button at bottom */}
+      {/* Quick Add */}
       <button
         onClick={handleAddRow}
         className="w-full py-3 border-2 border-dashed border-border/50 rounded-2xl text-muted-foreground hover:border-primary/30 hover:text-primary transition-all flex items-center justify-center gap-2 text-sm font-medium"
@@ -434,7 +507,7 @@ export function ManualBulkEntry({
         Add Another Item
       </button>
 
-      {/* Results Section */}
+      {/* Results */}
       {importResult && (
         <div className="glass-panel p-6 rounded-3xl border-border/50 bg-background/50 backdrop-blur-sm">
           <div className="space-y-4">
@@ -470,6 +543,12 @@ export function ManualBulkEntry({
                       <div>
                         <span className="font-medium text-emerald-600">#{result.rowNum}</span> {result.itemName}
                         <span className="text-muted-foreground"> → {result.quantity} {result.unitType}</span>
+                        {result.vendor !== "No Vendor" && (
+                          <span className="text-purple-400 ml-1">· {result.vendor}</span>
+                        )}
+                        {Number(result.totalCost) > 0 && (
+                          <span className="text-amber-500 ml-1 font-semibold">· ₹{result.totalCost}</span>
+                        )}
                       </div>
                       <span className="text-muted-foreground text-[10px]">{result.status}</span>
                     </div>
