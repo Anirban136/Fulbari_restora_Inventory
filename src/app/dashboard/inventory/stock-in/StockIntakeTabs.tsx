@@ -19,66 +19,76 @@ export function StockIntakeTabs({ singleForm, bulkManager }: StockIntakeTabsProp
         <button
           onClick={() => setActiveTab('single')}
           className={cn(
-            "relative overflow-hidden group p-6 rounded-[2rem] border-2 transition-all duration-500 text-left flex items-center justify-between",
+            "relative overflow-hidden group p-8 rounded-[2.5rem] border-2 transition-all duration-500 text-left flex items-center justify-between",
             activeTab === 'single'
-              ? "bg-primary/10 border-primary shadow-[0_0_30px_rgba(16,185,129,0.1)]"
-              : "bg-background border-border hover:border-primary/30"
+              ? "bg-blue-500/10 border-blue-500 shadow-[0_20px_50px_-12px_rgba(59,130,246,0.3)]"
+              : "bg-background border-border hover:border-blue-500/30 shadow-sm"
           )}
         >
-          <div className="relative z-10 flex items-center gap-4">
+          <div className="relative z-10 flex items-center gap-6">
             <div className={cn(
-              "p-4 rounded-2xl border transition-colors",
-              activeTab === 'single' ? "bg-primary text-white border-primary" : "bg-muted text-muted-foreground border-border group-hover:border-primary/50"
+              "p-5 rounded-2xl border transition-all duration-500 shadow-lg",
+              activeTab === 'single' ? "bg-blue-500 text-white border-blue-500 scale-110" : "bg-muted text-muted-foreground border-border group-hover:border-blue-500/50"
             )}>
-              <PackagePlus className="w-6 h-6" />
+              <PackagePlus className="w-8 h-8" />
             </div>
             <div>
-              <h4 className="text-xl font-black text-foreground uppercase tracking-tighter">Stock in One Product</h4>
-              <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest opacity-60">Log a single item delivery</p>
+              <h4 className={cn(
+                "text-2xl font-black uppercase tracking-tighter transition-colors",
+                activeTab === 'single' ? "text-blue-600 dark:text-blue-400" : "text-foreground"
+              )}>Stock in One</h4>
+              <p className="text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em] opacity-60">Precision Log Entry</p>
             </div>
           </div>
-          <ArrowRight className={cn(
-            "w-6 h-6 transition-all duration-500",
-            activeTab === 'single' ? "text-primary translate-x-0 opacity-100" : "text-muted-foreground -translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-40"
-          )} />
+          <div className={cn(
+            "h-12 w-12 rounded-full border-2 flex items-center justify-center transition-all duration-500",
+            activeTab === 'single' ? "bg-blue-500 border-blue-500 text-white rotate-0" : "border-border text-muted-foreground -rotate-45 opacity-20 group-hover:opacity-100 group-hover:rotate-0 group-hover:border-blue-500/50"
+          )}>
+            <ArrowRight className="w-6 h-6" />
+          </div>
           
           {/* Decorative background circle */}
           <div className={cn(
-            "absolute -right-8 -bottom-8 w-32 h-32 rounded-full transition-all duration-700 opacity-10",
-            activeTab === 'single' ? "bg-primary scale-150" : "bg-muted scale-100"
+            "absolute -right-8 -bottom-8 w-40 h-40 rounded-full transition-all duration-1000 blur-3xl opacity-20",
+            activeTab === 'single' ? "bg-blue-500 scale-150" : "bg-muted scale-0"
           )} />
         </button>
 
         <button
           onClick={() => setActiveTab('bulk')}
           className={cn(
-            "relative overflow-hidden group p-6 rounded-[2rem] border-2 transition-all duration-500 text-left flex items-center justify-between",
+            "relative overflow-hidden group p-8 rounded-[2.5rem] border-2 transition-all duration-500 text-left flex items-center justify-between",
             activeTab === 'bulk'
-              ? "bg-primary/10 border-primary shadow-[0_0_30px_rgba(16,185,129,0.1)]"
-              : "bg-background border-border hover:border-primary/30"
+              ? "bg-emerald-500/10 border-emerald-500 shadow-[0_20px_50px_-12px_rgba(16,185,129,0.3)]"
+              : "bg-background border-border hover:border-emerald-500/30 shadow-sm"
           )}
         >
-          <div className="relative z-10 flex items-center gap-4">
+          <div className="relative z-10 flex items-center gap-6">
             <div className={cn(
-              "p-4 rounded-2xl border transition-colors",
-              activeTab === 'bulk' ? "bg-primary text-white border-primary" : "bg-muted text-muted-foreground border-border group-hover:border-primary/50"
+              "p-5 rounded-2xl border transition-all duration-500 shadow-lg",
+              activeTab === 'bulk' ? "bg-emerald-500 text-white border-emerald-500 scale-110" : "bg-muted text-muted-foreground border-border group-hover:border-emerald-500/50"
             )}>
-              <LayoutGrid className="w-6 h-6" />
+              <LayoutGrid className="w-8 h-8" />
             </div>
             <div>
-              <h4 className="text-xl font-black text-foreground uppercase tracking-tighter">Stock in Bulk</h4>
-              <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest opacity-60">Log multiple items at once</p>
+              <h4 className={cn(
+                "text-2xl font-black uppercase tracking-tighter transition-colors",
+                activeTab === 'bulk' ? "text-emerald-600 dark:text-emerald-400" : "text-foreground"
+              )}>Stock in Bulk</h4>
+              <p className="text-muted-foreground text-[10px] font-black uppercase tracking-[0.2em] opacity-60">High-Speed Grid Entry</p>
             </div>
           </div>
-          <ArrowRight className={cn(
-            "w-6 h-6 transition-all duration-500",
-            activeTab === 'bulk' ? "text-primary translate-x-0 opacity-100" : "text-muted-foreground -translate-x-4 opacity-0 group-hover:translate-x-0 group-hover:opacity-40"
-          )} />
+          <div className={cn(
+            "h-12 w-12 rounded-full border-2 flex items-center justify-center transition-all duration-500",
+            activeTab === 'bulk' ? "bg-emerald-500 border-emerald-500 text-white rotate-0" : "border-border text-muted-foreground -rotate-45 opacity-20 group-hover:opacity-100 group-hover:rotate-0 group-hover:border-emerald-500/50"
+          )}>
+            <ArrowRight className="w-6 h-6" />
+          </div>
 
           {/* Decorative background circle */}
           <div className={cn(
-            "absolute -right-8 -bottom-8 w-32 h-32 rounded-full transition-all duration-700 opacity-10",
-            activeTab === 'bulk' ? "bg-primary scale-150" : "bg-muted scale-100"
+            "absolute -right-8 -bottom-8 w-40 h-40 rounded-full transition-all duration-1000 blur-3xl opacity-20",
+            activeTab === 'bulk' ? "bg-emerald-500 scale-150" : "bg-muted scale-0"
           )} />
         </button>
       </div>
@@ -86,13 +96,16 @@ export function StockIntakeTabs({ singleForm, bulkManager }: StockIntakeTabsProp
       {/* Forms Display */}
       <div className="transition-all duration-500">
         {!activeTab && (
-          <div className="glass-panel p-12 rounded-[2.5rem] border-dashed border-2 border-border/50 bg-foreground/[0.01] flex flex-col items-center justify-center text-center space-y-4 animate-in fade-in zoom-in-95 duration-500">
-            <div className="p-6 bg-muted/30 rounded-full">
-              <PackagePlus className="w-12 h-12 text-muted-foreground/20" />
+          <div className="glass-panel p-20 rounded-[3.5rem] border-4 border-dashed border-border/50 bg-foreground/[0.01] flex flex-col items-center justify-center text-center space-y-6 animate-in fade-in zoom-in-95 duration-700 shadow-inner">
+            <div className="relative">
+              <div className="absolute -inset-4 bg-primary/20 rounded-full blur-2xl animate-pulse" />
+              <div className="relative p-8 bg-background rounded-3xl border border-border shadow-xl">
+                <PackagePlus className="w-16 h-16 text-primary/40" />
+              </div>
             </div>
             <div>
-              <h5 className="text-lg font-black text-foreground/40 uppercase tracking-widest">Select Intake Method</h5>
-              <p className="text-muted-foreground/30 text-sm font-medium">Choose how you want to log your stock above</p>
+              <h5 className="text-2xl font-black text-foreground/40 uppercase tracking-[0.2em]">Deployment Interface</h5>
+              <p className="text-muted-foreground/30 text-sm font-bold uppercase tracking-widest mt-2">Initialize intake sequence by selecting a method above</p>
             </div>
           </div>
         )}
