@@ -54,13 +54,6 @@ export default async function GlobalCatalogPage() {
         </div>
       </header>
 
-      {/* Bulk Stock Management */}
-      {(isOwner || isManager) && (
-        <div className="w-full">
-          <BulkStockManager items={JSON.parse(JSON.stringify(items))} categories={existingCategories} vendors={JSON.parse(JSON.stringify(vendors))} />
-        </div>
-      )}
-
       {/* Main Dynamic Table Feed (Client Component) */}
       <div className="w-full">
         <GlobalCatalogFeed 
