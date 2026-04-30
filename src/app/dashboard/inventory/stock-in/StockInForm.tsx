@@ -81,10 +81,10 @@ export function StockInForm({ items, vendors }: { items: Item[], vendors: Vendor
       {/* Decorative background glow */}
       <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 via-emerald-500/10 to-blue-500/20 rounded-[3rem] blur-2xl opacity-50 group-hover:opacity-100 transition-opacity duration-1000 -z-10" />
 
-      <div className="glass-panel p-8 sm:p-10 rounded-[3rem] border-2 border-border/50 bg-background/40 backdrop-blur-3xl shadow-2xl overflow-hidden relative">
+      <div className="glass-panel p-8 sm:p-10 rounded-[3rem] border-2 border-border/50 bg-background/40 backdrop-blur-3xl shadow-2xl relative">
         
         {/* Colorful top bar */}
-        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-emerald-500 to-blue-500 opacity-80" />
+        <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-emerald-500 to-blue-500 opacity-80 rounded-t-[3rem]" />
 
         <div className="flex items-center gap-5 mb-10">
           <div className="h-14 w-14 bg-gradient-to-br from-primary to-emerald-600 rounded-2xl flex items-center justify-center border border-white/20 shadow-[0_10px_30px_-5px_rgba(16,185,129,0.4)]">
@@ -116,8 +116,8 @@ export function StockInForm({ items, vendors }: { items: Item[], vendors: Vendor
           )}
 
           {/* Section 1: Item Identity (Blue/Purple theme) */}
-          <div className="space-y-6 p-6 rounded-[2rem] bg-blue-500/[0.03] border border-blue-500/10 relative overflow-hidden">
-            <div className="absolute -right-4 -top-4 opacity-5">
+          <div className="space-y-6 p-6 rounded-[2rem] bg-blue-500/[0.03] border border-blue-500/10 relative">
+            <div className="absolute -right-4 -top-4 opacity-5 overflow-hidden w-24 h-24 pointer-events-none">
                <Tag className="w-20 h-20 text-blue-500" />
             </div>
             
@@ -171,7 +171,7 @@ export function StockInForm({ items, vendors }: { items: Item[], vendors: Vendor
           </div>
 
           {/* Section 2: Supply Chain (Purple theme) */}
-          <div className="space-y-4 p-6 rounded-[2rem] bg-purple-500/[0.03] border border-purple-500/10 relative overflow-hidden">
+          <div className="space-y-4 p-6 rounded-[2rem] bg-purple-500/[0.03] border border-purple-500/10 relative">
             <div className="absolute -right-4 -top-4 opacity-5">
                <Truck className="w-20 h-20 text-purple-500" />
             </div>
