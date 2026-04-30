@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef } from "react"
+import { ManualBulkEntry } from "./ManualBulkEntry"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { 
@@ -40,6 +41,7 @@ export function BulkStockManager() {
   const [importResult, setImportResult] = useState<BulkImportResult | null>(null)
   const [dragActive, setDragActive] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const [activeTab, setActiveTab] = useState<'excel' | 'manual'>('excel')
 
   // Export Excel template
   const handleExportTemplate = async () => {
@@ -197,12 +199,31 @@ export function BulkStockManager() {
             Bulk Stock Management
           </h3>
           <p className="text-muted-foreground text-sm mt-1">
-            Import multiple items at once using Excel templates
+            Import multiple items at once using Excel templates or via manual grid entry
           </p>
         </div>
       </div>
 
-      {/* Action Cards */}
+      <div className="flex gap-2 border-b border-border/50 pb-2 mb-6">
+        <Button 
+          variant={activeTab === 'excel' ? 'default' : 'ghost'} 
+          onClick={() => setActiveTab('excel')}
+          className={activeTab === 'excel' ? 'bg-primary text-primary-foreground' : ''}
+        >
+          Excel Import
+        </Button>
+        <Button 
+          variant={activeTab === 'manual' ? 'default' : 'ghost'} 
+          onClick={() => setActiveTab('manual')}
+          className={activeTab === 'manual' ? 'bg-primary text-primary-foreground' : ''}
+        >
+          Manual Grid Entry
+        </Button>
+      </div>
+
+      {activeTab === 'excel' ? (
+        <>
+          {/* Action Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         
         {/* Export Template Card */}
@@ -377,6 +398,10 @@ export function BulkStockManager() {
             )}
           </div>
         </div>
+      )}
+        </>
+      ) : (
+        <ManualBulkEntry />
       )}
     </div>
   )
