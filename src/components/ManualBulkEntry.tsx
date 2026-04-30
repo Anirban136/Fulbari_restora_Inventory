@@ -410,12 +410,28 @@ export function ManualBulkEntry({
                </div>
              ))}
              
-             <div className="flex flex-col sm:flex-row gap-4 mt-8">
+             {/* Desktop Buttons */}
+             <div className="hidden sm:flex flex-col sm:flex-row gap-4 mt-8 animate-in fade-in duration-500">
                 <Button onClick={() => openEditor()} className="flex-1 h-16 rounded-[2rem] bg-background border-2 border-dashed border-primary/20 text-primary hover:bg-primary/5 hover:border-primary/40 font-black uppercase tracking-widest transition-all active:scale-95">
                    <Plus className="w-6 h-6 mr-3" /> Add Another Item
                 </Button>
                 <Button onClick={handleSubmitBatch} disabled={isSubmitting} className="flex-1 h-16 rounded-[2rem] bg-primary hover:bg-emerald-500 text-white font-black uppercase tracking-widest shadow-xl shadow-primary/20 transition-all active:scale-95">
                    {isSubmitting ? <Loader2 className="w-6 h-6 animate-spin mr-3" /> : <Save className="w-6 h-6 mr-3" />} Sync Basket to Inventory
+                </Button>
+             </div>
+
+             {/* Clear Basket Option (Subtle Cancel) */}
+             <div className="flex justify-center mt-6">
+                <Button 
+                  variant="ghost" 
+                  onClick={() => {
+                    if (confirm("Are you sure you want to clear the entire intake basket?")) {
+                      setRows([])
+                    }
+                  }}
+                  className="text-[10px] font-black uppercase tracking-[0.2em] opacity-30 hover:opacity-100 text-red-500 hover:bg-red-500/10 flex items-center gap-2"
+                >
+                   <X className="w-4 h-4" /> Cancel Batch / Clear Basket
                 </Button>
              </div>
           </div>
@@ -454,7 +470,7 @@ export function ManualBulkEntry({
         </div>
       )}
 
-      {/* --- MOBILE STEPPED EDITOR (FULL SCREEN OVERLAY) --- */}
+      {/* --- STEPPED EDITOR (MODAL/OVERLAY) --- */}
       {editingRow && (
         <div className="fixed inset-0 z-[999] bg-background flex flex-col animate-in slide-in-from-bottom duration-500 md:rounded-[3rem] md:inset-4 md:shadow-[0_0_100px_rgba(0,0,0,0.5)] md:border-2 md:border-border/50 overflow-hidden">
            {/* Header */}
@@ -484,7 +500,7 @@ export function ManualBulkEntry({
            </div>
 
            {/* Editor Content */}
-           <div className="flex-1 overflow-y-auto p-8 space-y-12">
+           <div className="flex-1 overflow-y-auto p-8 space-y-12 pb-32">
               
               {/* STEP 1: Product Identity */}
               {editorStep === 1 && (
@@ -508,13 +524,16 @@ export function ManualBulkEntry({
                       className="h-20 text-xl border-blue-500/20 shadow-lg"
                    />
 
-                   {editingRow.itemName && (
-                     <div className="flex justify-end">
+                   <div className="flex justify-between items-center">
+                      <Button variant="ghost" onClick={closeEditor} className="font-black uppercase tracking-widest text-xs opacity-40 hover:opacity-100 text-red-500">
+                         Cancel Editor
+                      </Button>
+                      {editingRow.itemName && (
                         <Button onClick={() => setEditorStep(2)} className="h-14 px-8 rounded-2xl bg-blue-500 hover:bg-blue-600 text-white font-black uppercase tracking-widest shadow-lg shadow-blue-500/20">
                            Next Step <ArrowRight className="w-5 h-5 ml-2" />
                         </Button>
-                     </div>
-                   )}
+                      )}
+                   </div>
                 </div>
               )}
 
@@ -725,22 +744,24 @@ export function ManualBulkEntry({
         </div>
       )}
 
-      {/* --- FLOATING MOBILE ACTION --- */}
+      {/* --- FLOATING MOBILE ACTION BAR --- */}
       {rows.length > 0 && !editingRow && (
-        <div className="fixed bottom-10 left-1/2 -translate-x-1/2 z-[100] md:hidden w-full px-6 flex flex-col gap-4">
-           <Button 
-             onClick={() => openEditor()}
-             className="h-16 w-full rounded-full bg-background border-2 border-primary/40 text-primary font-black uppercase tracking-widest text-xs shadow-2xl backdrop-blur-xl"
-           >
-             <Plus className="w-6 h-6 mr-3" /> Add Item
-           </Button>
+        <div className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] md:hidden w-[90%] flex flex-col gap-3 animate-in slide-in-from-bottom duration-700">
+           <div className="flex gap-3">
+              <Button 
+                onClick={() => openEditor()}
+                className="h-16 flex-1 rounded-2xl bg-background border-2 border-primary/40 text-primary font-black uppercase tracking-widest text-[10px] shadow-2xl backdrop-blur-xl transition-all active:scale-95"
+              >
+                <Plus className="w-5 h-5 mr-2" /> Add Next Product
+              </Button>
+           </div>
            <Button 
              onClick={handleSubmitBatch} 
              disabled={isSubmitting}
-             className="h-20 w-full rounded-full bg-primary hover:bg-emerald-500 text-white font-black uppercase tracking-widest text-sm shadow-[0_20px_50px_rgba(16,185,129,0.5)] active:scale-95 transition-all flex items-center justify-center gap-4"
+             className="h-20 w-full rounded-3xl bg-primary hover:bg-emerald-500 text-white font-black uppercase tracking-widest text-sm shadow-[0_20px_60px_rgba(16,185,129,0.6)] active:scale-95 transition-all flex items-center justify-center gap-4"
            >
-             {isSubmitting ? <Loader2 className="w-7 h-7 animate-spin" /> : <Save className="w-7 h-7" />} 
-             Sync {rows.length} Items
+             {isSubmitting ? <Loader2 className="w-8 h-8 animate-spin" /> : <Save className="w-8 h-8" />} 
+             Finalize & Sync {rows.length} Items
            </Button>
         </div>
       )}
@@ -762,8 +783,8 @@ function ArrowDown(props: any) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="m12 5 7 7-7 7" />
-      <path d="M5 12h14" />
+      <path d="M12 5v14" />
+      <path d="m19 12-7 7-7-7" />
     </svg>
   )
 }
@@ -782,8 +803,8 @@ function ArrowUp(props: any) {
       strokeLinecap="round"
       strokeLinejoin="round"
     >
-      <path d="m12 19-7-7 7-7" />
-      <path d="M19 12H5" />
+      <path d="M12 19V5" />
+      <path d="m5 12 7-7 7 7" />
     </svg>
   )
 }
