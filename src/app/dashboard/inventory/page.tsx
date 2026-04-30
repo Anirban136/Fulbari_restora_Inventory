@@ -52,7 +52,7 @@ export default async function GlobalCatalogPage() {
       {/* Bulk Stock Management */}
       {(isOwner || isManager) && (
         <div className="w-full">
-          <BulkStockManager />
+          <BulkStockManager items={JSON.parse(JSON.stringify(items))} categories={existingCategories} />
         </div>
       )}
 
