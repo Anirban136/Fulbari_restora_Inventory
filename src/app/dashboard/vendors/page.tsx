@@ -3,29 +3,14 @@ export const dynamic = 'force-dynamic'
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import Link from "next/link"
-import { Users, Truck, IndianRupee, Package, Search, Phone, MapPin, FileText, ClipboardList, Activity, History, ArrowRight, AlertTriangle, ShieldCheck } from "lucide-react"
-import { getISTMonthBounds, formatDateIST, formatTimeIST } from "@/lib/utils"
+import { Truck, IndianRupee, Phone, MapPin, FileText, History, AlertTriangle, ShieldCheck } from "lucide-react"
 import { AddVendorDialog } from "../inventory/AddVendorDialog"
 import { EditVendorDialog } from "../inventory/EditVendorDialog"
 import { PayVendorDialog } from "../inventory/PayVendorDialog"
-import { deleteVendor } from "../inventory/actions"
 import { VendorDeleteButton } from "./VendorDeleteButton"
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog"
-import { Button } from "@/components/ui/button"
-import { Trash2 } from "lucide-react"
-import {
-  Table,
   TableBody,
   TableCell,
-  TableHead,
-  TableHeader,
   TableRow,
 } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
@@ -47,22 +32,17 @@ export default async function VendorsPage() {
     )
   }
 
-  const { startUTC, endUTC } = getISTMonthBounds()
-
-  // Fetch vendors with their stock-in logs AND payments for the current month
+  // Fetch vendors with their complete stock-in logs and payments so the
+  // list totals stay in sync with each vendor's detail ledger.
   const vendors = await prisma.vendor.findMany({
     include: {
       Ledger: {
         where: {
-          type: { in: ["STOCK_IN", "WASTE"] },
-          createdAt: { gte: startUTC, lte: endUTC }
+          type: { in: ["STOCK_IN", "WASTE"] }
         },
         include: { Item: true }
       },
       Payments: {
-        where: {
-          createdAt: { gte: startUTC, lte: endUTC }
-        },
         include: { User: true },
         orderBy: { createdAt: 'desc' }
       }
@@ -70,12 +50,12 @@ export default async function VendorsPage() {
     orderBy: { name: 'asc' }
   })
 
-  // Calculate monthly stats for each vendor
+  // Calculate all-time stats for each vendor, matching the vendor detail ledger.
   const vendorStats = vendors.map((vendor: any) => {
-    let monthlyCollection = 0
-    let monthlyOwed = 0
-    let monthlyWasteQty = 0
-    let monthlyWasteValue = 0
+    let totalCollection = 0
+    let totalOwed = 0
+    let totalWasteQty = 0
+    let totalWasteValue = 0
 
     vendor.Ledger.forEach((log: any) => {
       let transactionCost = log.Item.costPerUnit || 0
@@ -85,29 +65,29 @@ export default async function VendorsPage() {
       }
 
       if (log.type === "STOCK_IN") {
-        monthlyCollection += log.quantity
-        monthlyOwed += log.quantity * transactionCost
+        totalCollection += log.quantity
+        totalOwed += log.quantity * transactionCost
       } else if (log.type === "WASTE") {
-        monthlyWasteQty += log.quantity
-        monthlyWasteValue += log.quantity * transactionCost
+        totalWasteQty += log.quantity
+        totalWasteValue += log.quantity * transactionCost
       }
     })
 
-    const monthlyPaid = vendor.Payments.reduce((sum: number, p: any) => sum + p.amount, 0)
-    const balanceDue = Math.max(0, monthlyOwed - monthlyPaid - monthlyWasteValue)
-    const netCollection = Math.max(0, monthlyCollection - monthlyWasteQty)
+    const totalPaid = vendor.Payments.reduce((sum: number, p: any) => sum + p.amount, 0)
+    const balanceDue = Math.max(0, totalOwed - totalPaid - totalWasteValue)
+    const netCollection = Math.max(0, totalCollection - totalWasteQty)
 
     return {
       ...vendor,
       netCollection,
-      monthlyOwed,
-      monthlyPaid,
+      totalOwed,
+      totalPaid,
       balanceDue
     }
   })
 
-  const totalOwed = vendorStats.reduce((sum: number, v: any) => sum + v.monthlyOwed, 0)
-  const totalPaid = vendorStats.reduce((sum: number, v: any) => sum + v.monthlyPaid, 0)
+  const totalOwed = vendorStats.reduce((sum: number, v: any) => sum + v.totalOwed, 0)
+  const totalPaid = vendorStats.reduce((sum: number, v: any) => sum + v.totalPaid, 0)
   const totalBalance = vendorStats.reduce((sum: number, v: any) => sum + v.balanceDue, 0)
 
   return (
@@ -262,14 +242,14 @@ export default async function VendorsPage() {
                     <TableCell className="px-8 py-6 text-right">
                       <div className="inline-flex flex-col items-end">
                         <span className="text-sm font-black text-amber-500/80">
-                          ₹{vendor.monthlyOwed.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
+                          ₹{vendor.totalOwed.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
                         </span>
                       </div>
                     </TableCell>
 
                     <TableCell className="px-8 py-6 text-right">
                       <span className="text-sm font-black text-emerald-400/80">
-                        ₹{vendor.monthlyPaid.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
+                        ₹{vendor.totalPaid.toLocaleString('en-IN', { minimumFractionDigits: 0 })}
                       </span>
                     </TableCell>
 
@@ -346,7 +326,7 @@ export default async function VendorsPage() {
                   </div>
                   <div className="space-y-1 text-center">
                     <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest block">Total Bill</span>
-                    <span className="text-xs font-black text-amber-500 font-mono">₹{vendor.monthlyOwed.toLocaleString('en-IN')}</span>
+                    <span className="text-xs font-black text-amber-500 font-mono">₹{vendor.totalOwed.toLocaleString('en-IN')}</span>
                   </div>
                 </div>
 
