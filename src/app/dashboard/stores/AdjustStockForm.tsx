@@ -173,7 +173,7 @@ export function AdjustStockForm({ outlets, onSuccess }: { outlets: any[], onSucc
           <div className="space-y-2">
             <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">1. Business Type</Label>
             <Select value={selectedType} onValueChange={(val) => {
-              setSelectedType(val)
+              setSelectedType(val ?? "")
               setSelectedOutletId("")
               setSelectedCategory("")
               setSelectedItemId("")
@@ -192,7 +192,7 @@ export function AdjustStockForm({ outlets, onSuccess }: { outlets: any[], onSucc
           <div className={cn("space-y-2 transition-all", !selectedType && "opacity-30 pointer-events-none")}>
             <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">2. Outlet</Label>
             <Select value={selectedOutletId} onValueChange={(val) => {
-              setSelectedOutletId(val)
+              setSelectedOutletId(val ?? "")
               setSelectedCategory("")
               setSelectedItemId("")
             }}>
@@ -213,7 +213,7 @@ export function AdjustStockForm({ outlets, onSuccess }: { outlets: any[], onSucc
           <div className={cn("space-y-2 transition-all", !selectedOutletId && "opacity-30 pointer-events-none")}>
             <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">3. Category</Label>
             <Select value={selectedCategory} onValueChange={(val) => {
-              setSelectedCategory(val)
+              setSelectedCategory(val ?? "")
               setSelectedItemId("")
             }}>
               <SelectTrigger className="h-12 bg-background border-border rounded-xl px-4 text-[10px] font-black uppercase tracking-widest">
@@ -229,7 +229,8 @@ export function AdjustStockForm({ outlets, onSuccess }: { outlets: any[], onSucc
 
           <div className={cn("space-y-2 transition-all", !selectedCategory && "opacity-30 pointer-events-none")}>
             <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">4. Item</Label>
-            <Select value={selectedItemId} onValueChange={setSelectedItemId}>
+            <Select value={selectedItemId} 
+              onValueChange={(val) => setSelectedItemId(val ?? "")}>
               <SelectTrigger className="h-12 bg-background border-border rounded-xl px-4 text-[10px] font-black uppercase tracking-widest">
                 <SelectValue placeholder="SELECT ITEM" />
               </SelectTrigger>
