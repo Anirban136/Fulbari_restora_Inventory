@@ -5,7 +5,6 @@ import { authOptions } from "@/lib/auth"
 import { AddItemDialog } from "./AddItemDialog"
 import { GlobalCatalogFeed } from "./GlobalCatalogFeed"
 import { Layers } from "lucide-react"
-import { BulkStockManager } from "@/components/BulkStockManager"
 
 export default async function GlobalCatalogPage() {
   const session = await getServerSession(authOptions)
