@@ -9,9 +9,8 @@ import {
   PlusCircle,
   Filter,
   Package,
-  AlertCircle,
   ChevronRight,
-  ArrowRight
+  TrendingDown
 } from "lucide-react"
 import {
   Table,
@@ -24,8 +23,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { AdjustStockForm } from "./AdjustStockForm"
@@ -83,7 +80,7 @@ export function OutletStockClient({
   // Get categories for current outlet
   const categories = useMemo(() => {
     if (!selectedOutlet) return []
-    const cats = new Set(selectedOutlet.Stock.map((s: any) => s.Item.category || "Uncategorized"))
+    const cats = new Set<string>(selectedOutlet.Stock.map((s: any) => s.Item.category || "Uncategorized"))
     return Array.from(cats).sort()
   }, [selectedOutlet])
 
@@ -123,12 +120,14 @@ export function OutletStockClient({
         </div>
 
         <Dialog open={isAdjustOpen} onOpenChange={setIsAdjustOpen}>
-          <DialogTrigger asChild>
-            <button className="flex items-center justify-center gap-3 px-8 py-5 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-[0_20px_50px_-10px_rgba(168,85,247,0.4)] transition-all active:scale-95 group relative overflow-hidden w-full lg:w-auto">
+          <DialogTrigger
+            render={
+              <button className="flex items-center justify-center gap-3 px-8 py-5 bg-purple-600 hover:bg-purple-500 text-white rounded-2xl font-black uppercase tracking-widest text-[11px] shadow-[0_20px_50px_-10px_rgba(168,85,247,0.4)] transition-all active:scale-95 group relative overflow-hidden w-full lg:w-auto" />
+            }
+          >
               <div className="absolute inset-0 bg-gradient-to-r from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <PlusCircle className="w-5 h-5 transition-transform group-hover:rotate-90 duration-500" />
               Adjust Stock
-            </button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl bg-background/95 backdrop-blur-3xl border-border/50 p-0 overflow-hidden rounded-[2.5rem] shadow-2xl">
             <AdjustStockForm 
@@ -201,7 +200,7 @@ export function OutletStockClient({
               />
             </div>
             
-            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
+            <Select value={selectedCategory} onValueChange={(value) => value && setSelectedCategory(value)}>
               <SelectTrigger className="h-12 bg-background/50 border-border/50 rounded-xl text-[10px] font-black uppercase tracking-widest">
                 <div className="flex items-center gap-2">
                   <Filter className="w-3.5 h-3.5 text-purple-400" />
