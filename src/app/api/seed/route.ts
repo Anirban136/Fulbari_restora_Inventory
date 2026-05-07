@@ -12,10 +12,22 @@ export async function GET() {
     }
 
     console.log("Creating outlets...");
-    // Create Outlets
-    await prisma.outlet.create({ data: { name: 'Restaurant', type: 'RESTAURANT' }})
-    await prisma.outlet.create({ data: { name: 'Cafe', type: 'CAFE' }})
-    await prisma.outlet.create({ data: { name: 'Chai Joint', type: 'CHAI_JOINT' }})
+    // Create Outlets using upsert with fixed IDs to prevent duplicates
+    await prisma.outlet.upsert({
+      where: { id: 'outlet_restaurant' },
+      update: {},
+      create: { id: 'outlet_restaurant', name: 'Restaurant', type: 'RESTAURANT' }
+    })
+    await prisma.outlet.upsert({
+      where: { id: 'outlet_cafe' },
+      update: {},
+      create: { id: 'outlet_cafe', name: 'Cafe', type: 'CAFE' }
+    })
+    await prisma.outlet.upsert({
+      where: { id: 'outlet_chai' },
+      update: {},
+      create: { id: 'outlet_chai', name: 'Chai Joint', type: 'CHAI_JOINT' }
+    })
 
     console.log("Creating users...");
     // Create Users

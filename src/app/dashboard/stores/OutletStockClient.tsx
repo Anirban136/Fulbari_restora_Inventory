@@ -49,13 +49,23 @@ export function OutletStockClient({
   const [searchQuery, setSearchQuery] = useState("")
   const [isAdjustOpen, setIsAdjustOpen] = useState(false)
 
-  // Group outlets by type
+  // Group outlets by type and deduplicate by name
   const groupedOutlets = useMemo(() => {
     const groups: Record<string, any[]> = {}
     outlets.forEach(o => {
       const type = o.type?.toUpperCase() || "UNCATEGORIZED"
       if (!groups[type]) groups[type] = []
-      groups[type].push(o)
+      
+      const existing = groups[type].find(prev => prev.name === o.name)
+      if (existing) {
+        // Keep the one with more stock items if they are duplicates
+        if ((o.Stock?.length || 0) > (existing.Stock?.length || 0)) {
+          const index = groups[type].indexOf(existing)
+          groups[type][index] = o
+        }
+      } else {
+        groups[type].push(o)
+      }
     })
     return groups
   }, [outlets])
