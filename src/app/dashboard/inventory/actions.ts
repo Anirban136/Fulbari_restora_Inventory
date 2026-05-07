@@ -139,12 +139,17 @@ export async function updateItem(data: FormData) {
   const costPerUnitRaw = data.get("costPerUnit") as string
   const sellPriceRaw = data.get("sellPrice") as string
   const minStockRaw = data.get("minStock") as string
+  const currentStockRaw = data.get("currentStock") as string
   
   const costPerUnit = costPerUnitRaw ? parseFloat(costPerUnitRaw) : null
   const sellPrice = sellPriceRaw ? parseFloat(sellPriceRaw) : null
   const minStock = minStockRaw ? parseFloat(minStockRaw) : 0
+  const currentStock = currentStockRaw ? parseFloat(currentStockRaw) : null
   const piecesPerBoxRaw = data.get("piecesPerBox") as string
   const piecesPerBox = piecesPerBoxRaw ? parseInt(piecesPerBoxRaw) : null
+
+  const existingItem = await prisma.item.findUnique({ where: { id: itemId } })
+  if (!existingItem) throw new Error("Item not found")
 
   await (prisma.item as any).update({
     where: { id: itemId },
@@ -155,9 +160,23 @@ export async function updateItem(data: FormData) {
       costPerUnit,
       sellPrice,
       minStock,
-      piecesPerBox
+      piecesPerBox,
+      currentStock: currentStock !== null ? currentStock : existingItem.currentStock
     },
   })
+
+  // Create adjustment ledger if stock was changed
+  if (currentStock !== null && currentStock !== existingItem.currentStock) {
+    await prisma.inventoryLedger.create({
+      data: {
+        type: "ADJUSTMENT",
+        itemId: itemId,
+        quantity: currentStock - existingItem.currentStock,
+        userId: session.user.id,
+        notes: `Global Stock Adjustment: ${existingItem.currentStock} -> ${currentStock}`,
+      }
+    })
+  }
 
   revalidatePath("/dashboard/inventory")
 }

@@ -19,7 +19,17 @@ import { CategoryCombobox } from "../menus/CategoryCombobox"
 import { toast } from "sonner"
 import { Loader2 } from "lucide-react"
 
-export function EditItemDialog({ item, existingCategories = [] }: { item: any; existingCategories?: string[] }) {
+export function EditItemDialog({ 
+  item, 
+  existingCategories = [],
+  isOwner,
+  isManager
+}: { 
+  item: any; 
+  existingCategories?: string[];
+  isOwner?: boolean;
+  isManager?: boolean;
+}) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [unit, setUnit] = useState(item.unit || "")
@@ -41,6 +51,7 @@ export function EditItemDialog({ item, existingCategories = [] }: { item: any; e
   }
 
   const showPiecesPerBox = unit === "box" || unit === "packet" || unit === "plate"
+  const canAdjustStock = isOwner || isManager
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -119,11 +130,18 @@ export function EditItemDialog({ item, existingCategories = [] }: { item: any; e
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label className="text-[10px] font-black text-amber-500/80 uppercase tracking-[0.3em] ml-1">LOW STOCK BORDER</Label>
                 <Input name="minStock" type="number" step="0.01" defaultValue={item.minStock} required className="h-14 bg-foreground/[0.03] border-amber-500/20 text-amber-500 rounded-2xl focus-visible:ring-amber-500/40 font-black text-lg" />
               </div>
+              
+              {canAdjustStock && (
+                <div className="space-y-2">
+                  <Label className="text-[10px] font-black text-emerald-500 uppercase tracking-[0.3em] ml-1">ADJUST CURRENT STOCK</Label>
+                  <Input name="currentStock" type="number" step="0.01" defaultValue={item.currentStock} required className="h-14 bg-emerald-500/5 border-emerald-500/20 text-emerald-500 rounded-2xl focus-visible:ring-emerald-500/40 font-black text-lg shadow-inner" />
+                </div>
+              )}
             </div>
 
             {showPiecesPerBox && (

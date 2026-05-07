@@ -138,7 +138,7 @@ export function GlobalCatalogFeed({
                     </div>
                     
                     <div className="flex gap-2">
-                       <EditItemDialog item={item} existingCategories={categories} />
+                       <EditItemDialog item={item} existingCategories={categories} isOwner={isOwner} isManager={isManager} />
                        {(isOwner || isManager) && (
                           <button 
                             onClick={() => setItemToDelete(item)}
@@ -329,7 +329,7 @@ export function GlobalCatalogFeed({
 
                       <TableCell className="px-8 py-6">
                         <div className="flex items-center justify-center gap-3">
-                          <EditItemDialog item={item} existingCategories={categories} />
+                          <EditItemDialog item={item} existingCategories={categories} isOwner={isOwner} isManager={isManager} />
                           {(isOwner || isManager) && (
                             <button 
                               onClick={() => setItemToDelete(item)}
