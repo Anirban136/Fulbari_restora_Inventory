@@ -9,7 +9,7 @@ import { Layers } from "lucide-react"
 export default async function GlobalCatalogPage() {
   const session = await getServerSession(authOptions)
   const role = session?.user?.role || ""
-  const isOwner = role === "OWNER"
+  const isOwner = role === "OWNER" || role === "ADMIN"
   const isManager = role === "INV_MANAGER"
 
   const items = await prisma.item.findMany({

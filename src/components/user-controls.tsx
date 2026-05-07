@@ -23,7 +23,7 @@ export function UserControls({ role }: { role?: string }) {
     setMounted(true)
   }, [])
 
-  const isOwner = role === "OWNER"
+  const isOwner = role === "OWNER" || role === "ADMIN"
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

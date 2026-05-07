@@ -128,7 +128,7 @@ export function TransactionsFeed({ initialTransactions, userRole }: { initialTra
                      {tab.paymentMode === 'CASH' ? <Banknote className="w-3 h-3 text-emerald-500/50" /> : <CreditCard className="w-3 h-3 text-blue-500/50" />}
                      <p className="text-[9px] text-muted-foreground font-black uppercase tracking-widest">{tab.paymentMode || "UNKNOWN"}</p>
                   </div>
-                    {userRole === "OWNER" && (
+                    {(userRole === "OWNER" || userRole === "ADMIN") && (
                       <button 
                         onClick={() => setItemToDelete(tab)}
                         disabled={localDeletingId === tab.id}

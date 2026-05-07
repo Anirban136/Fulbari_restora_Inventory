@@ -8,7 +8,7 @@ import { verifyAdminPin } from "@/lib/server-auth"
 
 export async function updateTransactionAction(tabId: string, data: { paymentMode: string, totalAmount: number, status: string }) {
   const session = await getServerSession(authOptions)
-  if (!session || session.user.role !== "OWNER") {
+  if (!session || (session.user.role !== "OWNER" && session.user.role !== "ADMIN")) {
     throw new Error("Unauthorized")
   }
 

@@ -8,7 +8,7 @@ import { verifyAdminPin } from "@/lib/server-auth"
 
 export async function addVendor(data: FormData) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER")) {
+  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER" && session.user.role !== "ADMIN")) {
     throw new Error("Unauthorized")
   }
 
@@ -26,7 +26,7 @@ export async function addVendor(data: FormData) {
 
 export async function editVendor(data: FormData) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER")) {
+  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER" && session.user.role !== "ADMIN")) {
     throw new Error("Unauthorized")
   }
 
@@ -66,7 +66,7 @@ export async function deleteVendor(data: FormData, pin: string) {
 
 export async function payVendor(data: FormData) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER")) {
+  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER" && session.user.role !== "ADMIN")) {
     throw new Error("Unauthorized")
   }
 
@@ -93,7 +93,7 @@ export async function payVendor(data: FormData) {
 
 export async function addItem(data: FormData) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER")) {
+  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER" && session.user.role !== "ADMIN")) {
     throw new Error("Unauthorized")
   }
 
@@ -128,7 +128,7 @@ export async function addItem(data: FormData) {
 
 export async function updateItem(data: FormData) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER")) {
+  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER" && session.user.role !== "ADMIN")) {
     throw new Error("Unauthorized")
   }
 
@@ -164,7 +164,7 @@ export async function updateItem(data: FormData) {
 
 export async function removeItem(itemId: string, pin: string) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER")) {
+  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER" && session.user.role !== "ADMIN")) {
     throw new Error("Unauthorized")
   }
 
@@ -174,6 +174,11 @@ export async function removeItem(itemId: string, pin: string) {
   await prisma.$transaction([
     prisma.inventoryLedger.deleteMany({ where: { itemId } }),
     prisma.outletStock.deleteMany({ where: { itemId } }),
+    prisma.menuItemIngredient.deleteMany({ where: { itemId } }),
+    prisma.menuItem.updateMany({ 
+      where: { itemId },
+      data: { itemId: null }
+    }),
     prisma.item.delete({ where: { id: itemId } }),
   ])
 
@@ -185,7 +190,7 @@ export async function removeItem(itemId: string, pin: string) {
 
 export async function revertLedgerEntry(data: FormData) {
   const session = await getServerSession(authOptions)
-  if (!session || session.user.role !== "OWNER") {
+  if (!session || (session.user.role !== "OWNER" && session.user.role !== "ADMIN")) {
     throw new Error("Unauthorized — only Admin Owner can revert stock entries")
   }
 
@@ -230,7 +235,7 @@ export async function revertLedgerEntry(data: FormData) {
 
 export async function editDispatchQuantity(data: FormData) {
   const session = await getServerSession(authOptions)
-  if (!session || session.user.role !== "OWNER") {
+  if (!session || (session.user.role !== "OWNER" && session.user.role !== "ADMIN")) {
     throw new Error("Unauthorized — only Admin Owner can edit stock entries")
   }
 
@@ -299,7 +304,7 @@ export async function editDispatchQuantity(data: FormData) {
 
 export async function adjustOutletStock(data: FormData) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER")) {
+  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER" && session.user.role !== "ADMIN")) {
     throw new Error("Unauthorized")
   }
 

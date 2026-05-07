@@ -4,8 +4,8 @@ import { authOptions } from "./auth"
 
 export async function verifyAdminPin(pin: string) {
   const session = await getServerSession(authOptions)
-  if (!session || session.user.role !== "OWNER") {
-    throw new Error("Unauthorized: Only Owner can perform this action")
+  if (!session || (session.user.role !== "OWNER" && session.user.role !== "ADMIN")) {
+    throw new Error("Unauthorized: Administrative authorization required")
   }
 
   const user = await prisma.user.findUnique({
