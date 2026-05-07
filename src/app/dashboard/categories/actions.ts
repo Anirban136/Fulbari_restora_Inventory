@@ -61,7 +61,7 @@ export async function updateCategoryLabel(oldLabel: string, newLabel: string) {
 
 export async function deleteCategory(label: string, pin: string) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER")) {
+  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER" && session.user.role !== "ADMIN")) {
     throw new Error("Unauthorized")
   }
   const standardizedLabel = label.trim().toUpperCase()

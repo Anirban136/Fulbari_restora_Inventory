@@ -12,7 +12,7 @@ export const metadata = {
 export default async function CategoryManagerPage() {
   const session = await getServerSession(authOptions)
 
-  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER")) {
+  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER" && session.user.role !== "ADMIN")) {
     redirect("/dashboard")
   }
 

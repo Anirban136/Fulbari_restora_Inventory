@@ -17,7 +17,7 @@ import { cn } from "@/lib/utils"
 
 export default async function VendorsPage() {
   const session = await getServerSession(authOptions)
-  const isOwner = session?.user?.role === "OWNER"
+  const isOwner = session?.user?.role === "OWNER" || session?.user?.role === "ADMIN"
   const isAuthorized = isOwner || session?.user?.role === "INV_MANAGER"
 
   if (!isAuthorized) {

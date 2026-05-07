@@ -7,8 +7,8 @@ import { revalidatePath } from "next/cache"
 
 export async function wipeTestData(pin: string) {
   const session = await getServerSession(authOptions)
-  if (!session || session.user.role !== "OWNER") {
-    throw new Error("Unauthorized: Only Owner can wipe data")
+  if (!session || (session.user.role !== "OWNER" && session.user.role !== "ADMIN")) {
+    throw new Error("Unauthorized: Administrative authorization required")
   }
 
   // Double verification: check if provided PIN matches the user's PIN in DB
