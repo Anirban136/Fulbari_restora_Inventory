@@ -8,7 +8,7 @@ import { verifyAdminPin } from "@/lib/server-auth"
 
 export async function addMenuItem(data: FormData) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER")) {
+  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER" && session.user.role !== "ADMIN")) {
     throw new Error("Unauthorized")
   }
 
@@ -87,7 +87,7 @@ export async function addMenuItem(data: FormData) {
 
 export async function toggleMenuItem(menuItemId: string, isAvailable: boolean) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER")) throw new Error("Unauthorized")
+  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER" && session.user.role !== "ADMIN")) throw new Error("Unauthorized")
 
   await prisma.menuItem.update({
     where: { id: menuItemId },
@@ -99,7 +99,7 @@ export async function toggleMenuItem(menuItemId: string, isAvailable: boolean) {
 
 export async function updateMenuItem(data: FormData) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER")) throw new Error("Unauthorized")
+  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER" && session.user.role !== "ADMIN")) throw new Error("Unauthorized")
 
   const id = data.get("id") as string
   const outletId = data.get("outletId") as string
@@ -152,7 +152,7 @@ export async function updateMenuItem(data: FormData) {
 
 export async function deleteMenuItem(menuItemId: string, pin: string) {
   const session = await getServerSession(authOptions)
-  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER")) {
+  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER" && session.user.role !== "ADMIN")) {
     throw new Error("Unauthorized")
   }
 
