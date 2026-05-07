@@ -161,7 +161,7 @@ export function OutletStockClient({
 
           <div className="relative z-10 flex flex-col gap-4">
             <Dialog open={isAdjustOpen} onOpenChange={setIsAdjustOpen}>
-              <DialogTrigger asChild>
+              <DialogTrigger render={
                 <button className={cn(
                   "group/btn relative px-10 py-6 rounded-3xl font-black uppercase tracking-[0.2em] text-[13px] text-white shadow-2xl transition-all active:scale-95 overflow-hidden",
                   "bg-gradient-to-br hover:shadow-[0_20px_60px_-10px_rgba(0,0,0,0.5)]",
@@ -174,7 +174,7 @@ export function OutletStockClient({
                     <span>Instant Adjustment</span>
                   </div>
                 </button>
-              </DialogTrigger>
+              } />
               <DialogContent className="max-w-2xl bg-black/90 backdrop-blur-3xl border-white/10 p-0 overflow-hidden rounded-[3rem] shadow-[0_0_100px_rgba(0,0,0,0.8)]">
                 <AdjustStockForm 
                   outlets={outlets} 
