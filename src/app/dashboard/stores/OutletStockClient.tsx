@@ -120,28 +120,28 @@ export function OutletStockClient({
       {/* 1. HERO HEADER SECTION */}
       <header className="relative group perspective-1000">
         <div className={cn(
-          "absolute -inset-1 bg-gradient-to-r blur-2xl opacity-20 group-hover:opacity-30 transition-all duration-1000 rounded-[3rem]",
+          "absolute -inset-1 bg-gradient-to-r blur-2xl opacity-30 group-hover:opacity-50 transition-all duration-1000 rounded-[3rem]",
           getTypeColor(selectedOutlet?.type || "")
         )}></div>
         
-        <div className="relative glass-panel p-8 lg:p-12 rounded-[3rem] border border-white/10 bg-black/40 backdrop-blur-3xl overflow-hidden shadow-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-10">
+        <div className="relative glass-panel p-8 lg:p-12 rounded-[3rem] border border-white/20 bg-white/[0.02] backdrop-blur-3xl overflow-hidden shadow-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-10">
           
           {/* Decorative background elements */}
-          <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
-          <div className="absolute -right-40 -top-40 w-96 h-96 bg-primary/10 blur-[120px] rounded-full animate-pulse"></div>
-          <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-purple-600/5 blur-[100px] rounded-full"></div>
+          <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          <div className="absolute -right-40 -top-40 w-96 h-96 bg-primary/20 blur-[120px] rounded-full animate-pulse"></div>
+          <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-purple-600/10 blur-[100px] rounded-full"></div>
           
           <div className="relative z-10 flex-1">
             <div className="flex items-center gap-3 mb-6">
               <div className={cn(
-                "p-3 rounded-2xl shadow-lg border border-white/10 flex items-center justify-center animate-bounce-slow",
+                "p-3 rounded-2xl shadow-lg border border-white/20 flex items-center justify-center animate-bounce-slow",
                 "bg-gradient-to-br",
                 getTypeColor(selectedOutlet?.type || "")
               )}>
                 <Package className="w-6 h-6 text-white" />
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/40 mb-1">Central Intelligence</span>
+                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-white/60 mb-1">Central Intelligence</span>
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
                   <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">Live Network Active</span>
@@ -150,10 +150,10 @@ export function OutletStockClient({
             </div>
 
             <h1 className="text-5xl lg:text-7xl font-black text-white tracking-tighter leading-none mb-6">
-              Outlet <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white/80 to-white/40">Repository</span>
+              Outlet <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white/90 to-white/60">Repository</span>
             </h1>
             
-            <p className="text-lg text-white/40 max-w-2xl font-medium leading-relaxed">
+            <p className="text-lg text-white/60 max-w-2xl font-medium leading-relaxed">
               Precision inventory management across the <span className="text-white font-bold">Fulbari Network</span>. 
               Monitor burn rates, adjust stock levels, and visualize product flow in real-time.
             </p>
@@ -299,66 +299,8 @@ export function OutletStockClient({
       <main className="animate-in slide-in-from-bottom-8 duration-1000">
         {selectedOutlet ? (
           <section className="relative">
-            {/* Visual Header / Stats Overlay */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-               <div className="glass-panel p-8 rounded-[2.5rem] border border-white/10 bg-white/5 flex flex-col justify-between h-44 group hover:bg-white/[0.07] transition-all">
-                  <div className="flex justify-between items-start">
-                    <div className="p-3 bg-primary/10 rounded-2xl border border-primary/20">
-                      <Trophy className="w-5 h-5 text-primary" />
-                    </div>
-                    <ArrowUpRight className="w-4 h-4 text-white/20 group-hover:text-primary transition-colors" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] block mb-1">Items Monitored</span>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-4xl font-black text-white tracking-tighter">{filteredStock.length}</span>
-                      <span className="text-xs font-bold text-white/20 uppercase tracking-widest">Active SKU</span>
-                    </div>
-                  </div>
-               </div>
-
-               <div className="glass-panel p-8 rounded-[2.5rem] border border-white/10 bg-white/5 flex flex-col justify-between h-44 group hover:bg-white/[0.07] transition-all">
-                  <div className="flex justify-between items-start">
-                    <div className="p-3 bg-red-500/10 rounded-2xl border border-red-500/20">
-                      <AlertTriangle className="w-5 h-5 text-red-500" />
-                    </div>
-                    <Activity className="w-4 h-4 text-white/20 group-hover:text-red-500 transition-colors" />
-                  </div>
-                  <div>
-                    <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] block mb-1">Critical Alerts</span>
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-4xl font-black text-red-500 tracking-tighter">
-                        {filteredStock.filter((s: any) => s.quantity <= (s.Item.minStock || 0)).length}
-                      </span>
-                      <span className="text-xs font-bold text-white/20 uppercase tracking-widest">Low Stock</span>
-                    </div>
-                  </div>
-               </div>
-
-               <div className="glass-panel p-8 rounded-[2.5rem] border border-white/10 bg-white/5 flex flex-col justify-between h-44 group hover:bg-white/[0.07] transition-all relative overflow-hidden">
-                  <div className={cn(
-                    "absolute top-0 right-0 w-32 h-32 blur-[60px] opacity-20 transition-all duration-700",
-                    getTypeColor(selectedOutlet.type)
-                  )}></div>
-                  <div className="flex justify-between items-start relative z-10">
-                    <div className={cn(
-                      "p-3 rounded-2xl border border-white/10",
-                      "bg-gradient-to-br",
-                      getTypeColor(selectedOutlet.type)
-                    )}>
-                      <Box className="w-5 h-5 text-white" />
-                    </div>
-                    <span className="px-2 py-1 bg-white/10 rounded-lg text-[8px] font-black text-white/60 uppercase tracking-widest">{selectedOutlet.type}</span>
-                  </div>
-                  <div className="relative z-10">
-                    <span className="text-[10px] font-black text-white/30 uppercase tracking-[0.3em] block mb-1">Location Node</span>
-                    <span className="text-2xl font-black text-white tracking-tighter truncate block">{selectedOutlet.name}</span>
-                  </div>
-               </div>
-            </div>
-
             {/* Main Data Container */}
-            <div className="glass-panel rounded-[3rem] border border-white/10 bg-black/40 overflow-hidden shadow-3xl">
+            <div className="glass-panel rounded-[3rem] border border-white/10 bg-white/[0.03] overflow-hidden shadow-3xl">
               <div className="hidden lg:block overflow-x-auto">
                 <Table>
                   <TableHeader>
