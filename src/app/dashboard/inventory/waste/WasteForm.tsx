@@ -22,13 +22,24 @@ interface Vendor {
   name: string
 }
 
-export function WasteForm({ items, vendors }: { items: Item[], vendors: Vendor[] }) {
+interface Outlet {
+  id: string
+  name: string
+  Stock: {
+    itemId: string
+    quantity: number
+    Item: Item
+  }[]
+}
+
+export function WasteForm({ items, vendors, outlets }: { items: Item[], vendors: Vendor[], outlets: Outlet[] }) {
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<{ error?: string; success?: boolean } | null>(null)
   
   const [selectedCategory, setSelectedCategory] = useState<string>("")
   const [selectedItem, setSelectedItem] = useState<Item | null>(null)
   const [unitType, setUnitType] = useState<string>("pieces")
+  const [selectedOutletId, setSelectedOutletId] = useState<string>("global") // "global" or outletId
 
   useEffect(() => {
     if (!selectedCategory && items.length > 0) {
@@ -37,14 +48,20 @@ export function WasteForm({ items, vendors }: { items: Item[], vendors: Vendor[]
   }, [items, selectedCategory])
 
   const sortedCategories = useMemo(() => {
-    const cats = Array.from(new Set(items.map(i => i.category || 'Uncategorized')))
+    const currentItems = selectedOutletId === "global" 
+      ? items 
+      : outlets.find(o => o.id === selectedOutletId)?.Stock.map(s => s.Item) || []
+    const cats = Array.from(new Set(currentItems.map(i => i.category || 'Uncategorized')))
     return cats.sort((a,b) => a.localeCompare(b))
-  }, [items])
+  }, [items, outlets, selectedOutletId])
 
   const filteredItems = useMemo(() => {
-    if (selectedCategory === "All Categories" || !selectedCategory) return items;
-    return items.filter(item => (item.category || "Uncategorized") === selectedCategory)
-  }, [items, selectedCategory])
+    const currentItems = selectedOutletId === "global" 
+      ? items 
+      : outlets.find(o => o.id === selectedOutletId)?.Stock.map(s => s.Item) || []
+    if (selectedCategory === "All Categories" || !selectedCategory) return currentItems;
+    return currentItems.filter(item => (item.category || "Uncategorized") === selectedCategory)
+  }, [items, outlets, selectedCategory, selectedOutletId])
 
   async function handleSubmit(formData: FormData) {
     setLoading(true)
@@ -97,6 +114,28 @@ export function WasteForm({ items, vendors }: { items: Item[], vendors: Vendor[]
             <p className="text-sm font-medium">Waste logged successfully!</p>
           </div>
         )}
+
+        <div className="space-y-2">
+          <Label htmlFor="stockLocation" className="text-xs font-black text-foreground uppercase tracking-widest opacity-80 dark:opacity-70">
+            Stock Location
+          </Label>
+          <select
+            id="stockLocation"
+            name="outletId"
+            value={selectedOutletId}
+            onChange={(e) => {
+              setSelectedOutletId(e.target.value)
+              setSelectedItem(null)
+              setSelectedCategory("All Categories")
+            }}
+            className="w-full h-12 px-4 py-2 rounded-xl border border-border bg-background focus:ring-2 focus:ring-red-500/50 transition-all shadow-inner font-medium text-foreground"
+          >
+            <option value="global" className="bg-card text-foreground font-bold">Global Catalog Stock</option>
+            {outlets.map(o => (
+              <option key={o.id} value={o.id} className="bg-card text-foreground">{o.name} Stock</option>
+            ))}
+          </select>
+        </div>
 
         <div className="space-y-2">
           <Label htmlFor="categoryFilter" className="text-xs font-black text-foreground uppercase tracking-widest opacity-80 dark:opacity-70">

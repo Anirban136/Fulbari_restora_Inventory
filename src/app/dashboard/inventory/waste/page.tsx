@@ -48,6 +48,14 @@ export default async function WasteTrackingPage({ searchParams }: { searchParams
 
   const items = await prisma.item.findMany({ orderBy: { name: 'asc' } })
   const vendors = await prisma.vendor.findMany({ orderBy: { name: 'asc' } })
+  const outlets = await prisma.outlet.findMany({
+    include: {
+      Stock: {
+        include: { Item: true }
+      }
+    },
+    orderBy: { name: 'asc' }
+  })
   
   const whereClause: any = { type: "WASTE" }
   if (Object.keys(dateQuery).length > 0) {
@@ -78,7 +86,7 @@ export default async function WasteTrackingPage({ searchParams }: { searchParams
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
         
         {/* Left Form */}
-        <WasteForm items={items} vendors={vendors} />
+        <WasteForm items={items} vendors={vendors} outlets={outlets} />
 
         {/* Right Table */}
         <div className="lg:col-span-2 glass-panel rounded-3xl overflow-hidden flex flex-col">

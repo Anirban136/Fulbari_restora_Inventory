@@ -17,6 +17,8 @@ export async function logWaste(data: FormData) {
     const notes = (data.get("notes") as string) || "Discarded / Spoilage"
     const vendorId = data.get("vendorId") as string || null
     const unitType = data.get("unitType") as string
+    const outletIdRaw = data.get("outletId") as string
+    const outletId = outletIdRaw === "global" ? null : outletIdRaw
 
     const item = await prisma.item.findUnique({ where: { id: itemId } }) as any
     if (!item) return { error: "Item not found" }
@@ -32,29 +34,59 @@ export async function logWaste(data: FormData) {
     const finalQuantity = isContainer ? quantity * piecesPerBox : quantity
     
     const notePrefix = isContainer ? `[${unitType.toUpperCase()}-ENTRY: ${quantity} ${unitType}s] ` : ""
+    const finalNotes = `${notePrefix}${notes}${outletId ? ` (From Outlet)` : " (From Global Catalog)"}`
 
-    // Transaction to update Inventory Ledger and deduct from Global Catalog
-    await prisma.$transaction([
-      prisma.inventoryLedger.create({
-        data: {
-          type: "WASTE",
-          itemId,
-          quantity: finalQuantity,
-          vendorId,
-          userId: session.user.id,
-          notes: `${notePrefix}${notes}`,
-        }
-      }),
-      prisma.item.update({
-        where: { id: itemId },
-        data: {
-          currentStock: { decrement: finalQuantity },
-        }
+    if (outletId) {
+      // Check outlet stock
+      const stock = await prisma.outletStock.findUnique({
+        where: { outletId_itemId: { outletId, itemId } }
       })
-    ])
+      if (!stock || stock.quantity < finalQuantity) {
+        return { error: `Insufficient stock in outlet. Available: ${stock?.quantity || 0}` }
+      }
+
+      await prisma.$transaction([
+        prisma.inventoryLedger.create({
+          data: {
+            type: "WASTE",
+            itemId,
+            quantity: finalQuantity,
+            vendorId,
+            outletId,
+            userId: session.user.id,
+            notes: finalNotes,
+          }
+        }),
+        prisma.outletStock.update({
+          where: { outletId_itemId: { outletId, itemId } },
+          data: { quantity: { decrement: finalQuantity } }
+        })
+      ])
+    } else {
+      // Transaction to update Inventory Ledger and deduct from Global Catalog
+      await prisma.$transaction([
+        prisma.inventoryLedger.create({
+          data: {
+            type: "WASTE",
+            itemId,
+            quantity: finalQuantity,
+            vendorId,
+            userId: session.user.id,
+            notes: finalNotes,
+          }
+        }),
+        prisma.item.update({
+          where: { id: itemId },
+          data: {
+            currentStock: { decrement: finalQuantity },
+          }
+        })
+      ])
+    }
 
     revalidatePath("/dashboard/inventory/waste")
     revalidatePath("/dashboard/inventory")
+    revalidatePath("/dashboard/stores")
     return { success: true }
   } catch (error) {
     console.error("Waste Logging Error:", error)
@@ -73,14 +105,25 @@ export async function revertWasteEntry(data: FormData) {
   if (!entry || entry.type !== "WASTE") return
 
   // Revert: give stock back, delete ledger
-  await prisma.$transaction([
-    prisma.item.update({
-      where: { id: entry.itemId },
-      data: { currentStock: { increment: entry.quantity } }
-    }),
-    prisma.inventoryLedger.delete({ where: { id: ledgerId } })
-  ])
+  if (entry.outletId) {
+    await prisma.$transaction([
+      prisma.outletStock.update({
+        where: { outletId_itemId: { outletId: entry.outletId, itemId: entry.itemId } },
+        data: { quantity: { increment: entry.quantity } }
+      }),
+      prisma.inventoryLedger.delete({ where: { id: ledgerId } })
+    ])
+  } else {
+    await prisma.$transaction([
+      prisma.item.update({
+        where: { id: entry.itemId },
+        data: { currentStock: { increment: entry.quantity } }
+      }),
+      prisma.inventoryLedger.delete({ where: { id: ledgerId } })
+    ])
+  }
 
   revalidatePath("/dashboard/inventory/waste")
   revalidatePath("/dashboard/inventory")
+  revalidatePath("/dashboard/stores")
 }
