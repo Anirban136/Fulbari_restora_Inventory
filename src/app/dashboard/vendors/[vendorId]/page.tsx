@@ -6,6 +6,7 @@ import { notFound } from "next/navigation"
 import Link from "next/link"
 import { formatDateIST, formatTimeIST } from "@/lib/utils"
 import { PayVendorDialog } from "../../inventory/PayVendorDialog"
+import { AddManualBillDialog } from "../../inventory/AddManualBillDialog"
 import {
   ArrowLeft, Phone, MapPin, Mail, IndianRupee,
   ShoppingCart, Wallet, Scale, Hash,
@@ -79,12 +80,15 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
       displayQty = `${entry.quantity} pieces (${boxCount} ${entry.Item.unit})`
     }
 
-    if (entry.type === "STOCK_IN") {
+      const isManualAdjustment = entry.itemId === "manual_adjustment_item"
+      const rawNotes = entry.notes || ""
+      const cleanNotes = rawNotes.replace(/Cost=[\d.]+/, "").trim()
+      
       timeline.push({
         id: entry.id,
         date: entry.createdAt,
         type: 'PURCHASE',
-        description: `${displayQty} ${entry.Item.name}`,
+        description: isManualAdjustment ? (cleanNotes || "Manual Bill Entry") : `${displayQty} ${entry.Item.name}`,
         itemName: entry.Item.name,
         quantity: entry.quantity,
         unit: entry.Item.unit,
@@ -202,8 +206,11 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
               </div>
             </div>
 
-            {/* Pay Button */}
-            <PayVendorDialog vendor={vendor} balanceDue={Math.max(0, balanceDue)} wasteDeductions={totalWaste} />
+            {/* Actions */}
+            <div className="flex items-center gap-3">
+              <AddManualBillDialog vendor={vendor} />
+              <PayVendorDialog vendor={vendor} balanceDue={Math.max(0, balanceDue)} wasteDeductions={totalWaste} />
+            </div>
           </div>
         </div>
       </div>

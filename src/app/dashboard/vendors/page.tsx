@@ -7,6 +7,7 @@ import { Truck, IndianRupee, Phone, MapPin, FileText, History, AlertTriangle, Sh
 import { AddVendorDialog } from "../inventory/AddVendorDialog"
 import { EditVendorDialog } from "../inventory/EditVendorDialog"
 import { PayVendorDialog } from "../inventory/PayVendorDialog"
+import { AddManualBillDialog } from "../inventory/AddManualBillDialog"
 import { VendorDeleteButton } from "./VendorDeleteButton"
 import {
   TableBody,
@@ -275,6 +276,7 @@ export default async function VendorsPage() {
                         <Link href={`/dashboard/vendors/${vendor.id}`} className="p-3 rounded-2xl bg-white/5 border border-white/5 text-blue-400/60 hover:text-blue-400 transition-all hover:bg-blue-500/10 active:scale-90" title="Full Ledger">
                           <FileText className="w-4 h-4" />
                         </Link>
+                        <AddManualBillDialog vendor={vendor} />
                         <PayVendorDialog vendor={vendor} balanceDue={vendor.balanceDue} />
                         <EditVendorDialog vendor={vendor} />
                         
@@ -337,6 +339,7 @@ export default async function VendorsPage() {
                     Ledger
                   </Link>
                   <div className="flex items-center gap-2">
+                    <AddManualBillDialog vendor={vendor} />
                     <PayVendorDialog vendor={vendor} balanceDue={vendor.balanceDue} />
                     <EditVendorDialog vendor={vendor} />
                     {isOwner && (

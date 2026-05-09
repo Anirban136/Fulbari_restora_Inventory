@@ -67,6 +67,10 @@ export function AddVendorDialog() {
             <Label htmlFor="address" className="text-xs font-bold text-slate-400 uppercase tracking-widest">Address</Label>
             <Input id="address" name="address" placeholder="Vendor location..." className="h-12 bg-foreground/5 border-border text-foreground placeholder:text-muted-foreground/40 rounded-xl focus-visible:ring-primary/50" />
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="openingBalance" className="text-xs font-bold text-slate-400 uppercase tracking-widest text-amber-500">Opening Balance (₹)</Label>
+            <Input id="openingBalance" name="openingBalance" type="number" step="0.01" placeholder="Initial debt (if any)" className="h-12 bg-amber-500/5 border-amber-500/20 text-foreground placeholder:text-muted-foreground/40 rounded-xl focus-visible:ring-amber-500/50" />
+          </div>
           <Button type="submit" disabled={loading} className="w-full h-14 text-lg font-bold bg-primary text-primary-foreground hover:bg-primary/90 mt-4 rounded-xl shadow-lg transition-all active:scale-[0.98]">
             {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : "Save Vendor"}
           </Button>

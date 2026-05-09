@@ -16,10 +16,26 @@ export async function addVendor(data: FormData) {
   const contact = data.get("contact") as string
   const email = data.get("email") as string
   const address = data.get("address") as string
+  const openingBalanceRaw = data.get("openingBalance") as string
+  const openingBalance = openingBalanceRaw ? parseFloat(openingBalanceRaw) : 0
 
-  await prisma.vendor.create({
+  const vendor = await prisma.vendor.create({
     data: { name, contact, email, address },
   })
+
+  if (openingBalance > 0) {
+    // Record opening balance as a manual STOCK_IN entry
+    await prisma.inventoryLedger.create({
+      data: {
+        type: "STOCK_IN",
+        itemId: "manual_adjustment_item",
+        quantity: 1,
+        vendorId: vendor.id,
+        userId: session.user.id,
+        notes: `Opening Balance Cost=${openingBalance}`,
+      }
+    })
+  }
 
   revalidatePath("/dashboard/inventory")
 }
@@ -85,6 +101,37 @@ export async function payVendor(data: FormData) {
       amount,
       notes: notes || `Payment of ₹${amount}`,
       paidBy: session.user.id,
+    }
+  })
+
+  revalidatePath("/dashboard/vendors")
+}
+
+export async function addManualBill(data: FormData) {
+  const session = await getServerSession(authOptions)
+  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER" && session.user.role !== "ADMIN")) {
+    throw new Error("Unauthorized")
+  }
+
+  const vendorId = data.get("vendorId") as string
+  const amountStr = data.get("amount") as string
+  const notes = data.get("notes") as string || "Manual Bill Entry"
+
+  const amount = parseFloat(amountStr)
+  if (!vendorId || isNaN(amount) || amount <= 0) {
+    throw new Error("Invalid bill data")
+  }
+
+  // Create a STOCK_IN ledger entry with quantity 1 and Cost=[amount]
+  // We use the system-reserved 'manual_adjustment_item'
+  await prisma.inventoryLedger.create({
+    data: {
+      type: "STOCK_IN",
+      itemId: "manual_adjustment_item",
+      quantity: 1,
+      vendorId,
+      userId: session.user.id,
+      notes: `${notes} Cost=${amount}`,
     }
   })
 
