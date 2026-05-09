@@ -75,7 +75,7 @@ export function WasteForm({ items, vendors, outlets }: { items: Item[], vendors:
       } else {
         setStatus({ success: true })
         toast.success("Waste logged successfully!", {
-          description: `Penalized vendor for ${selectedItem?.name || "Product"}.`,
+          description: `Recorded waste for ${selectedItem?.name || "Product"}.`,
           icon: <CheckCircle2 className="w-5 h-5 text-emerald-500" />
         })
         setSelectedItem(null)
@@ -179,15 +179,14 @@ export function WasteForm({ items, vendors, outlets }: { items: Item[], vendors:
 
         <div className="space-y-2">
           <div className="flex items-center justify-between">
-            <Label htmlFor="vendorId" className="text-xs font-black text-foreground uppercase tracking-widest opacity-80 dark:opacity-70">Select Vendor (To claim deduction)</Label>
+            <Label htmlFor="vendorId" className="text-xs font-black text-foreground uppercase tracking-widest opacity-80 dark:opacity-70">Select Vendor (Optional - To claim deduction)</Label>
           </div>
           <select
             id="vendorId"
             name="vendorId"
-            required
             className="w-full h-12 px-4 py-2 rounded-xl border border-border bg-background focus:ring-2 focus:ring-red-500/50 transition-all shadow-inner font-medium text-foreground"
           >
-            <option value="" disabled selected className="bg-card text-muted-foreground font-bold">-- Select Vendor For Penalty --</option>
+            <option value="" className="bg-card text-muted-foreground font-bold">-- No Vendor (Internal Loss) --</option>
             {vendors.map(v => (
               <option key={v.id} value={v.id} className="bg-card text-foreground">{v.name}</option>
             ))}
@@ -232,7 +231,7 @@ export function WasteForm({ items, vendors, outlets }: { items: Item[], vendors:
               <Loader2 className="w-5 h-5 animate-spin" /> Logging Waste...
             </span>
           ) : (
-            "Log Waste & Penalize Vendor"
+            "Confirm Log Waste"
           )}
         </Button>
       </form>
