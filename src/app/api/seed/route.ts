@@ -21,12 +21,12 @@ export async function GET() {
     await prisma.outlet.upsert({
       where: { id: 'outlet_cafe' },
       update: {},
-      create: { id: 'outlet_cafe', name: 'Cafe', type: 'CAFE' }
+      create: { id: 'outlet_cafe', name: 'Cafe Hub', type: 'CAFE' }
     })
     await prisma.outlet.upsert({
       where: { id: 'outlet_chai' },
       update: {},
-      create: { id: 'outlet_chai', name: 'Chai Joint', type: 'CHAI_JOINT' }
+      create: { id: 'outlet_chai', name: 'Chai Hub', type: 'CHAI_JOINT' }
     })
 
     console.log("Creating users...");
