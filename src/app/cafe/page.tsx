@@ -11,8 +11,10 @@ import AppLayout from "@/components/layouts/app-layout"
 import { TabReceiptModal } from "@/components/TabReceiptModal"
 import { PrintReceiptButton } from "@/components/PrintReceiptButton"
 import { reopenTab } from "@/app/tabs/[tabId]/actions"
+import { DateRangePicker } from "@/components/DateRangePicker"
 
-export default async function CafeDashboard() {
+export default async function CafeDashboard({ searchParams }: { searchParams: Promise<{ start?: string, end?: string }> }) {
+  const { start, end } = await searchParams || {}
   const cafe = await prisma.outlet.findFirst({ where: { type: "CAFE" }})
   
   if (!cafe) return <div className="min-h-screen bg-background text-foreground p-10 font-bold">Cafe outlet not configured.</div>
@@ -21,6 +23,13 @@ export default async function CafeDashboard() {
   const isOwner = session?.user?.role === "OWNER"
 
   const { startUTC: todayStart, endUTC: todayEnd } = getISTDateBounds();
+  const { startUTC: monthStart, endUTC: monthEnd } = getISTMonthBounds();
+
+  let reportStart = monthStart
+  let reportEnd = monthEnd
+
+  if (start) reportStart = getISTDateBounds(new Date(start)).startUTC
+  if (end) reportEnd = getISTDateBounds(new Date(end)).endUTC
 
   // Generate last 7 days array for reporting
   const last7Days = Array.from({ length: 7 }, (_, i) => {
@@ -57,12 +66,11 @@ export default async function CafeDashboard() {
     })
   ])
 
-  const { startUTC: monthStart, endUTC: monthEnd } = getISTMonthBounds();
   const monthlyTabs = await prisma.tab.findMany({
     where: {
       outletId: cafe.id,
       status: "CLOSED",
-      closedAt: { gte: monthStart, lte: monthEnd }
+      closedAt: { gte: reportStart, lte: reportEnd }
     },
     include: { Items: { include: { MenuItem: true } } }
   })
@@ -177,8 +185,12 @@ export default async function CafeDashboard() {
                       <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Item-wise incentive count</p>
                     </div>
                     <div className="px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] font-black text-amber-600 dark:text-amber-400 tracking-widest uppercase">
-                      {formatDateIST(monthStart)} - {formatDateIST(monthEnd)}
+                      {formatDateIST(reportStart)} - {formatDateIST(reportEnd)}
                     </div>
+                  </div>
+  
+                  <div className="mb-8">
+                    <DateRangePicker initialStart={start} initialEnd={end} />
                   </div>
   
                   <div className="flex-1 overflow-auto max-h-[300px] pr-2 custom-scrollbar-premium">
