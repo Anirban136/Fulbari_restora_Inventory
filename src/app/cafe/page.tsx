@@ -6,7 +6,7 @@ import { Coffee, PackageOpen, LayoutGrid, Search, History, Receipt, Edit } from 
 import Link from "next/link"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { formatTimeIST, formatDateIST, getISTDateBounds, cn } from "@/lib/utils"
+import { formatTimeIST, formatDateIST, getISTDateBounds, getISTMonthBounds, cn } from "@/lib/utils"
 import AppLayout from "@/components/layouts/app-layout"
 import { TabReceiptModal } from "@/components/TabReceiptModal"
 import { PrintReceiptButton } from "@/components/PrintReceiptButton"
@@ -57,6 +57,25 @@ export default async function CafeDashboard() {
     })
   ])
 
+  const { startUTC: monthStart, endUTC: monthEnd } = getISTMonthBounds();
+  const monthlyTabs = await prisma.tab.findMany({
+    where: {
+      outletId: cafe.id,
+      status: "CLOSED",
+      closedAt: { gte: monthStart, lte: monthEnd }
+    },
+    include: { Items: { include: { MenuItem: true } } }
+  })
+
+  const itemStats: Record<string, number> = {}
+  monthlyTabs.forEach(tab => {
+    tab.Items.forEach(item => {
+      const name = item.MenuItem.name
+      itemStats[name] = (itemStats[name] || 0) + item.quantity
+    })
+  })
+  const sortedItemStats = Object.entries(itemStats).sort((a, b) => b[1] - a[1])
+
   const todaysTabs = recentTabs;
 
   const dailyReport = todaysTabs.reduce((acc, tab) => {
@@ -92,58 +111,101 @@ export default async function CafeDashboard() {
 
         <div className="space-y-12">
           {/* 1. TOP PRIORITY: TODAY'S REPORT */}
-          <section className="animate-in fade-in slide-in-from-top-4 duration-700 max-w-2xl">
-             <div className="glass-panel p-8 rounded-[2.5rem] group transition-all border border-amber-500/10 hover:border-amber-500/20 bg-foreground/5 dark:bg-white/[0.01]">
-                <h2 className="text-xl font-black text-foreground uppercase tracking-widest mb-8 flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <Receipt className="w-6 h-6 text-amber-500" />
-                    <span>Today's Report</span>
-                  </div>
-                  {isOwner && (
-                    <a href="/api/export/transactions?outlet=CAFE" download>
-                      <Button variant="ghost" size="sm" className="h-9 px-3 text-[10px] font-black text-amber-400 hover:bg-amber-500/10 border border-amber-500/20 rounded-xl">
-                        Download CSV
-                      </Button>
-                    </a>
-                  )}
-                </h2>
-               
-               <div className="space-y-4">
-                 <div className="flex justify-between items-center bg-foreground/5 p-5 rounded-2xl border border-border">
-                   <div className="flex items-center gap-3">
-                      <span className="text-xl">💵</span>
-                      <span className="text-xs font-black text-muted-foreground uppercase tracking-widest">Cash Revenue</span>
-                   </div>
-                   <span className="text-xl font-black text-foreground">₹{dailyReport.CASH.toFixed(2)}</span>
-                 </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+            <section className="animate-in fade-in slide-in-from-top-4 duration-700">
+               <div className="glass-panel p-8 rounded-[2.5rem] group transition-all border border-amber-500/10 hover:border-amber-500/20 bg-foreground/5 dark:bg-white/[0.01]">
+                  <h2 className="text-xl font-black text-foreground uppercase tracking-widest mb-8 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <Receipt className="w-6 h-6 text-amber-500" />
+                      <span>Today's Report</span>
+                    </div>
+                    {isOwner && (
+                      <a href="/api/export/transactions?outlet=CAFE" download>
+                        <Button variant="ghost" size="sm" className="h-9 px-3 text-[10px] font-black text-amber-400 hover:bg-amber-500/10 border border-amber-500/20 rounded-xl">
+                          Download CSV
+                        </Button>
+                      </a>
+                    )}
+                  </h2>
                  
-                 <div className="flex justify-between items-center bg-foreground/5 p-5 rounded-2xl border border-border">
-                   <div className="flex items-center gap-3">
-                      <span className="text-xl">💳</span>
-                      <span className="text-xs font-black text-muted-foreground uppercase tracking-widest">Online Revenue</span>
-                   </div>
-                   <span className="text-xl font-black text-foreground">₹{dailyReport.ONLINE.toFixed(2)}</span>
-                 </div>
-
-                 {dailyReport.SPLIT > 0 && (
+                 <div className="space-y-4">
                    <div className="flex justify-between items-center bg-foreground/5 p-5 rounded-2xl border border-border">
                      <div className="flex items-center gap-3">
-                        <span className="text-xl">🔄</span>
-                        <span className="text-xs font-black text-muted-foreground uppercase tracking-widest">Split/Other</span>
+                        <span className="text-xl">💵</span>
+                        <span className="text-xs font-black text-muted-foreground uppercase tracking-widest">Cash Revenue</span>
                      </div>
-                     <span className="text-xl font-black text-foreground">₹{dailyReport.SPLIT.toFixed(2)}</span>
+                     <span className="text-xl font-black text-foreground">₹{dailyReport.CASH.toFixed(2)}</span>
                    </div>
-                 )}
-
-                 <div className="flex justify-between items-center bg-amber-500/[0.08] p-6 rounded-[2rem] border border-amber-500/20 mt-6 shadow-[0_10px_30px_-10px_rgba(245,158,11,0.2)]">
-                   <span className="text-sm font-black text-amber-500 uppercase tracking-[0.2em]">Total Gross</span>
-                   <span className="text-3xl font-black text-amber-600 dark:text-amber-400 drop-shadow-[0_0_15px_rgba(245,158,11,0.4)] text-glow">
-                     ₹{dailyReport.TOTAL.toFixed(2)}
-                   </span>
+                   
+                   <div className="flex justify-between items-center bg-foreground/5 p-5 rounded-2xl border border-border">
+                     <div className="flex items-center gap-3">
+                        <span className="text-xl">💳</span>
+                        <span className="text-xs font-black text-muted-foreground uppercase tracking-widest">Online Revenue</span>
+                     </div>
+                     <span className="text-xl font-black text-foreground">₹{dailyReport.ONLINE.toFixed(2)}</span>
+                   </div>
+  
+                   {dailyReport.SPLIT > 0 && (
+                     <div className="flex justify-between items-center bg-foreground/5 p-5 rounded-2xl border border-border">
+                       <div className="flex items-center gap-3">
+                          <span className="text-xl">🔄</span>
+                          <span className="text-xs font-black text-muted-foreground uppercase tracking-widest">Split/Other</span>
+                       </div>
+                       <span className="text-xl font-black text-foreground">₹{dailyReport.SPLIT.toFixed(2)}</span>
+                     </div>
+                   )}
+  
+                   <div className="flex justify-between items-center bg-amber-500/[0.08] p-6 rounded-[2rem] border border-amber-500/20 mt-6 shadow-[0_10px_30px_-10px_rgba(245,158,11,0.2)]">
+                     <span className="text-sm font-black text-amber-500 uppercase tracking-[0.2em]">Total Gross</span>
+                     <span className="text-3xl font-black text-amber-600 dark:text-amber-400 drop-shadow-[0_0_15px_rgba(245,158,11,0.4)] text-glow">
+                       ₹{dailyReport.TOTAL.toFixed(2)}
+                     </span>
+                   </div>
                  </div>
+              </div>
+            </section>
+  
+            {/* MONTHLY ITEM SALES SECTION */}
+            <section className="animate-in fade-in slide-in-from-top-4 duration-700 delay-100">
+               <div className="glass-panel p-8 rounded-[2.5rem] border border-border bg-foreground/5 h-full flex flex-col">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+                    <div>
+                      <h2 className="text-xl font-black text-foreground uppercase tracking-widest flex items-center gap-3">
+                        <PackageOpen className="w-6 h-6 text-amber-500" />
+                        <span>Monthly Performance</span>
+                      </h2>
+                      <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mt-1">Item-wise incentive count</p>
+                    </div>
+                    <div className="px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/20 text-[10px] font-black text-amber-600 dark:text-amber-400 tracking-widest uppercase">
+                      {formatDateIST(monthStart)} - {formatDateIST(monthEnd)}
+                    </div>
+                  </div>
+  
+                  <div className="flex-1 overflow-auto max-h-[300px] pr-2 custom-scrollbar-premium">
+                    {sortedItemStats.length === 0 ? (
+                      <div className="h-full flex flex-col items-center justify-center py-10 opacity-20">
+                        <Search className="w-10 h-10 mb-4" />
+                        <p className="text-[10px] font-black uppercase tracking-widest">No sales this month</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {sortedItemStats.map(([name, qty]) => (
+                          <div key={name} className="flex items-center justify-between p-4 rounded-2xl bg-foreground/5 border border-border group hover:border-amber-500/20 transition-all">
+                            <span className="text-sm font-bold text-foreground group-hover:text-amber-500 transition-colors uppercase tracking-tight truncate mr-4">
+                              {name}
+                            </span>
+                            <div className="flex items-center gap-2 shrink-0">
+                               <span className="text-2xl font-black text-foreground tracking-tighter">{qty}</span>
+                               <span className="text-[10px] font-black text-amber-500/60 uppercase">Units</span>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
                </div>
-            </div>
-          </section>
+            </section>
+          </div>
 
           {/* 2. MAIN HUB ACTIONS & TRANSACTIONS (FLATTENED GRID FOR ORDERING) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
