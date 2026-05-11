@@ -70,8 +70,10 @@ export function UnifiedSidebar({ user }: { user: any }) {
   ]
 
   const filteredItems = navItems.filter(item => 
-    !item.roles || item.roles.includes(user.role)
+    !item.roles || (user?.role && item.roles.includes(user.role))
   )
+
+  if (!user) return null
 
   return (
     <>

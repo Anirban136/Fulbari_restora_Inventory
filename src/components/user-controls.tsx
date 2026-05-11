@@ -99,7 +99,7 @@ export function UserControls({ role }: { role?: string }) {
         </Dialog>
       )}
 
-      <Button onClick={() => signOut()} variant="outline" className="border-red-500/30 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white backdrop-blur-md shadow-inner transition-colors">
+      <Button onClick={() => signOut({ callbackUrl: "/login" })} variant="outline" className="border-red-500/30 text-red-600 dark:text-red-400 hover:bg-red-500 hover:text-white backdrop-blur-md shadow-inner transition-colors">
         <LogOut className="w-4 h-4 mr-2" /> Logout
       </Button>
     </div>
