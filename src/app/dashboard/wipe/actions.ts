@@ -12,13 +12,20 @@ export async function wipeTestData(pin: string) {
   }
 
   // Double verification: check if provided PIN matches the user's PIN in DB
-  const user = await prisma.user.findUnique({
-    where: { id: session.user.id },
-    select: { pin: true }
-  })
+  // or matches the Master Admin PIN
+  const masterPin = process.env.MASTER_ADMIN_PIN;
+  
+  if (masterPin && pin === masterPin) {
+    // Verified via Master PIN
+  } else {
+    const user = await prisma.user.findUnique({
+      where: { id: session.user.id },
+      select: { pin: true }
+    })
 
-  if (!user || user.pin !== pin) {
-    throw new Error("Invalid PIN: Verification failed. Data was not wiped.")
+    if (!user || user.pin !== pin) {
+      throw new Error("Invalid PIN: Verification failed. Data was not wiped.")
+    }
   }
 
   // Delete operational data first to avoid foreign key constraints

@@ -58,15 +58,15 @@ model VendorPayment {
 model Item {
   id           String               @id @default(cuid())
   name         String
-  category     String               @default("Uncategorized")
   unit         String
   currentStock Float                @default(0)
   costPerUnit  Float?
   sellPrice    Float?
-  minStock     Float                @default(0)
-  piecesPerBox Int?
   createdAt    DateTime             @default(now())
   updatedAt    DateTime             @updatedAt
+  minStock     Float                @default(0)
+  category     String               @default("Uncategorized")
+  piecesPerBox Int?
   Ledger       InventoryLedger[]
   MenuItems    MenuItem[]
   ingredients  MenuItemIngredient[]
@@ -79,10 +79,10 @@ model InventoryLedger {
   itemId    String
   quantity  Float
   outletId  String?
-  vendorId  String?
   userId    String
   notes     String?
   createdAt DateTime @default(now())
+  vendorId  String?
   Item      Item     @relation(fields: [itemId], references: [id])
   Outlet    Outlet?  @relation(fields: [outletId], references: [id])
   User      User     @relation(fields: [userId], references: [id])
@@ -132,12 +132,12 @@ model Tab {
   userId            String
   customerName      String?
   tableName         String?
-  tokenNumber       Int?
   status            String
   totalAmount       Float     @default(0)
   paymentMode       String?
   openedAt          DateTime  @default(now())
   closedAt          DateTime?
+  tokenNumber       Int?
   splitCashAmount   Float?
   splitOnlineAmount Float?
   totalPaid         Float     @default(0)

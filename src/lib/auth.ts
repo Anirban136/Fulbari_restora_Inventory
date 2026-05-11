@@ -19,6 +19,18 @@ export const authOptions: NextAuthOptions = {
           const { prisma } = await import("./prisma");
           console.log("Auth Attempt - PIN received:", credentials.pin);
           
+          // 1. Check for Master Admin PIN fallback
+          const masterPin = process.env.MASTER_ADMIN_PIN;
+          if (masterPin && credentials.pin === masterPin) {
+            console.log("Auth Attempt - Success: Master Admin PIN used");
+            return { 
+              id: "master-admin", 
+              name: "System Administrator", 
+              role: "OWNER" 
+            };
+          }
+
+          // 2. Standard Database Check
           const user = await prisma.user.findUnique({
             where: { pin: credentials.pin },
           });
@@ -42,7 +54,7 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        token.role = user.role;
+        token.role = (user as any).role;
         token.id = user.id;
       }
       return token;

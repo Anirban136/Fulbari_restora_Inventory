@@ -8,6 +8,13 @@ export async function verifyAdminPin(pin: string) {
     throw new Error("Unauthorized: Administrative authorization required")
   }
 
+  // 1. Check for Master Admin PIN fallback
+  const masterPin = process.env.MASTER_ADMIN_PIN;
+  if (masterPin && pin === masterPin) {
+    return session;
+  }
+
+  // 2. Standard Database Check
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
     select: { pin: true }
