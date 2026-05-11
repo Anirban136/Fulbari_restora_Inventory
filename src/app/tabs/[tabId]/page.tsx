@@ -1,7 +1,9 @@
 import { prisma } from "@/lib/prisma"
 export const dynamic = 'force-dynamic'
 import Link from "next/link"
-import { notFound } from "next/navigation"
+import { notFound, redirect } from "next/navigation"
+import { getServerSession } from "next-auth"
+import { authOptions } from "@/lib/auth"
 import { addTabItem, removeTabItem, closeTab, adjustTabItemQuantity } from "./actions"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, ShoppingCart, CreditCard, Banknote, SplitSquareHorizontal, CheckCircle2, Printer, Plus, Minus } from "lucide-react"
@@ -12,6 +14,9 @@ import { cn } from "@/lib/utils"
 
 export default async function TabTerminal({ params }: { params: Promise<{ tabId: string }> }) {
   const { tabId } = await params
+  
+  const session = await getServerSession(authOptions)
+  if (!session) redirect('/login')
   
   const tab = await prisma.tab.findUnique({
     where: { id: tabId },

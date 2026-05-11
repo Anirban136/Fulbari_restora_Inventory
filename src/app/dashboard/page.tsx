@@ -9,10 +9,13 @@ import { CriticalSupplyAlert } from "./CriticalSupplyAlert"
 
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { redirect } from "next/navigation"
 import { FinancialReports } from "@/components/FinancialReports"
 
 export default async function DashboardOverview() {
   const session = await getServerSession(authOptions)
+  if (!session) redirect('/login')
+  
   const { startUTC: startOfDay, endUTC: endOfDay } = getISTDateBounds();
   
 

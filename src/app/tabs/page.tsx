@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma"
 export const dynamic = 'force-dynamic'
+import { redirect } from "next/navigation"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { Button } from "@/components/ui/button"
@@ -14,7 +15,7 @@ export default async function ActiveTabsPage({ searchParams }: { searchParams: P
   const { target } = await searchParams || {}
 
   const session = await getServerSession(authOptions)
-  if (!session) return null
+  if (!session) redirect('/login')
 
   const roleTypeMap: Record<string, string> = { CAFE_STAFF: "CAFE", CHAI_STAFF: "CHAI_JOINT" } 
   let outletSearch: any = {}
