@@ -80,6 +80,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
       displayQty = `${entry.quantity} pieces (${boxCount} ${entry.Item.unit})`
     }
 
+    if (entry.type === "STOCK_IN") {
       const isManualAdjustment = entry.itemId === "manual_adjustment_item"
       const rawNotes = entry.notes || ""
       const cleanNotes = rawNotes.replace(/Cost=[\d.]+/, "").trim()

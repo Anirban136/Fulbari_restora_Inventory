@@ -51,14 +51,14 @@ export function AddManualBillDialog({ vendor }: AddManualBillDialogProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      <DialogTrigger render={
         <button
           className="p-3 rounded-2xl bg-white/5 border border-white/5 text-amber-400/60 hover:text-amber-400 transition-all hover:bg-amber-500/10 active:scale-90"
           title={`Add Manual Bill for ${vendor.name}`}
         >
           <FilePlus2 className="w-4 h-4" />
         </button>
-      </DialogTrigger>
+      } />
       <DialogContent className="sm:max-w-[450px] bg-background/95 backdrop-blur-2xl border-border rounded-3xl shadow-2xl">
         <DialogHeader className="mb-2">
           <div className="w-12 h-12 bg-amber-500/10 rounded-2xl flex items-center justify-center mb-4 border border-amber-500/20">
