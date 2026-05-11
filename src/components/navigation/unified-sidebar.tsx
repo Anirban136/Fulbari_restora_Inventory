@@ -45,6 +45,13 @@ export function UnifiedSidebar({ user }: { user: any }) {
   const { theme, setTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
 
+  const getLogoHref = () => {
+    if (user?.role === "CAFE_STAFF") return "/cafe"
+    if (user?.role === "CHAI_STAFF") return "/chai"
+    if (user?.role === "REST_STAFF") return "/restaurant"
+    return "/dashboard"
+  }
+
   // Close sidebar when route changes
   useEffect(() => {
     setIsOpen(false)
@@ -79,7 +86,7 @@ export function UnifiedSidebar({ user }: { user: any }) {
     <>
       {/* Mobile Top Header (Enlarged & Clickable Branding) */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-20 px-8 flex items-center justify-between border-b border-border bg-background/80 backdrop-blur-3xl z-[45] shadow-2xl">
-        <Link href="/dashboard" className="flex flex-col group active:scale-95 transition-transform">
+        <Link href={getLogoHref()} className="flex flex-col group active:scale-95 transition-transform">
           <h1 className="text-3xl font-black text-emerald-500 group-hover:text-emerald-400 tracking-tighter leading-none uppercase transition-colors">FULBARI</h1>
           <p className="text-[9px] font-black tracking-[0.4em] uppercase text-muted-foreground mt-2 opacity-100">Operations Unit</p>
         </Link>
@@ -125,7 +132,7 @@ export function UnifiedSidebar({ user }: { user: any }) {
         )}>
           {/* Logo Section in Sidebar (Enlarged & Clickable) */}
           <div className="p-10 border-b border-border shrink-0 flex items-start justify-between">
-            <Link href="/dashboard" className="group block active:scale-95 transition-transform">
+            <Link href={getLogoHref()} className="group block active:scale-95 transition-transform">
                 <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-600 to-teal-400 dark:from-emerald-400 dark:to-teal-200 tracking-tighter uppercase leading-none group-hover:from-emerald-500 group-hover:to-teal-300 transition-all">FULBARI</h1>
                 <p className="text-[10px] font-black tracking-[0.4em] uppercase text-muted-foreground mt-3 opacity-100">Operations Unit</p>
             </Link>
