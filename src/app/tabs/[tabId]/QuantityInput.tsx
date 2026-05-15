@@ -21,7 +21,7 @@ export function QuantityInput({ item, tabId, isCafe }: QuantityInputProps) {
   }, [item.quantity])
 
   const syncQuantity = (newQty: number) => {
-    if (isNaN(newQty) || newQty === item.quantity || newQty < 0) return
+    if (isNaN(newQty) || newQty === item.quantity || newQty <= 0) return
 
     startTransition(async () => {
       try {
@@ -35,11 +35,11 @@ export function QuantityInput({ item, tabId, isCafe }: QuantityInputProps) {
 
   // Debounce logic for "as you type" updates
   useEffect(() => {
-    if (localQty === item.quantity) return
+    if (localQty === item.quantity || localQty <= 0) return
 
     const timer = setTimeout(() => {
       syncQuantity(localQty)
-    }, 600) // 600ms delay after typing stops
+    }, 800) // Slightly longer delay to allow more typing time
 
     return () => clearTimeout(timer)
   }, [localQty])
@@ -49,10 +49,17 @@ export function QuantityInput({ item, tabId, isCafe }: QuantityInputProps) {
       <input
         type="number"
         min="1"
-        value={localQty}
+        value={localQty === 0 ? "" : localQty}
         onChange={(e) => {
-          const val = parseInt(e.target.value)
-          setLocalQty(isNaN(val) ? 0 : val)
+          const val = e.target.value === "" ? 0 : parseInt(e.target.value)
+          setLocalQty(val)
+        }}
+        onBlur={() => {
+          if (localQty <= 0) {
+            setLocalQty(item.quantity)
+          } else {
+            syncQuantity(localQty)
+          }
         }}
         disabled={item.isPaid}
         onKeyDown={(e) => {
