@@ -77,32 +77,39 @@ export function PosMenuGrid({ categorizedMenu, tabId, isCafe }: { categorizedMen
             const isOutOfStock = stock !== null && stock <= 0
 
             return (
-              <div key={item.id} className="relative group animate-in slide-in-from-bottom-2 duration-300">
-                <form action={addTabItem.bind(null, tabId, item.id, item.price, 1)}>
+              <div key={item.id} className="relative animate-in slide-in-from-bottom-2 duration-300">
+                <form action={addTabItem.bind(null, tabId, item.id, item.price, 1)} className="h-full">
                   <button 
                     type="submit" 
                     disabled={isOutOfStock}
-                    className={`w-full text-left bg-foreground/5 backdrop-blur-md ${isOutOfStock ? "opacity-40 grayscale cursor-not-allowed" : isCafe ? "hover:bg-orange-500/10 hover:border-orange-500/50 hover:shadow-[0_0_25px_-5px_rgba(249,115,22,0.3)] border-border" : "hover:bg-sky-500/10 hover:border-sky-500/50 hover:shadow-[0_0_25px_-5px_rgba(14,165,233,0.3)] border-border"} border-2 rounded-2xl p-4 lg:p-6 transition-all active:scale-95 group shadow-lg h-full min-h-[140px] flex flex-col justify-between`}
+                    className={`w-full text-left bg-foreground/5 backdrop-blur-md ${isOutOfStock ? "opacity-40 grayscale cursor-not-allowed" : isCafe ? "hover:bg-orange-500/10 hover:border-orange-500/50 hover:shadow-[0_0_25px_-5px_rgba(249,115,22,0.3)] border-border" : "hover:bg-sky-500/10 hover:border-sky-500/50 hover:shadow-[0_0_25px_-5px_rgba(14,165,233,0.3)] border-border"} border-2 rounded-2xl p-4 lg:p-6 transition-all active:scale-95 group shadow-lg h-full min-h-[160px] flex flex-col`}
                   >
-                    <div className={`font-bold text-foreground ${isOutOfStock ? "" : isCafe ? "group-hover:text-orange-400" : "group-hover:text-sky-400"} text-sm lg:text-lg mb-4 whitespace-normal leading-tight transition-colors pr-2 w-full`}>{item.name}</div>
-                    <div className="mt-auto">
+                    {/* Card Header: Stock Info */}
+                    {stock !== null && (
+                      <div className={`mb-3 self-start px-2 py-1 rounded-lg text-[9px] font-black tracking-tight uppercase border transition-all flex items-center gap-2 ${
+                        isOutOfStock 
+                          ? "bg-red-500 text-red-950 border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]" 
+                          : isLowStock 
+                            ? "bg-amber-500/20 text-amber-500 border-amber-500/30" 
+                            : "bg-emerald-500/20 text-emerald-500 border-emerald-500/30"
+                      }`}>
+                        <span className="opacity-70 max-w-[80px] truncate">{stockItemName}</span>
+                        <div className={`w-1 h-1 rounded-full ${isOutOfStock ? "bg-red-950" : isLowStock ? "bg-amber-500" : "bg-emerald-500"} animate-pulse`}></div>
+                        <span className="text-[10px] lg:text-[11px]">{isOutOfStock ? "OUT" : `${stock} LEFT`}</span>
+                      </div>
+                    )}
+
+                    {/* Product Name */}
+                    <div className={`font-bold text-foreground ${isOutOfStock ? "" : isCafe ? "group-hover:text-orange-400" : "group-hover:text-sky-400"} text-sm lg:text-lg mb-4 whitespace-normal leading-tight transition-colors w-full`}>
+                      {item.name}
+                    </div>
+
+                    {/* Price - Pushed to bottom */}
+                    <div className="mt-auto pt-2 border-t border-border/50">
                        <div className={`${isOutOfStock ? "text-muted-foreground" : isCafe ? "text-orange-500" : "text-sky-500"} font-extrabold text-xl lg:text-2xl`}>₹{item.price.toFixed(0)}</div>
                     </div>
                   </button>
                 </form>
-
-                {stock !== null && (
-                  <div className={`absolute top-2 right-2 px-2 py-1 rounded-lg text-[8px] lg:text-[9px] font-black tracking-tighter uppercase border transition-all z-10 flex flex-col items-end leading-none gap-0.5 ${
-                    isOutOfStock 
-                      ? "bg-red-500 text-red-950 border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]" 
-                      : isLowStock 
-                        ? "bg-amber-500/20 text-amber-500 border-amber-500/30" 
-                        : "bg-emerald-500/20 text-emerald-500 border-emerald-500/30"
-                  }`}>
-                    <span className="opacity-70 truncate max-w-[60px]">{stockItemName}</span>
-                    <span className="text-[10px] lg:text-[11px]">{isOutOfStock ? "OUT" : `${stock} LEFT`}</span>
-                  </div>
-                )}
               </div>
             )
           })}
