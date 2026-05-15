@@ -69,6 +69,32 @@ export async function adjustTabItemQuantity(tabItemId: string, tabId: string, de
   revalidatePath(`/tabs/${tabId}`)
 }
 
+export async function updateTabItemQuantity(tabItemId: string, tabId: string, newQuantity: number, pricePerUnit: number) {
+  const item = await prisma.tabItem.findUnique({ where: { id: tabItemId } })
+  if (!item) return
+  
+  if (newQuantity <= 0) {
+    const delta = -item.quantity
+    await prisma.tabItem.delete({ where: { id: tabItemId } })
+    await prisma.tab.update({
+      where: { id: tabId },
+      data: { totalAmount: { increment: pricePerUnit * delta } }
+    })
+  } else {
+    const delta = newQuantity - item.quantity
+    await prisma.tabItem.update({
+      where: { id: tabItemId },
+      data: { quantity: newQuantity }
+    })
+    await prisma.tab.update({
+      where: { id: tabId },
+      data: { totalAmount: { increment: pricePerUnit * delta } }
+    })
+  }
+
+  revalidatePath(`/tabs/${tabId}`)
+}
+
 
 export async function closeTab(data: FormData) {
   const tabId = data.get("tabId") as string

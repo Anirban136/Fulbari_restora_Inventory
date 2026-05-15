@@ -11,6 +11,7 @@ import { PosMenuGrid } from "./PosMenuGrid"
 import { PrintReceiptButton } from "@/components/PrintReceiptButton"
 import { CheckoutSidebar } from "./CheckoutSidebar"
 import { cn } from "@/lib/utils"
+import { QuantityInput } from "./QuantityInput"
 
 export default async function TabTerminal({ params }: { params: Promise<{ tabId: string }> }) {
   const { tabId } = await params
@@ -182,11 +183,12 @@ export default async function TabTerminal({ params }: { params: Promise<{ tabId:
                           <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
                         </button>
                       </form>
+                      <QuantityInput item={item} tabId={tab.id} isCafe={isCafe} />
                       <div className={cn(
-                        "px-2 sm:px-4 py-1 sm:py-2 font-black text-[10px] sm:text-base min-w-[2.5rem] sm:min-w-[4rem] text-center transition-colors",
+                        "pr-2 sm:pr-4 py-1 sm:py-2 font-black text-[8px] sm:text-[10px] opacity-40 transition-colors",
                         isCafe ? "text-orange-400" : "text-sky-400"
                       )}>
-                        {item.quantity}<span className="text-[8px] sm:text-[10px] opacity-40 ml-0.5">X</span>
+                        X
                       </div>
                       <form action={adjustTabItemQuantity.bind(null, item.id, tab.id, 1, item.priceAtTime)}>
                         <button 
