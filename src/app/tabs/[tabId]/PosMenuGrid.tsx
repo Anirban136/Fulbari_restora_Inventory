@@ -57,16 +57,47 @@ export function PosMenuGrid({ categorizedMenu, tabId, isCafe }: { categorizedMen
         
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-20">
           {categorizedMenu[activeCategory].map((item: any) => {
+            // Calculate available stock
+            let stock: number | null = item.Item?.OutletStock?.[0]?.quantity ?? null
+            
+            // If it's a recipe, calculate the minimum possible units from ingredients
+            if (item.ingredients && item.ingredients.length > 0) {
+              const possibleUnits = item.ingredients.map((ing: any) => {
+                const ingStock = ing.Item?.OutletStock?.[0]?.quantity ?? 0
+                return Math.floor(ingStock / ing.quantity)
+              })
+              stock = Math.min(...possibleUnits)
+            }
+
+            const isLowStock = stock !== null && stock < 10
+            const isOutOfStock = stock !== null && stock <= 0
+
             return (
               <div key={item.id} className="relative group animate-in slide-in-from-bottom-2 duration-300">
                 <form action={addTabItem.bind(null, tabId, item.id, item.price, 1)}>
-                  <button type="submit" className={`w-full text-left bg-foreground/5 backdrop-blur-md ${isCafe ? "hover:bg-orange-500/10 hover:border-orange-500/50 hover:shadow-[0_0_25px_-5px_rgba(249,115,22,0.3)] border-border" : "hover:bg-sky-500/10 hover:border-sky-500/50 hover:shadow-[0_0_25px_-5px_rgba(14,165,233,0.3)] border-border"} border-2 rounded-2xl p-4 lg:p-5 transition-all active:scale-95 group shadow-lg h-full min-h-[100px] flex flex-col justify-between`}>
-                    <div className={`font-bold text-foreground ${isCafe ? "group-hover:text-orange-400" : "group-hover:text-sky-400"} text-sm lg:text-lg mb-2 line-clamp-2 whitespace-normal transition-colors pr-2 w-full`}>{item.name}</div>
+                  <button 
+                    type="submit" 
+                    disabled={isOutOfStock}
+                    className={`w-full text-left bg-foreground/5 backdrop-blur-md ${isOutOfStock ? "opacity-40 grayscale cursor-not-allowed" : isCafe ? "hover:bg-orange-500/10 hover:border-orange-500/50 hover:shadow-[0_0_25px_-5px_rgba(249,115,22,0.3)] border-border" : "hover:bg-sky-500/10 hover:border-sky-500/50 hover:shadow-[0_0_25px_-5px_rgba(14,165,233,0.3)] border-border"} border-2 rounded-2xl p-4 lg:p-5 transition-all active:scale-95 group shadow-lg h-full min-h-[100px] flex flex-col justify-between`}
+                  >
+                    <div className={`font-bold text-foreground ${isOutOfStock ? "" : isCafe ? "group-hover:text-orange-400" : "group-hover:text-sky-400"} text-sm lg:text-lg mb-2 line-clamp-2 whitespace-normal transition-colors pr-2 w-full`}>{item.name}</div>
                     <div>
-                       <div className={`${isCafe ? "text-orange-500" : "text-sky-500"} font-extrabold text-lg lg:text-xl`}>₹{item.price.toFixed(0)}</div>
+                       <div className={`${isOutOfStock ? "text-muted-foreground" : isCafe ? "text-orange-500" : "text-sky-500"} font-extrabold text-lg lg:text-xl`}>₹{item.price.toFixed(0)}</div>
                     </div>
                   </button>
                 </form>
+
+                {stock !== null && (
+                  <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-lg text-[9px] font-black tracking-tighter uppercase border transition-all z-10 ${
+                    isOutOfStock 
+                      ? "bg-red-500 text-red-950 border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]" 
+                      : isLowStock 
+                        ? "bg-amber-500/20 text-amber-500 border-amber-500/30" 
+                        : "bg-emerald-500/20 text-emerald-500 border-emerald-500/30"
+                  }`}>
+                    {isOutOfStock ? "SOLD OUT" : `${stock} left`}
+                  </div>
+                )}
               </div>
             )
           })}

@@ -106,7 +106,26 @@ export default async function TabTerminal({ params }: { params: Promise<{ tabId:
   // ===== OPEN STATE: Normal POS Interface =====
   const availableMenu = await prisma.menuItem.findMany({
     where: { outletId: tab.outletId, isAvailable: true },
-    include: { Item: true },
+    include: { 
+      Item: { 
+        include: { 
+          OutletStock: { 
+            where: { outletId: tab.outletId } 
+          } 
+        } 
+      },
+      ingredients: {
+        include: {
+          Item: {
+            include: {
+              OutletStock: {
+                where: { outletId: tab.outletId }
+              }
+            }
+          }
+        }
+      }
+    },
     orderBy: { categoryId: 'asc' }
   })
 
