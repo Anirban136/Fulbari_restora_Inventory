@@ -57,7 +57,6 @@ export function PosMenuGrid({ categorizedMenu, tabId, isCafe }: { categorizedMen
         
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-20">
           {categorizedMenu[activeCategory].map((item: any) => {
-            const hasBoxOption = item.Item?.piecesPerBox && item.Item.piecesPerBox > 1
             return (
               <div key={item.id} className="relative group animate-in slide-in-from-bottom-2 duration-300">
                 <form action={addTabItem.bind(null, tabId, item.id, item.price, 1)}>
@@ -65,26 +64,9 @@ export function PosMenuGrid({ categorizedMenu, tabId, isCafe }: { categorizedMen
                     <div className={`font-bold text-foreground ${isCafe ? "group-hover:text-orange-400" : "group-hover:text-sky-400"} text-sm lg:text-lg mb-2 line-clamp-2 whitespace-normal transition-colors pr-2 w-full`}>{item.name}</div>
                     <div>
                        <div className={`${isCafe ? "text-orange-500" : "text-sky-500"} font-extrabold text-lg lg:text-xl`}>₹{item.price.toFixed(0)}</div>
-                       {hasBoxOption && (
-                         <div className="text-[9px] lg:text-[10px] text-muted-foreground font-bold uppercase tracking-tighter mt-0.5 opacity-60 italic">
-                           {item.Item.piecesPerBox} pcs / box
-                         </div>
-                       )}
                     </div>
                   </button>
                 </form>
-
-                {hasBoxOption && (
-                  <form action={addTabItem.bind(null, tabId, item.id, item.price, item.Item.piecesPerBox)} className="absolute top-2 right-2 z-10">
-                    <button 
-                      type="submit" 
-                      className={`px-3 py-1.5 rounded-lg text-[10px] font-black tracking-widest uppercase transition-all shadow-lg active:scale-90 ${isCafe ? "bg-orange-500 text-orange-950 hover:bg-orange-400" : "bg-sky-500 text-sky-950 hover:bg-sky-400"}`}
-                      title={`Add Full Box (${item.Item.piecesPerBox} pcs)`}
-                    >
-                      BOX
-                    </button>
-                  </form>
-                )}
               </div>
             )
           })}

@@ -205,42 +205,6 @@ export default async function TabTerminal({ params }: { params: Promise<{ tabId:
                   <div className="flex-1 min-w-0">
                     <p className="font-bold text-foreground text-sm sm:text-lg line-clamp-2 whitespace-normal">{item.MenuItem.name}</p>
                     <p className="text-muted-foreground font-medium text-xs sm:text-sm">₹{item.priceAtTime.toFixed(2)} each</p>
-                    {item.MenuItem?.Item?.piecesPerBox && item.MenuItem.Item.piecesPerBox > 1 && (
-                      <div className="mt-2 flex items-center gap-2">
-                        <form action={adjustTabItemQuantity.bind(null, item.id, tab.id, -item.MenuItem.Item.piecesPerBox, item.priceAtTime)}>
-                          <button
-                            type="submit"
-                            className={cn(
-                              "px-2 py-1 rounded-md text-[10px] font-black tracking-wider uppercase transition-all active:scale-90 border",
-                              isCafe
-                                ? "border-orange-500/30 text-orange-300 hover:bg-orange-500/20"
-                                : "border-sky-500/30 text-sky-300 hover:bg-sky-500/20"
-                            )}
-                            title={`Remove 1 box (${item.MenuItem.Item.piecesPerBox} pcs)`}
-                          >
-                            -BOX
-                          </button>
-                        </form>
-                        <form action={adjustTabItemQuantity.bind(null, item.id, tab.id, item.MenuItem.Item.piecesPerBox, item.priceAtTime)}>
-                          <button
-                            type="submit"
-                            disabled={item.isPaid}
-                            className={cn(
-                              "px-2 py-1 rounded-md text-[10px] font-black tracking-wider uppercase transition-all active:scale-90 border",
-                              item.isPaid ? "cursor-not-allowed opacity-20" : isCafe
-                                ? "border-orange-500/40 text-orange-200 hover:bg-orange-500/25"
-                                : "border-sky-500/40 text-sky-200 hover:bg-sky-500/25"
-                            )}
-                            title={`Add 1 box (${item.MenuItem.Item.piecesPerBox} pcs)`}
-                          >
-                            +BOX
-                          </button>
-                        </form>
-                        <span className="text-[10px] text-muted-foreground/70 font-bold">
-                          1 box = {item.MenuItem.Item.piecesPerBox} pcs
-                        </span>
-                      </div>
-                    )}
                   </div>
                   <div className="text-right flex flex-col items-end shrink-0">
                     <p className="font-black text-foreground text-sm sm:text-xl">₹{(item.quantity * item.priceAtTime).toFixed(2)}</p>
