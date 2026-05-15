@@ -57,16 +57,24 @@ export function PosMenuGrid({ categorizedMenu, tabId, isCafe }: { categorizedMen
         
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-20">
           {categorizedMenu[activeCategory].map((item: any) => {
-            // Calculate available stock
-            let stock: number | null = item.Item?.OutletStock?.[0]?.quantity ?? null
+            const hasLegacyLink = !!item.itemId
+            const hasIngredients = item.ingredients && item.ingredients.length > 0
             
-            // If it's a recipe, calculate the minimum possible units from ingredients
-            if (item.ingredients && item.ingredients.length > 0) {
+            // Calculate available stock only if linked to inventory
+            let stock: number | null = null
+            let stockItemName: string | null = null
+
+            if (hasLegacyLink) {
+              stock = item.Item?.OutletStock?.[0]?.quantity ?? 0
+              stockItemName = item.Item?.name
+            } else if (hasIngredients) {
               const possibleUnits = item.ingredients.map((ing: any) => {
                 const ingStock = ing.Item?.OutletStock?.[0]?.quantity ?? 0
                 return Math.floor(ingStock / ing.quantity)
               })
               stock = Math.min(...possibleUnits)
+              const bottleneckIndex = possibleUnits.indexOf(stock)
+              stockItemName = item.ingredients[bottleneckIndex]?.Item?.name
             }
 
             const isLowStock = stock !== null && stock < 10
@@ -78,24 +86,25 @@ export function PosMenuGrid({ categorizedMenu, tabId, isCafe }: { categorizedMen
                   <button 
                     type="submit" 
                     disabled={isOutOfStock}
-                    className={`w-full text-left bg-foreground/5 backdrop-blur-md ${isOutOfStock ? "opacity-40 grayscale cursor-not-allowed" : isCafe ? "hover:bg-orange-500/10 hover:border-orange-500/50 hover:shadow-[0_0_25px_-5px_rgba(249,115,22,0.3)] border-border" : "hover:bg-sky-500/10 hover:border-sky-500/50 hover:shadow-[0_0_25px_-5px_rgba(14,165,233,0.3)] border-border"} border-2 rounded-2xl p-4 lg:p-5 transition-all active:scale-95 group shadow-lg h-full min-h-[100px] flex flex-col justify-between`}
+                    className={`w-full text-left bg-foreground/5 backdrop-blur-md ${isOutOfStock ? "opacity-40 grayscale cursor-not-allowed" : isCafe ? "hover:bg-orange-500/10 hover:border-orange-500/50 hover:shadow-[0_0_25px_-5px_rgba(249,115,22,0.3)] border-border" : "hover:bg-sky-500/10 hover:border-sky-500/50 hover:shadow-[0_0_25px_-5px_rgba(14,165,233,0.3)] border-border"} border-2 rounded-2xl p-4 lg:p-6 transition-all active:scale-95 group shadow-lg h-full min-h-[140px] flex flex-col justify-between`}
                   >
-                    <div className={`font-bold text-foreground ${isOutOfStock ? "" : isCafe ? "group-hover:text-orange-400" : "group-hover:text-sky-400"} text-sm lg:text-lg mb-2 line-clamp-2 whitespace-normal transition-colors pr-2 w-full`}>{item.name}</div>
-                    <div>
-                       <div className={`${isOutOfStock ? "text-muted-foreground" : isCafe ? "text-orange-500" : "text-sky-500"} font-extrabold text-lg lg:text-xl`}>₹{item.price.toFixed(0)}</div>
+                    <div className={`font-bold text-foreground ${isOutOfStock ? "" : isCafe ? "group-hover:text-orange-400" : "group-hover:text-sky-400"} text-sm lg:text-lg mb-4 whitespace-normal leading-tight transition-colors pr-2 w-full`}>{item.name}</div>
+                    <div className="mt-auto">
+                       <div className={`${isOutOfStock ? "text-muted-foreground" : isCafe ? "text-orange-500" : "text-sky-500"} font-extrabold text-xl lg:text-2xl`}>₹{item.price.toFixed(0)}</div>
                     </div>
                   </button>
                 </form>
 
                 {stock !== null && (
-                  <div className={`absolute top-2 right-2 px-2 py-0.5 rounded-lg text-[9px] font-black tracking-tighter uppercase border transition-all z-10 ${
+                  <div className={`absolute top-2 right-2 px-2 py-1 rounded-lg text-[8px] lg:text-[9px] font-black tracking-tighter uppercase border transition-all z-10 flex flex-col items-end leading-none gap-0.5 ${
                     isOutOfStock 
                       ? "bg-red-500 text-red-950 border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]" 
                       : isLowStock 
                         ? "bg-amber-500/20 text-amber-500 border-amber-500/30" 
                         : "bg-emerald-500/20 text-emerald-500 border-emerald-500/30"
                   }`}>
-                    {isOutOfStock ? "SOLD OUT" : `${stock} left`}
+                    <span className="opacity-70 truncate max-w-[60px]">{stockItemName}</span>
+                    <span className="text-[10px] lg:text-[11px]">{isOutOfStock ? "OUT" : `${stock} LEFT`}</span>
                   </div>
                 )}
               </div>
