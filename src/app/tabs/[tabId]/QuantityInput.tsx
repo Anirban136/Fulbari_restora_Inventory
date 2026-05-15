@@ -39,7 +39,7 @@ export function QuantityInput({ item, tabId, isCafe }: QuantityInputProps) {
           handleQuantityChange(parseInt(e.target.value))
         }}
         className={cn(
-          "px-2 sm:px-4 py-1 sm:py-2 font-black text-[10px] sm:text-base min-w-[2.5rem] sm:min-w-[4rem] text-center transition-colors bg-transparent border-none outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
+          "px-1 py-0.5 font-black text-sm min-w-[1.5rem] text-center transition-colors bg-transparent border-none outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none",
           isCafe ? "text-orange-400" : "text-sky-400",
           (item.isPaid || isPending) && "opacity-50 cursor-not-allowed"
         )}

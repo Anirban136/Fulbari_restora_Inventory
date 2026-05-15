@@ -169,44 +169,18 @@ export default async function TabTerminal({ params }: { params: Promise<{ tabId:
                       <CheckCircle2 className="w-3 h-3" /> PAID
                     </div>
                   )}
-                  <div className="flex items-center shrink-0">
-                    <div className="flex flex-col sm:flex-row items-center bg-background/50 dark:bg-black/40 rounded-xl sm:rounded-2xl overflow-hidden border border-border shadow-inner group/adjuster">
-                      <form action={adjustTabItemQuantity.bind(null, item.id, tab.id, -1, item.priceAtTime)}>
-                        <button 
-                          type="submit" 
-                          disabled={item.isPaid}
-                          className={cn(
-                            "p-2 sm:p-3 transition-all active:scale-90 bg-foreground/5 border-b sm:border-b-0 sm:border-r border-border",
-                            item.isPaid ? "cursor-not-allowed opacity-20" : isCafe ? "hover:bg-orange-500 hover:text-orange-950" : "hover:bg-sky-500 hover:text-sky-950"
-                          )}
-                        >
-                          <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
-                        </button>
-                      </form>
-                      <QuantityInput item={item} tabId={tab.id} isCafe={isCafe} />
-                      <div className={cn(
-                        "pr-2 sm:pr-4 py-1 sm:py-2 font-black text-[8px] sm:text-[10px] opacity-40 transition-colors",
-                        isCafe ? "text-orange-400" : "text-sky-400"
-                      )}>
-                        X
-                      </div>
-                      <form action={adjustTabItemQuantity.bind(null, item.id, tab.id, 1, item.priceAtTime)}>
-                        <button 
-                          type="submit" 
-                          disabled={item.isPaid}
-                          className={cn(
-                            "p-2 sm:p-3 transition-all active:scale-90 bg-foreground/5 border-t sm:border-t-0 sm:border-l border-border",
-                            item.isPaid ? "cursor-not-allowed opacity-20" : isCafe ? "hover:bg-orange-500 hover:text-orange-950" : "hover:bg-sky-500 hover:text-sky-950"
-                          )}
-                        >
-                          <Plus className="w-3 h-3 sm:w-4 sm:h-4" />
-                        </button>
-                      </form>
-                    </div>
-                  </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-foreground text-sm sm:text-lg line-clamp-2 whitespace-normal">{item.MenuItem.name}</p>
-                    <p className="text-muted-foreground font-medium text-xs sm:text-sm">₹{item.priceAtTime.toFixed(2)} each</p>
+                    <div className="flex items-center gap-2 mb-1">
+                       <div className="flex items-center bg-foreground/5 dark:bg-black/40 rounded-xl overflow-hidden border border-border shadow-inner px-1 shrink-0">
+                          <QuantityInput item={item} tabId={tab.id} isCafe={isCafe} />
+                          <span className={cn(
+                            "text-[10px] font-black opacity-40 pr-1",
+                            isCafe ? "text-orange-400" : "text-sky-400"
+                          )}>X</span>
+                       </div>
+                       <p className="font-bold text-foreground text-sm sm:text-lg line-clamp-2 whitespace-normal flex-1">{item.MenuItem.name}</p>
+                    </div>
+                    <p className="text-muted-foreground font-medium text-[10px] sm:text-xs pl-1">₹{item.priceAtTime.toFixed(2)} each</p>
                   </div>
                   <div className="text-right flex flex-col items-end shrink-0">
                     <p className="font-black text-foreground text-sm sm:text-xl">₹{(item.quantity * item.priceAtTime).toFixed(2)}</p>
