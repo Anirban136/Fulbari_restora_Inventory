@@ -136,35 +136,6 @@ export async function closeTab(data: FormData) {
      const { MenuItem: menuItem, quantity: orderQty } = tabItem
      sessionSubtotal += tabItem.priceAtTime * orderQty
 
-     // 1. Handle Legacy Single-Item link (1:1)
-     if (menuItem.itemId) {
-       try {
-         // USE UPSERT instead of UPDATE to prevent "Record not found" errors
-         await prisma.outletStock.upsert({
-           where: { outletId_itemId: { outletId: tab.outletId, itemId: menuItem.itemId } },
-           create: { 
-             outletId: tab.outletId, 
-             itemId: menuItem.itemId, 
-             quantity: -orderQty 
-           },
-           update: { quantity: { decrement: orderQty } }
-         })
-         
-         await prisma.inventoryLedger.create({
-           data: {
-             type: "CONSUMPTION",
-             itemId: menuItem.itemId,
-             outletId: tab.outletId,
-             quantity: orderQty,
-             userId: tab.userId,
-             notes: `POS Direct Link Deduction (Tab ${tab.id})`
-           }
-         })
-       } catch (e) {
-         console.error("Failed to decrement direct-link inventory for", menuItem.name, e)
-       }
-     }
-
      // 2. Handle Multi-Ingredient Recipes
      if (menuItem.ingredients && menuItem.ingredients.length > 0) {
        for (const ingredient of menuItem.ingredients) {
@@ -263,29 +234,6 @@ export async function reopenTab(tabId: string) {
   // Reverse inventory deductions (Both Legacy and Recipes)
   for (const tabItem of tab.Items) {
      const { MenuItem: menuItem, quantity: orderQty } = tabItem
-
-     // 1. Revert Legacy Single-Item link
-     if (menuItem.itemId) {
-       try {
-         await prisma.outletStock.update({
-           where: { outletId_itemId: { outletId: tab.outletId, itemId: menuItem.itemId } },
-           data: { quantity: { increment: orderQty } }
-         })
-         
-         await prisma.inventoryLedger.create({
-           data: {
-             type: "REVERSAL",
-             itemId: menuItem.itemId,
-             outletId: tab.outletId,
-             quantity: orderQty,
-             userId: tab.userId,
-             notes: `Tab Re-opened Reversal (Tab ${tab.id})`
-           }
-         })
-       } catch (e) {
-         console.error("Failed to increment inventory for reversal", menuItem.name, e)
-       }
-     }
 
      // 2. Revert Multi-Ingredient Recipes
      if (menuItem.ingredients && menuItem.ingredients.length > 0) {

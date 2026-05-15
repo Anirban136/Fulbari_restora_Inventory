@@ -57,17 +57,13 @@ export function PosMenuGrid({ categorizedMenu, tabId, isCafe }: { categorizedMen
         
         <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-20">
           {categorizedMenu[activeCategory].map((item: any) => {
-            const hasLegacyLink = !!item.itemId
             const hasIngredients = item.ingredients && item.ingredients.length > 0
             
-            // Calculate available stock only if linked to inventory
+            // Calculate available stock only if linked via recipe
             let stock: number | null = null
             let stockItemName: string | null = null
 
-            if (hasLegacyLink) {
-              stock = item.Item?.OutletStock?.[0]?.quantity ?? 0
-              stockItemName = item.Item?.name
-            } else if (hasIngredients) {
+            if (hasIngredients) {
               const possibleUnits = item.ingredients.map((ing: any) => {
                 const ingStock = ing.Item?.OutletStock?.[0]?.quantity ?? 0
                 return Math.floor(ingStock / ing.quantity)
