@@ -62,7 +62,7 @@ export function PosMenuGrid({ categorizedMenu, tabId, isCafe }: { categorizedMen
               <div key={item.id} className="relative group animate-in slide-in-from-bottom-2 duration-300">
                 <form action={addTabItem.bind(null, tabId, item.id, item.price, 1)}>
                   <button type="submit" className={`w-full text-left bg-foreground/5 backdrop-blur-md ${isCafe ? "hover:bg-orange-500/10 hover:border-orange-500/50 hover:shadow-[0_0_25px_-5px_rgba(249,115,22,0.3)] border-border" : "hover:bg-sky-500/10 hover:border-sky-500/50 hover:shadow-[0_0_25px_-5px_rgba(14,165,233,0.3)] border-border"} border-2 rounded-2xl p-4 lg:p-5 transition-all active:scale-95 group shadow-lg h-full min-h-[100px] flex flex-col justify-between`}>
-                    <div className={`font-bold text-foreground ${isCafe ? "group-hover:text-orange-400" : "group-hover:text-sky-400"} text-sm lg:text-lg mb-2 truncate transition-colors pr-2 w-full`}>{item.name}</div>
+                    <div className={`font-bold text-foreground ${isCafe ? "group-hover:text-orange-400" : "group-hover:text-sky-400"} text-sm lg:text-lg mb-2 line-clamp-2 whitespace-normal transition-colors pr-2 w-full`}>{item.name}</div>
                     <div>
                        <div className={`${isCafe ? "text-orange-500" : "text-sky-500"} font-extrabold text-lg lg:text-xl`}>₹{item.price.toFixed(0)}</div>
                        {hasBoxOption && (

@@ -135,7 +135,7 @@ export default async function TabTerminal({ params }: { params: Promise<{ tabId:
           </Link>
           <div className="flex items-center gap-3 sm:gap-4 shrink-0 mt-4 sm:mt-0">
             <div className={`h-2 w-2 rounded-full ${isCafe ? "bg-orange-500 shadow-[0_0_10px_#f97316]" : "bg-sky-500 shadow-[0_0_10px_#0ea5e9]"} animate-pulse`}></div>
-            <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tight uppercase truncate">{tab.Outlet.name} <span className={isCafe ? "text-orange-500/50" : "text-sky-500/50"}>POS</span></h2>
+            <h2 className="text-xl sm:text-2xl font-black text-foreground tracking-tight uppercase">{tab.Outlet.name} <span className={isCafe ? "text-orange-500/50" : "text-sky-500/50"}>POS</span></h2>
           </div>
         </header>
         
@@ -203,7 +203,7 @@ export default async function TabTerminal({ params }: { params: Promise<{ tabId:
                     </div>
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-bold text-foreground text-sm sm:text-lg truncate">{item.MenuItem.name}</p>
+                    <p className="font-bold text-foreground text-sm sm:text-lg line-clamp-2 whitespace-normal">{item.MenuItem.name}</p>
                     <p className="text-muted-foreground font-medium text-xs sm:text-sm">₹{item.priceAtTime.toFixed(2)} each</p>
                     {item.MenuItem?.Item?.piecesPerBox && item.MenuItem.Item.piecesPerBox > 1 && (
                       <div className="mt-2 flex items-center gap-2">

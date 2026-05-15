@@ -119,7 +119,7 @@ export function TableGrid({ activeTabs, outletId, isCafe }: TableGridProps) {
                         <div className="flex flex-col relative z-10">
                             <div className="flex items-center gap-2 mb-1.5">
                                 <Users className={`w-3.5 h-3.5 ${isPaidHold ? "text-emerald-500/70" : "text-red-500/70"}`} />
-                                <span className={`text-foreground font-black text-sm truncate group-hover:${isPaidHold ? "text-emerald-600" : "text-red-600"} transition-colors`}>{activeTab.customerName || "Walk-in"}</span>
+                                <span className={`text-foreground font-black text-sm line-clamp-2 group-hover:${isPaidHold ? "text-emerald-600" : "text-red-600"} transition-colors`}>{activeTab.customerName || "Walk-in"}</span>
                             </div>
                             <div className={`flex justify-between items-center bg-foreground/5 p-2.5 rounded-xl border border-border shadow-inner group-hover:${isPaidHold ? "border-emerald-500/20" : "border-red-500/20"} transition-colors`}>
                                 <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{isPaidHold ? "Final Check" : "Running Bill"}</span>
