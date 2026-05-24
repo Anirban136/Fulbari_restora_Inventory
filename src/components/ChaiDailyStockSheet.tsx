@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import {
   ClipboardCheck, Search, Download, Loader2, CheckCircle2,
   AlertTriangle, TrendingDown, FileSpreadsheet, IndianRupee,
-  Package, BarChart3, X, ChevronDown, ChevronUp
+  Package, BarChart3, X, ChevronDown, ChevronUp, Filter
 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -16,7 +16,7 @@ export interface StockItem {
   menuItemId: string
   menuItemName: string
   category: string
-  price: number
+  price: number          // Chai Hub menu selling price — used for Amount calc
   itemId: string | null
   startStock: number
   endStock: number | null
@@ -29,26 +29,16 @@ interface SheetRow extends StockItem {
   localEndStock: string
 }
 
-// ── Category Badge ──────────────────────────────────────────────────────────
-function CategoryBadge({ category }: { category: string }) {
-  const colors: Record<string, string> = {
-    Beverages: "bg-blue-500/10 text-blue-500 border-blue-500/20",
-    "Raw Material": "bg-amber-500/10 text-amber-500 border-amber-500/20",
-    Snacks: "bg-orange-500/10 text-orange-500 border-orange-500/20",
-    Food: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-    Uncategorized: "bg-muted/30 text-muted-foreground border-border",
-  }
-  const cls = colors[category] ?? "bg-purple-500/10 text-purple-500 border-purple-500/20"
-  return (
-    <span
-      className={cn(
-        "px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest border",
-        cls
-      )}
-    >
-      {category}
-    </span>
-  )
+// ── Category color map ────────────────────────────────────────────────────
+const CATEGORY_COLORS: Record<string, string> = {
+  Beverages:      "bg-blue-500/10 text-blue-500 border-blue-500/20",
+  "Raw Material": "bg-amber-500/10 text-amber-500 border-amber-500/20",
+  Snacks:         "bg-orange-500/10 text-orange-500 border-orange-500/20",
+  Food:           "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
+  Uncategorized:  "bg-muted/30 text-muted-foreground border-border",
+}
+function categoryColor(cat: string) {
+  return CATEGORY_COLORS[cat] ?? "bg-purple-500/10 text-purple-500 border-purple-500/20"
 }
 
 // ── Main Component ─────────────────────────────────────────────────────────
@@ -66,32 +56,46 @@ export function ChaiDailyStockSheet({
   const [rows, setRows] = useState<SheetRow[]>(() =>
     initialItems.map((item) => ({
       ...item,
-      localEndStock:
-        item.endStock !== null ? String(item.endStock) : "",
+      localEndStock: item.endStock !== null ? String(item.endStock) : "",
     }))
   )
-  const [search, setSearch] = useState("")
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isDownloading, setIsDownloading] = useState(false)
-  const [submitted, setSubmitted] = useState(
+  const [search, setSearch]                 = useState("")
+  const [selectedCategory, setSelectedCategory] = useState<string>("__all__")
+  const [isSubmitting, setIsSubmitting]     = useState(false)
+  const [isDownloading, setIsDownloading]   = useState(false)
+  const [submitted, setSubmitted]           = useState(
     initialItems.some((i) => i.alreadySubmitted)
   )
   const [sortConfig, setSortConfig] = useState<{ key: string; dir: "asc" | "desc" } | null>(null)
 
-  // ── Derived: parse each row's endStock ─────────────────────────────────
+  // ── All unique categories ─────────────────────────────────────────────
+  const categories = useMemo(() => {
+    const set = new Set(rows.map((r) => r.category))
+    return Array.from(set).sort()
+  }, [rows])
+
+  // ── Derived: parse each row's endStock ────────────────────────────────
   const parsedRows = useMemo(() =>
     rows.map((r) => {
-      const endStock = r.localEndStock === "" ? null : Number(r.localEndStock)
-      const salesQty = endStock !== null ? r.startStock - endStock : null
+      const endStock    = r.localEndStock === "" ? null : Number(r.localEndStock)
+      const salesQty    = endStock !== null ? r.startStock - endStock : null
+      // Amount = salesQty × Chai Hub menu selling price
       const salesAmount = salesQty !== null ? salesQty * r.price : null
       return { ...r, endStock, salesQty, salesAmount }
     }),
     [rows]
   )
 
-  // ── Filter & sort ──────────────────────────────────────────────────────
+  // ── Filter & sort ─────────────────────────────────────────────────────
   const filteredRows = useMemo(() => {
     let result = parsedRows
+
+    // Category filter
+    if (selectedCategory !== "__all__") {
+      result = result.filter((r) => r.category === selectedCategory)
+    }
+
+    // Text search
     if (search.trim()) {
       const q = search.toLowerCase()
       result = result.filter(
@@ -100,6 +104,8 @@ export function ChaiDailyStockSheet({
           r.category.toLowerCase().includes(q)
       )
     }
+
+    // Sort
     if (sortConfig) {
       result = [...result].sort((a, b) => {
         const av = (a as any)[sortConfig.key] ?? ""
@@ -110,21 +116,21 @@ export function ChaiDailyStockSheet({
       })
     }
     return result
-  }, [parsedRows, search, sortConfig])
+  }, [parsedRows, search, selectedCategory, sortConfig])
 
-  // ── Totals ─────────────────────────────────────────────────────────────
+  // ── Totals (across ALL rows, not just filtered) ───────────────────────
   const totals = useMemo(() => {
     const filled = parsedRows.filter((r) => r.endStock !== null)
     return {
-      filled: filled.length,
-      total: parsedRows.length,
-      totalSalesQty: filled.reduce((s, r) => s + (r.salesQty ?? 0), 0),
+      filled:           filled.length,
+      total:            parsedRows.length,
+      totalSalesQty:    filled.reduce((s, r) => s + (r.salesQty ?? 0), 0),
       totalSalesAmount: filled.reduce((s, r) => s + (r.salesAmount ?? 0), 0),
-      negativeCount: filled.filter((r) => (r.salesQty ?? 0) < 0).length,
+      negativeCount:    filled.filter((r) => (r.salesQty ?? 0) < 0).length,
     }
   }, [parsedRows])
 
-  // ── Handlers ───────────────────────────────────────────────────────────
+  // ── Handlers ─────────────────────────────────────────────────────────
   const updateEndStock = useCallback((menuItemId: string, value: string) => {
     setRows((prev) =>
       prev.map((r) =>
@@ -175,20 +181,20 @@ export function ChaiDailyStockSheet({
     try {
       const payload = {
         items: filled.map((r) => ({
-          menuItemId: r.menuItemId,
+          menuItemId:   r.menuItemId,
           menuItemName: r.menuItemName,
-          category: r.category,
-          price: r.price,
-          itemId: r.itemId,
-          startStock: r.startStock,
-          endStock: r.endStock as number,
+          category:     r.category,
+          price:        r.price,
+          itemId:       r.itemId,
+          startStock:   r.startStock,
+          endStock:     r.endStock as number,
         })),
       }
 
       const res = await fetch("/api/chai-daily-stock", {
-        method: "POST",
+        method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
+        body:    JSON.stringify(payload),
       })
 
       if (!res.ok) {
@@ -199,12 +205,14 @@ export function ChaiDailyStockSheet({
       const result = await res.json()
       setSubmitted(true)
 
-      toast.success(`Daily closing stock submitted! ₹${result.summary.totalSalesAmount.toFixed(2)} total revenue`, {
-        description: `${result.summary.totalItems} products processed. Downloading Excel report...`,
-        duration: 5000,
-      })
+      toast.success(
+        `Daily closing stock submitted! ₹${result.summary.totalSalesAmount.toFixed(2)} total revenue`,
+        {
+          description: `${result.summary.totalItems} products processed. Downloading Excel report...`,
+          duration: 5000,
+        }
+      )
 
-      // Auto-download Excel
       await handleDownload()
     } catch (err) {
       toast.error("Submission failed", {
@@ -225,18 +233,21 @@ export function ChaiDailyStockSheet({
         throw new Error(err.error ?? "Export failed")
       }
       const blob = await res.blob()
-      const url = URL.createObjectURL(blob)
-      const a = document.createElement("a")
-      a.href = url
+      const url  = URL.createObjectURL(blob)
+      const a    = document.createElement("a")
+      a.href     = url
       a.download = `chai-daily-sales-${date}.xlsx`
       document.body.appendChild(a)
       a.click()
       a.remove()
       URL.revokeObjectURL(url)
-      toast.success("Excel report downloaded!", { icon: <FileSpreadsheet className="w-5 h-5 text-emerald-500" /> })
+      toast.success("Excel report downloaded!", {
+        icon: <FileSpreadsheet className="w-5 h-5 text-emerald-500" />,
+      })
     } catch (err) {
       toast.error("Download failed", {
-        description: err instanceof Error ? err.message : "Submit the closing stock first.",
+        description:
+          err instanceof Error ? err.message : "Submit the closing stock first.",
       })
     } finally {
       setIsDownloading(false)
@@ -258,6 +269,7 @@ export function ChaiDailyStockSheet({
           </div>
           <div className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-wider mt-0.5">Filled</div>
         </div>
+
         <div className="glass-panel p-5 rounded-2xl border border-border bg-foreground/5">
           <div className="text-[9px] font-black text-muted-foreground uppercase tracking-widest mb-1 flex items-center gap-1.5">
             <TrendingDown className="w-3 h-3" /> Units Sold
@@ -265,6 +277,7 @@ export function ChaiDailyStockSheet({
           <div className="text-2xl font-black text-foreground">{totals.totalSalesQty}</div>
           <div className="text-[9px] font-bold text-muted-foreground/50 uppercase tracking-wider mt-0.5">Today</div>
         </div>
+
         <div className="glass-panel p-5 rounded-2xl border border-blue-500/20 bg-blue-500/[0.04] col-span-2 md:col-span-1">
           <div className="text-[9px] font-black text-blue-500/70 uppercase tracking-widest mb-1 flex items-center gap-1.5">
             <IndianRupee className="w-3 h-3" /> Revenue
@@ -274,6 +287,7 @@ export function ChaiDailyStockSheet({
           </div>
           <div className="text-[9px] font-bold text-blue-500/40 uppercase tracking-wider mt-0.5">Estimated</div>
         </div>
+
         <div className={cn(
           "glass-panel p-5 rounded-2xl border",
           totals.negativeCount > 0
@@ -284,7 +298,9 @@ export function ChaiDailyStockSheet({
             "text-[9px] font-black uppercase tracking-widest mb-1 flex items-center gap-1.5",
             totals.negativeCount > 0 ? "text-red-500/70" : "text-emerald-500/70"
           )}>
-            {totals.negativeCount > 0 ? <AlertTriangle className="w-3 h-3" /> : <CheckCircle2 className="w-3 h-3" />}
+            {totals.negativeCount > 0
+              ? <AlertTriangle className="w-3 h-3" />
+              : <CheckCircle2 className="w-3 h-3" />}
             Alerts
           </div>
           <div className={cn(
@@ -321,30 +337,80 @@ export function ChaiDailyStockSheet({
         </div>
       )}
 
-      {/* ── SEARCH BAR ── */}
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
-        <Input
-          placeholder="Search products or categories..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-11 h-12 rounded-2xl border-border/50 bg-foreground/5 font-bold text-sm focus:ring-2 focus:ring-blue-500/20"
-        />
-        {search && (
-          <button
-            onClick={() => setSearch("")}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+      {/* ── FILTER BAR: Search + Category Dropdown ── */}
+      <div className="flex flex-col sm:flex-row gap-3">
+
+        {/* Search */}
+        <div className="relative flex-1">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+          <Input
+            placeholder="Search products..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="pl-11 h-12 rounded-2xl border-border/50 bg-foreground/5 font-bold text-sm focus:ring-2 focus:ring-blue-500/20"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          )}
+        </div>
+
+        {/* Category Dropdown */}
+        <div className="relative sm:w-60">
+          <Filter className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none z-10" />
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className={cn(
+              "w-full h-12 pl-11 pr-10 rounded-2xl border font-black text-sm uppercase tracking-tight appearance-none cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-blue-500/20",
+              selectedCategory !== "__all__"
+                ? cn("border-2", categoryColor(selectedCategory), "bg-foreground/5")
+                : "border-border/50 bg-foreground/5 text-foreground"
+            )}
           >
-            <X className="w-4 h-4" />
-          </button>
-        )}
+            <option value="__all__">All Categories</option>
+            {categories.map((cat) => (
+              <option key={cat} value={cat}>
+                {cat}
+              </option>
+            ))}
+          </select>
+          <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+        </div>
       </div>
+
+      {/* ── ACTIVE FILTER PILL ── */}
+      {selectedCategory !== "__all__" && (
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">Filter active:</span>
+          <span
+            className={cn(
+              "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border",
+              categoryColor(selectedCategory)
+            )}
+          >
+            {selectedCategory}
+            <button
+              onClick={() => setSelectedCategory("__all__")}
+              className="ml-0.5 hover:opacity-70 transition-opacity"
+            >
+              <X className="w-3 h-3" />
+            </button>
+          </span>
+          <span className="text-[9px] font-bold text-muted-foreground/50">
+            {filteredRows.length} of {parsedRows.length} products shown
+          </span>
+        </div>
+      )}
 
       {/* ── SPREADSHEET TABLE ── */}
       <div className="glass-panel rounded-[2rem] border border-border bg-foreground/5 overflow-hidden shadow-xl">
-        {/* Table header */}
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px]">
+          <table className="w-full min-w-[620px]">
             <thead>
               <tr className="border-b border-border bg-foreground/5">
                 <th className="text-left px-5 py-4 text-[9px] font-black text-muted-foreground uppercase tracking-widest w-8">#</th>
@@ -353,12 +419,6 @@ export function ChaiDailyStockSheet({
                   onClick={() => toggleSort("menuItemName")}
                 >
                   <div className="flex items-center gap-1.5">Product <SortIcon col="menuItemName" /></div>
-                </th>
-                <th
-                  className="text-left px-4 py-4 text-[9px] font-black text-muted-foreground uppercase tracking-widest cursor-pointer hover:text-foreground transition-colors select-none"
-                  onClick={() => toggleSort("category")}
-                >
-                  <div className="flex items-center gap-1.5">Category <SortIcon col="category" /></div>
                 </th>
                 <th className="text-right px-4 py-4 text-[9px] font-black text-muted-foreground uppercase tracking-widest">
                   Starting Stock
@@ -380,18 +440,27 @@ export function ChaiDailyStockSheet({
                 </th>
               </tr>
             </thead>
+
             <tbody className="divide-y divide-border/50">
               {filteredRows.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-16 text-muted-foreground/30">
+                  <td colSpan={6} className="text-center py-16 text-muted-foreground/30">
                     <Search className="w-10 h-10 mx-auto mb-3 opacity-20" />
                     <p className="text-[10px] font-black uppercase tracking-widest">No products found</p>
+                    {selectedCategory !== "__all__" && (
+                      <button
+                        onClick={() => setSelectedCategory("__all__")}
+                        className="mt-3 text-[10px] font-black text-blue-500 uppercase tracking-widest hover:underline"
+                      >
+                        Clear category filter
+                      </button>
+                    )}
                   </td>
                 </tr>
               ) : (
                 filteredRows.map((row, idx) => {
-                  const isNegative = row.salesQty !== null && row.salesQty < 0
-                  const hasValue = row.endStock !== null
+                  const isNegative  = row.salesQty !== null && row.salesQty < 0
+                  const hasValue    = row.endStock !== null
                   const isZeroSales = hasValue && row.salesQty === 0
 
                   return (
@@ -409,16 +478,19 @@ export function ChaiDailyStockSheet({
                         {idx + 1}
                       </td>
 
-                      {/* Product */}
-                      <td className="px-4 py-3.5">
-                        <span className="text-sm font-black text-foreground uppercase tracking-tight group-hover:text-blue-500 transition-colors">
-                          {row.menuItemName}
-                        </span>
-                      </td>
-
-                      {/* Category */}
-                      <td className="px-4 py-3.5">
-                        <CategoryBadge category={row.category} />
+                      {/* Product — with small category pill underneath */}
+                      <td className="px-4 py-3">
+                        <div className="flex flex-col gap-0.5">
+                          <span className="text-sm font-black text-foreground uppercase tracking-tight group-hover:text-blue-500 transition-colors">
+                            {row.menuItemName}
+                          </span>
+                          <span className={cn(
+                            "self-start px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-widest border",
+                            categoryColor(row.category)
+                          )}>
+                            {row.category}
+                          </span>
+                        </div>
                       </td>
 
                       {/* Starting Stock */}
@@ -467,7 +539,7 @@ export function ChaiDailyStockSheet({
                         )}
                       </td>
 
-                      {/* Amount */}
+                      {/* Amount — price × salesQty from Chai Hub menu */}
                       <td className="px-5 py-3.5 text-right tabular-nums">
                         {row.salesAmount !== null ? (
                           <span className={cn(
@@ -493,29 +565,32 @@ export function ChaiDailyStockSheet({
             {/* ── TOTALS FOOTER ── */}
             <tfoot>
               <tr className="border-t-2 border-blue-500/20 bg-blue-500/[0.04]">
-                <td colSpan={3} className="px-5 py-4">
+                <td colSpan={2} className="px-5 py-4">
                   <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest flex items-center gap-2">
-                    <BarChart3 className="w-4 h-4" /> Day Total
+                    <BarChart3 className="w-4 h-4" />
+                    {selectedCategory !== "__all__"
+                      ? `${selectedCategory} Total`
+                      : "Day Total"}
                   </span>
                 </td>
                 <td className="px-4 py-4 text-right">
                   <span className="text-sm font-black text-foreground/60 tabular-nums">
-                    {parsedRows.filter(r => r.endStock !== null).reduce((s, r) => s + r.startStock, 0)}
+                    {filteredRows.filter(r => r.endStock !== null).reduce((s, r) => s + r.startStock, 0)}
                   </span>
                 </td>
                 <td className="px-4 py-4 text-center">
                   <span className="text-sm font-black text-foreground/60 tabular-nums">
-                    {parsedRows.filter(r => r.endStock !== null).reduce((s, r) => s + (r.endStock ?? 0), 0)}
+                    {filteredRows.filter(r => r.endStock !== null).reduce((s, r) => s + (r.endStock ?? 0), 0)}
                   </span>
                 </td>
                 <td className="px-4 py-4 text-right">
                   <span className="text-lg font-black text-emerald-500 tabular-nums">
-                    +{totals.totalSalesQty}
+                    +{filteredRows.filter(r => r.salesQty !== null).reduce((s, r) => s + (r.salesQty ?? 0), 0)}
                   </span>
                 </td>
                 <td className="px-5 py-4 text-right">
                   <span className="text-lg font-black text-blue-600 dark:text-blue-400 tabular-nums">
-                    ₹{totals.totalSalesAmount.toFixed(2)}
+                    ₹{filteredRows.filter(r => r.salesAmount !== null).reduce((s, r) => s + (r.salesAmount ?? 0), 0).toFixed(2)}
                   </span>
                 </td>
               </tr>
@@ -554,7 +629,9 @@ export function ChaiDailyStockSheet({
           ) : (
             <>
               <ClipboardCheck className="w-6 h-6 mr-3" />
-              {submitted ? "Re-Submit & Update Closing Stock" : `Finalise Daily Closing Stock (${totals.filled} items)`}
+              {submitted
+                ? "Re-Submit & Update Closing Stock"
+                : `Finalise Daily Closing Stock (${totals.filled} items)`}
             </>
           )}
         </Button>
