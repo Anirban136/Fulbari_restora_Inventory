@@ -16,9 +16,10 @@ model User {
   role           String
   createdAt      DateTime          @default(now())
   updatedAt      DateTime          @updatedAt
-  Dispatches     InventoryLedger[]
-  Tabs           Tab[]
-  VendorPayments VendorPayment[]
+  Dispatches        InventoryLedger[]
+  Tabs              Tab[]
+  VendorPayments    VendorPayment[]
+  ChaiDailyStock    ChaiHubDailyStock[]
 }
 
 model Outlet {
@@ -26,10 +27,11 @@ model Outlet {
   name      String
   type      String
   createdAt DateTime          @default(now())
-  Ledger    InventoryLedger[]
-  Menus     MenuItem[]
-  Stock     OutletStock[]
-  Tabs      Tab[]
+  Ledger         InventoryLedger[]
+  Menus          MenuItem[]
+  Stock          OutletStock[]
+  Tabs           Tab[]
+  ChaiDailyStock ChaiHubDailyStock[]
 }
 
 model Vendor {
@@ -113,8 +115,9 @@ model MenuItem {
   updatedAt   DateTime             @updatedAt
   Item        Item?                @relation(fields: [itemId], references: [id])
   Outlet      Outlet               @relation(fields: [outletId], references: [id])
-  ingredients MenuItemIngredient[]
-  TabItems    TabItem[]
+  ingredients    MenuItemIngredient[]
+  TabItems       TabItem[]
+  ChaiDailyStock ChaiHubDailyStock[]
 }
 
 model MenuItemIngredient {
@@ -156,6 +159,28 @@ model TabItem {
   isPaid      Boolean  @default(false)
   MenuItem    MenuItem @relation(fields: [menuItemId], references: [id])
   Tab         Tab      @relation(fields: [tabId], references: [id])
+}
+
+model ChaiHubDailyStock {
+  id           String   @id @default(cuid())
+  date         DateTime @db.Date
+  outletId     String
+  menuItemId   String
+  menuItemName String
+  category     String
+  startStock   Float
+  endStock     Float
+  salesQty     Float
+  salesAmount  Float
+  price        Float
+  submittedBy  String
+  submittedAt  DateTime @default(now())
+
+  Outlet   Outlet   @relation(fields: [outletId],   references: [id])
+  MenuItem MenuItem @relation(fields: [menuItemId],  references: [id])
+  User     User     @relation(fields: [submittedBy], references: [id])
+
+  @@unique([date, outletId, menuItemId])
 }
 
 model daily_transaction_snapshot {

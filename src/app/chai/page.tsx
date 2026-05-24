@@ -2,7 +2,7 @@ import { prisma } from "@/lib/prisma"
 export const dynamic = 'force-dynamic'
 import { Button } from "@/components/ui/button"
 import { UserControls } from "@/components/user-controls"
-import { CupSoda, PackageOpen, LayoutGrid, Search, History, Receipt, Edit } from "lucide-react"
+import { CupSoda, PackageOpen, LayoutGrid, Search, History, Receipt, Edit, ClipboardList } from "lucide-react"
 import Link from "next/link"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
@@ -234,6 +234,23 @@ export default async function ChaiDashboard({ searchParams }: { searchParams: Pr
                   <Link href="/tabs?target=CHAI_JOINT" className="w-full flex">
                     <Button className="flex-1 w-full h-16 text-sm font-black tracking-[0.2em] uppercase bg-blue-600 text-primary-foreground hover:bg-blue-700 transition-all rounded-2xl active:scale-95 shadow-[0_10px_30px_-10px_rgba(37,99,235,0.4)]">
                       Open Registers
+                    </Button>
+                  </Link>
+               </div>
+            </div>
+
+            {/* D. Daily Closing Stock (New Feature) */}
+            <div className="lg:col-span-4 order-4">
+               <div className="glass-panel p-8 rounded-[2.5rem] group hover:border-blue-500/30 transition-all border border-border bg-foreground/5 relative overflow-hidden shadow-2xl">
+                  <div className="absolute -right-4 -top-4 w-32 h-32 bg-blue-500/5 rounded-full blur-[40px] group-hover:bg-blue-500/10 transition-all pointer-events-none"></div>
+                  <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                    <ClipboardList className="w-7 h-7 text-blue-600 dark:text-blue-500 drop-shadow-[0_0_15px_rgba(59,130,246,0.5)]" />
+                  </div>
+                  <h2 className="text-3xl font-black text-foreground mb-2 leading-none uppercase tracking-tighter italic">Daily Closing</h2>
+                  <p className="text-muted-foreground font-medium text-xs mb-8 uppercase tracking-widest opacity-80">Record ending stock & get sales Excel</p>
+                  <Link href="/chai/daily-stock" className="w-full flex">
+                    <Button className="flex-1 w-full h-16 text-sm font-black tracking-[0.2em] uppercase bg-blue-600 text-primary-foreground hover:bg-blue-700 transition-all rounded-2xl active:scale-95 shadow-[0_10px_30px_-10px_rgba(37,99,235,0.4)]">
+                      Open Stock Sheet
                     </Button>
                   </Link>
                </div>
