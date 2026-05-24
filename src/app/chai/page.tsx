@@ -222,8 +222,8 @@ export default async function ChaiDashboard({ searchParams }: { searchParams: Pr
 
                  {/* 2. MAIN HUB ACTIONS & TRANSACTIONS (FLATTENED GRID FOR ORDERING) */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-            {/* A. POS Register (Priority 1) */}
-            <div className="lg:col-span-4 order-1">
+            {/* A. POS Register (Priority 2) */}
+            <div className="lg:col-span-4 order-2">
                <div className="glass-panel p-8 rounded-[2.5rem] group hover:border-blue-500/30 transition-all border border-border bg-foreground/5 relative overflow-hidden shadow-2xl">
                   <div className="absolute -right-4 -top-4 w-32 h-32 bg-blue-500/5 rounded-full blur-[40px] group-hover:bg-blue-500/10 transition-all pointer-events-none"></div>
                   <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
@@ -239,8 +239,8 @@ export default async function ChaiDashboard({ searchParams }: { searchParams: Pr
                </div>
             </div>
 
-            {/* D. Daily Closing Stock (New Feature) */}
-            <div className="lg:col-span-4 order-4">
+            {/* D. Daily Closing Stock (Priority 1) */}
+            <div className="lg:col-span-4 order-1">
                <div className="glass-panel p-8 rounded-[2.5rem] group hover:border-blue-500/30 transition-all border border-border bg-foreground/5 relative overflow-hidden shadow-2xl">
                   <div className="absolute -right-4 -top-4 w-32 h-32 bg-blue-500/5 rounded-full blur-[40px] group-hover:bg-blue-500/10 transition-all pointer-events-none"></div>
                   <div className="w-14 h-14 bg-blue-500/10 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
@@ -256,8 +256,8 @@ export default async function ChaiDashboard({ searchParams }: { searchParams: Pr
                </div>
             </div>
 
-            {/* B. Transactions Feed (Priority 2) */}
-            <div className="lg:col-span-8 space-y-6 order-2 lg:row-span-2">
+            {/* B. Transactions Feed (Priority 4) */}
+            <div className="lg:col-span-8 space-y-6 order-4 lg:row-span-2">
                <div className="flex items-center justify-between px-2">
                   <div className="flex items-center gap-3">
                     <History className="w-5 h-5 text-muted-foreground" />
