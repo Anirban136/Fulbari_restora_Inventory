@@ -16,6 +16,10 @@ export default async function DashboardOverview() {
   const session = await getServerSession(authOptions)
   if (!session) redirect('/login')
   
+  const role = session.user?.role
+  if (role === "INV_MANAGER") redirect('/dashboard/inventory')
+  if (role !== "OWNER") redirect('/login')
+  
   const { startUTC: startOfDay, endUTC: endOfDay } = getISTDateBounds();
   
 

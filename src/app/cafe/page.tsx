@@ -12,6 +12,7 @@ import { TabReceiptModal } from "@/components/TabReceiptModal"
 import { PrintReceiptButton } from "@/components/PrintReceiptButton"
 import { reopenTab } from "@/app/tabs/[tabId]/actions"
 import { DateRangePicker } from "@/components/DateRangePicker"
+import { redirect } from "next/navigation"
 
 export default async function CafeDashboard({ searchParams }: { searchParams: Promise<{ start?: string, end?: string }> }) {
   const { start, end } = await searchParams || {}
@@ -20,7 +21,15 @@ export default async function CafeDashboard({ searchParams }: { searchParams: Pr
   if (!cafe) return <div className="min-h-screen bg-background text-foreground p-10 font-bold">Cafe outlet not configured.</div>
 
   const session = await getServerSession(authOptions)
-  const isOwner = session?.user?.role === "OWNER"
+  if (!session) redirect('/login')
+
+  const role = session.user?.role
+  if (role !== "OWNER" && role !== "CAFE_STAFF") {
+    if (role === "CHAI_STAFF") redirect('/chai')
+    if (role === "REST_STAFF") redirect('/restaurant')
+    redirect('/dashboard')
+  }
+  const isOwner = role === "OWNER"
 
   const { startUTC: todayStart, endUTC: todayEnd } = getISTDateBounds();
   const { startUTC: monthStart, endUTC: monthEnd } = getISTMonthBounds();

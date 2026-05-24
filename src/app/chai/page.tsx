@@ -12,6 +12,7 @@ import { TabReceiptModal } from "@/components/TabReceiptModal"
 import { PrintReceiptButton } from "@/components/PrintReceiptButton"
 import { reopenTab } from "@/app/tabs/[tabId]/actions"
 import { DateRangePicker } from "@/components/DateRangePicker"
+import { redirect } from "next/navigation"
 
 export default async function ChaiDashboard({ searchParams }: { searchParams: Promise<{ start?: string, end?: string }> }) {
   const { start, end } = await searchParams || {}
@@ -20,7 +21,15 @@ export default async function ChaiDashboard({ searchParams }: { searchParams: Pr
   if (!chaiJoint) return <div className="min-h-screen bg-background text-foreground p-10 font-bold">Chai Joint outlet not configured.</div>
 
   const session = await getServerSession(authOptions)
-  const isOwner = session?.user?.role === "OWNER"
+  if (!session) redirect('/login')
+
+  const role = session.user?.role
+  if (role !== "OWNER" && role !== "CHAI_STAFF") {
+    if (role === "CAFE_STAFF") redirect('/cafe')
+    if (role === "REST_STAFF") redirect('/restaurant')
+    redirect('/dashboard')
+  }
+  const isOwner = role === "OWNER"
 
   const { startUTC: todayStart, endUTC: todayEnd } = getISTDateBounds();
   const { startUTC: monthStart, endUTC: monthEnd } = getISTMonthBounds();

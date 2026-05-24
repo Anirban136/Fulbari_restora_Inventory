@@ -10,6 +10,7 @@ import AppLayout from "@/components/layouts/app-layout"
 import { formatTimeIST, formatDateIST } from "@/lib/utils"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
+import { redirect } from "next/navigation"
 
 export default async function RestaurantDashboard() {
   const restaurant = await prisma.outlet.findFirst({ where: { type: "RESTAURANT" }})
@@ -17,6 +18,14 @@ export default async function RestaurantDashboard() {
   if (!restaurant) return <div className="min-h-screen bg-background text-foreground p-10 font-bold">Restaurant outlet not configured.</div>
 
   const session = await getServerSession(authOptions)
+  if (!session) redirect('/login')
+
+  const role = session.user?.role
+  if (role !== "OWNER" && role !== "REST_STAFF") {
+    if (role === "CAFE_STAFF") redirect('/cafe')
+    if (role === "CHAI_STAFF") redirect('/chai')
+    redirect('/dashboard')
+  }
 
   const [localStock, incomingDispatches] = await Promise.all([
     prisma.outletStock.findMany({

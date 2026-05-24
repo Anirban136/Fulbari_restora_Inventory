@@ -11,6 +11,11 @@ export default async function DashboardLayout({
   const session = await getServerSession(authOptions)
   if (!session) redirect('/login')
 
+  const role = session.user?.role
+  if (role === "CAFE_STAFF") redirect('/cafe')
+  if (role === "CHAI_STAFF") redirect('/chai')
+  if (role === "REST_STAFF") redirect('/restaurant')
+
   return (
     <AppLayout user={session?.user}>
       <div className="p-4 sm:p-6 lg:p-10">
