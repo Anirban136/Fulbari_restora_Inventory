@@ -49,7 +49,16 @@ export default async function ChaiDashboard({ searchParams }: { searchParams: Pr
     return { dateStr, displayDate, isToday: i === 0 };
   });
 
-  const [localStock, incomingDispatches, recentTabs] = await Promise.all([
+  // Helper to get today's logical date for ChaiHubDailyStock
+  const now = new Date();
+  const istOffset = 5.5 * 3600000;
+  const logicalDate = new Date(now.getTime() + istOffset);
+  if (logicalDate.getUTCHours() < 4) {
+    logicalDate.setUTCDate(logicalDate.getUTCDate() - 1);
+  }
+  const todayLogicalDate = new Date(Date.UTC(logicalDate.getUTCFullYear(), logicalDate.getUTCMonth(), logicalDate.getUTCDate()));
+
+  const [localStock, incomingDispatches, recentTabs, dailyStockSales] = await Promise.all([
     prisma.outletStock.findMany({
       where: { outletId: chaiJoint.id, quantity: { gt: 0 } },
       include: { Item: true },
@@ -72,6 +81,12 @@ export default async function ChaiDashboard({ searchParams }: { searchParams: Pr
         Items: { include: { MenuItem: true } }
       },
       orderBy: { closedAt: 'desc' }
+    }),
+    prisma.chaiHubDailyStock.findMany({
+      where: {
+        outletId: chaiJoint.id,
+        date: todayLogicalDate,
+      }
     })
   ])
 
@@ -107,7 +122,14 @@ export default async function ChaiDashboard({ searchParams }: { searchParams: Pr
     }
     acc.TOTAL += tab.totalAmount
     return acc
-  }, { CASH: 0, ONLINE: 0, SPLIT: 0, TOTAL: 0 });
+  }, { CASH: 0, ONLINE: 0, SPLIT: 0, BULK_CASH: 0, TOTAL: 0 });
+
+  const bulkSalesAmount = dailyStockSales.reduce((sum, stock) => sum + (stock.salesAmount || 0), 0);
+  if (bulkSalesAmount > 0) {
+    dailyReport.BULK_CASH = bulkSalesAmount;
+    dailyReport.CASH += bulkSalesAmount;
+    dailyReport.TOTAL += bulkSalesAmount;
+  }
 
   return (
     <AppLayout user={session?.user}>
@@ -148,9 +170,16 @@ export default async function ChaiDashboard({ searchParams }: { searchParams: Pr
                  
                  <div className="space-y-4">
                    <div className="flex justify-between items-center bg-foreground/5 p-5 rounded-2xl border border-border">
-                     <div className="flex items-center gap-3">
-                        <span className="text-xl">💵</span>
-                        <span className="text-xs font-black text-muted-foreground uppercase tracking-widest">Cash Revenue</span>
+                     <div className="flex flex-col gap-1">
+                       <div className="flex items-center gap-3">
+                          <span className="text-xl">💵</span>
+                          <span className="text-xs font-black text-muted-foreground uppercase tracking-widest">Cash Revenue</span>
+                       </div>
+                       {dailyReport.BULK_CASH > 0 && (
+                         <span className="text-[9px] font-bold text-blue-500/80 uppercase tracking-widest ml-9">
+                           Includes ₹{dailyReport.BULK_CASH.toFixed(2)} Bulk Sales
+                         </span>
+                       )}
                      </div>
                      <span className="text-xl font-black text-foreground">₹{dailyReport.CASH.toFixed(2)}</span>
                    </div>
