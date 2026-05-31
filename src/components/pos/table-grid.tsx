@@ -98,7 +98,7 @@ export function TableGrid({ activeTabs, outletId, isCafe }: TableGridProps) {
           return (
             <div key={tableNum} className="relative group h-44 animate-in fade-in zoom-in duration-500">
                 <Link href={`/tabs/${activeTab.id}`} className="block h-full">
-                    <div className={`relative h-full ${isPaidHold ? "bg-emerald-500/20 border-emerald-500 shadow-[0_0_30px_-10px_rgba(16,185,129,0.4)]" : "bg-red-600/20 border-red-500/40"} border-2 hover:${isPaidHold ? "border-emerald-400" : "border-red-500"} rounded-[2rem] p-5 transition-all duration-500 hover:shadow-[0_20px_50px_-10px_${isPaidHold ? "rgba(16,185,129,0.5)" : "rgba(239,68,68,0.4)"}] hover:-translate-y-2 flex flex-col justify-between overflow-hidden backdrop-blur-md bg-background/50`}>
+                    <div className={`relative h-full ${isPaidHold ? "bg-emerald-500/20 border-emerald-500 shadow-[0_0_30px_-10px_rgba(16,185,129,0.4)]" : "bg-red-600/20 border-red-500/40"} border-2 hover:${isPaidHold ? "border-emerald-400" : "border-red-500"} rounded-[2rem] p-5 transition-all duration-500 hover:shadow-[0_20px_50px_-10px_${isPaidHold ? "rgba(16,185,129,0.5)" : "rgba(239,68,68,0.4)"}] hover:-translate-y-2 flex flex-col justify-between overflow-visible backdrop-blur-md bg-background/50`}>
                         
                         {/* Decorator */}
                         <div className={`absolute -right-4 -top-4 w-24 h-24 ${isPaidHold ? "bg-emerald-500/10" : "bg-red-600/10"} rounded-full blur-2xl group-hover:${isPaidHold ? "bg-emerald-500/20" : "bg-red-500/20"} transition-all duration-500`}></div>
@@ -121,9 +121,23 @@ export function TableGrid({ activeTabs, outletId, isCafe }: TableGridProps) {
                                 <Users className={`w-3.5 h-3.5 ${isPaidHold ? "text-emerald-500/70" : "text-red-500/70"}`} />
                                 <span className={`text-foreground font-black text-sm line-clamp-2 group-hover:${isPaidHold ? "text-emerald-600" : "text-red-600"} transition-colors`}>{activeTab.customerName || "Walk-in"}</span>
                             </div>
-                            <div className={`flex justify-between items-center bg-foreground/5 p-2.5 rounded-xl border border-border shadow-inner group-hover:${isPaidHold ? "border-emerald-500/20" : "border-red-500/20"} transition-colors`}>
-                                <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{isPaidHold ? "Final Check" : "Running Bill"}</span>
-                                <span className={`text-xs font-black ${isPaidHold ? "text-emerald-500" : "text-red-500"}`}>{itemsCount} Items</span>
+                            <div className="relative group/bill">
+                                <div className={`flex justify-between items-center bg-foreground/5 p-2.5 rounded-xl border border-border shadow-inner group-hover:${isPaidHold ? "border-emerald-500/20" : "border-red-500/20"} transition-colors`}>
+                                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{isPaidHold ? "Final Check" : "Running Bill"}</span>
+                                    <span className={`text-xs font-black ${isPaidHold ? "text-emerald-500" : "text-red-500"}`}>{itemsCount} Items</span>
+                                </div>
+                                {activeTab.Items?.length > 0 && (
+                                    <div className="absolute left-0 right-0 -bottom-2 translate-y-full p-3 bg-background/95 backdrop-blur-md border border-border rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] opacity-0 group-hover/bill:opacity-100 pointer-events-none transition-all duration-300 z-[100] max-h-40 overflow-y-auto custom-scrollbar-premium scale-95 group-hover/bill:scale-100 origin-top">
+                                        <div className="flex flex-col gap-2">
+                                            {activeTab.Items.map((item: any) => (
+                                                <div key={item.id} className="flex justify-between items-start text-xs">
+                                                    <span className="text-foreground font-bold leading-tight flex-1 pr-2">{item.MenuItem?.name || "Item"}</span>
+                                                    <span className="text-muted-foreground font-black whitespace-nowrap bg-foreground/5 px-1.5 py-0.5 rounded-md">x{item.quantity}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
