@@ -96,7 +96,7 @@ export function TableGrid({ activeTabs, outletId, isCafe }: TableGridProps) {
           const itemsCount = activeTab.Items.reduce((acc: number, item: any) => acc + item.quantity, 0)
           
           return (
-            <div key={tableNum} className="relative group h-44 animate-in fade-in zoom-in duration-500">
+            <div key={tableNum} className="relative group h-44 animate-in fade-in zoom-in duration-500 z-10 hover:z-50">
                 <Link href={`/tabs/${activeTab.id}`} className="block h-full">
                     <div className={`relative h-full ${isPaidHold ? "bg-emerald-500/20 border-emerald-500 shadow-[0_0_30px_-10px_rgba(16,185,129,0.4)]" : "bg-red-600/20 border-red-500/40"} border-2 hover:${isPaidHold ? "border-emerald-400" : "border-red-500"} rounded-[2rem] p-5 transition-all duration-500 hover:shadow-[0_20px_50px_-10px_${isPaidHold ? "rgba(16,185,129,0.5)" : "rgba(239,68,68,0.4)"}] hover:-translate-y-2 flex flex-col justify-between overflow-visible backdrop-blur-md bg-background/50`}>
                         
