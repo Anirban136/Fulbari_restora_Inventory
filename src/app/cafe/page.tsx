@@ -166,15 +166,6 @@ export default async function CafeDashboard({ searchParams }: { searchParams: Pr
                      <span className="text-xl font-black text-foreground">₹{dailyReport.ONLINE.toFixed(2)}</span>
                    </div>
   
-                   {dailyReport.SPLIT > 0 && (
-                     <div className="flex justify-between items-center bg-foreground/5 p-5 rounded-2xl border border-border">
-                       <div className="flex items-center gap-3">
-                          <span className="text-xl">🔄</span>
-                          <span className="text-xs font-black text-muted-foreground uppercase tracking-widest">Split/Other</span>
-                       </div>
-                       <span className="text-xl font-black text-foreground">₹{dailyReport.SPLIT.toFixed(2)}</span>
-                     </div>
-                   )}
 
                    {dailyReport.COMPLEMENTARY > 0 && (
                      <div className="flex justify-between items-center bg-foreground/5 p-5 rounded-2xl border border-border">
