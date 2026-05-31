@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useMemo } from "react"
-import { Coffee, CupSoda, Calendar, Filter, FileDown, Search, ArrowRight, CreditCard, Banknote, Layers, Trash2, Trash } from "lucide-react"
+import { Coffee, CupSoda, Calendar, Filter, FileDown, Search, ArrowRight, CreditCard, Banknote, Layers, Trash2, Trash, Gift } from "lucide-react"
 import { DeleteVerificationDialog } from "@/components/DeleteVerificationDialog"
 import { toast } from "sonner"
 import { formatTimeIST, formatDateIST } from "@/lib/utils"
@@ -14,7 +14,7 @@ import { generateTransactionPDF } from "@/lib/report-generator"
 
 export function TransactionsFeed({ initialTransactions, userRole }: { initialTransactions: any[], userRole?: string }) {
   const [selectedDate, setSelectedDate] = useState<string>(new Date().toISOString().split('T')[0])
-  const [paymentFilter, setPaymentFilter] = useState<"ALL" | "CASH" | "ONLINE">("ALL")
+  const [paymentFilter, setPaymentFilter] = useState<"ALL" | "CASH" | "ONLINE" | "COMPLEMENTARY">("ALL")
   const [activeOutlet, setActiveOutlet] = useState<"CAFE" | "CHAI">("CAFE")
   const [searchTerm, setSearchTerm] = useState("")
   const [itemToDelete, setItemToDelete] = useState<any>(null)
@@ -47,7 +47,8 @@ export function TransactionsFeed({ initialTransactions, userRole }: { initialTra
       const matchesDate = bizDay === selectedDate;
       const matchesPayment = paymentFilter === "ALL" || 
         (paymentFilter === "CASH" && t.paymentMode === "CASH") ||
-        (paymentFilter === "ONLINE" && (t.paymentMode === "ONLINE" || t.paymentMode === "UPI"));
+        (paymentFilter === "ONLINE" && (t.paymentMode === "ONLINE" || t.paymentMode === "UPI")) ||
+        (paymentFilter === "COMPLEMENTARY" && t.paymentMode === "COMPLEMENTARY");
       
       const matchesOutlet = (activeOutlet === "CAFE" && t.Outlet.name.toUpperCase().includes("CAFE")) ||
                             (activeOutlet === "CHAI" && t.Outlet.name.toUpperCase().includes("CHAI"));
@@ -62,9 +63,10 @@ export function TransactionsFeed({ initialTransactions, userRole }: { initialTra
   const chaiTransactions = filteredTransactions.filter(t => t.Outlet.name.toUpperCase().includes("CHAI"));
 
   const totals = {
-    total: filteredTransactions.reduce((s, t) => s + t.totalAmount, 0),
+    total: filteredTransactions.filter(t => t.paymentMode !== "COMPLEMENTARY").reduce((s, t) => s + t.totalAmount, 0),
     cash: filteredTransactions.filter(t => t.paymentMode === "CASH").reduce((s, t) => s + t.totalAmount, 0),
     online: filteredTransactions.filter(t => t.paymentMode === "ONLINE" || t.paymentMode === "UPI").reduce((s, t) => s + t.totalAmount, 0),
+    complementary: filteredTransactions.filter(t => t.paymentMode === "COMPLEMENTARY").reduce((s, t) => s + t.totalAmount, 0),
   };
 
   const handleDownloadReport = () => {
@@ -125,7 +127,13 @@ export function TransactionsFeed({ initialTransactions, userRole }: { initialTra
                     ₹{tab.totalAmount.toFixed(0)}
                   </div>
                   <div className="flex items-center justify-end gap-1.5 mt-2">
-                     {tab.paymentMode === 'CASH' ? <Banknote className="w-3 h-3 text-emerald-500/50" /> : <CreditCard className="w-3 h-3 text-blue-500/50" />}
+                     {tab.paymentMode === 'CASH' ? (
+                       <Banknote className="w-3 h-3 text-emerald-500/50" />
+                     ) : tab.paymentMode === 'ONLINE' || tab.paymentMode === 'UPI' ? (
+                       <CreditCard className="w-3 h-3 text-blue-500/50" />
+                     ) : (
+                       <Gift className="w-3 h-3 text-purple-500/50" />
+                     )}
                      <p className="text-[9px] text-muted-foreground font-black uppercase tracking-widest">{tab.paymentMode || "UNKNOWN"}</p>
                   </div>
                     {(userRole === "OWNER" || userRole === "ADMIN") && (
@@ -176,7 +184,7 @@ export function TransactionsFeed({ initialTransactions, userRole }: { initialTra
               </div>
 
               <div className="flex p-1.5 bg-muted rounded-2xl border border-border items-center">
-                {(['ALL', 'CASH', 'ONLINE'] as const).map(mode => (
+                {(['ALL', 'CASH', 'ONLINE', 'COMPLEMENTARY'] as const).map(mode => (
                   <button
                     key={mode}
                     onClick={() => setPaymentFilter(mode)}
@@ -185,7 +193,7 @@ export function TransactionsFeed({ initialTransactions, userRole }: { initialTra
                       paymentFilter === mode ? "bg-emerald-500 text-white dark:text-black shadow-[0_0_20px_rgba(16,185,129,0.4)]" : "text-muted-foreground hover:text-foreground"
                     )}
                   >
-                    {mode}
+                    {mode === 'COMPLEMENTARY' ? '🎁 COMPLEMENTARY' : mode}
                   </button>
                 ))}
               </div>
@@ -255,6 +263,13 @@ export function TransactionsFeed({ initialTransactions, userRole }: { initialTra
                  <CreditCard className="w-3 h-3" /> UPI / Online
               </p>
               <p className="text-3xl font-black text-blue-500 dark:text-blue-400 tabular-nums tracking-tighter">₹{totals.online.toLocaleString()}</p>
+           </div>
+
+           <div className="group transition-transform hover:translate-y-[-2px]">
+              <p className="text-[9px] font-black text-purple-600 dark:text-purple-500/50 uppercase tracking-[0.3em] mb-2 flex items-center gap-2">
+                 <Gift className="w-3 h-3 text-purple-500/30" /> Complementary Giveaway
+              </p>
+              <p className="text-3xl font-black text-purple-500 dark:text-purple-400 tabular-nums tracking-tighter">₹{totals.complementary.toLocaleString()}</p>
            </div>
         </div>
       </div>

@@ -142,7 +142,8 @@ export async function GET(req: Request) {
   const totalCash = tabs.filter(t => t.paymentMode === "CASH").reduce((sum, t) => sum + t.totalAmount, 0);
   const totalOnline = tabs.filter(t => t.paymentMode === "ONLINE" || t.paymentMode === "UPI").reduce((sum, t) => sum + t.totalAmount, 0);
   const totalSplit = tabs.filter(t => t.paymentMode === "SPLIT").reduce((sum, t) => sum + t.totalAmount, 0);
-  const grandTotal = tabs.reduce((sum, t) => sum + t.totalAmount, 0);
+  const totalComplementary = tabs.filter(t => t.paymentMode === "COMPLEMENTARY").reduce((sum, t) => sum + t.totalAmount, 0);
+  const grandTotal = tabs.filter(t => t.paymentMode !== "COMPLEMENTARY").reduce((sum, t) => sum + t.totalAmount, 0);
 
   // Append Summary Rows
   csvContent += "\nOVERALL RANGE TOTALS,,\n";
@@ -150,6 +151,9 @@ export async function GET(req: Request) {
   csvContent += `,,,,,,,TOTAL ONLINE (UPI/CARD),${totalOnline.toFixed(2)},\n`;
   if (totalSplit > 0) {
     csvContent += `,,,,,,,TOTAL SPLIT,${totalSplit.toFixed(2)},\n`;
+  }
+  if (totalComplementary > 0) {
+    csvContent += `,,,,,,,TOTAL COMPLEMENTARY,${totalComplementary.toFixed(2)},\n`;
   }
   csvContent += `,,,,,,,GRAND TOTAL,${grandTotal.toFixed(2)},\n`;
 

@@ -75,11 +75,15 @@ export default async function DashboardOverview() {
     const isCafe = outletName.includes("CAFE");
     const isChaiOrCafe = isChai || isCafe;
     
-    totalRevenue += tab.totalAmount
+    if (tab.paymentMode !== "COMPLEMENTARY") {
+      totalRevenue += tab.totalAmount
+    }
 
     // Populate Chai/Cafe Specific Metrics
     if (isChaiOrCafe) {
-      chaiCafeTotal += tab.totalAmount
+      if (tab.paymentMode !== "COMPLEMENTARY") {
+        chaiCafeTotal += tab.totalAmount
+      }
       if (tab.paymentMode === "CASH") chaiCafeCash += tab.totalAmount
       if (tab.paymentMode === "ONLINE") chaiCafeDigital += tab.totalAmount
       if (tab.paymentMode === "SPLIT") {
@@ -91,7 +95,9 @@ export default async function DashboardOverview() {
     if (!outletStats[tab.Outlet.name]) {
       outletStats[tab.Outlet.name] = { total: 0, cash: 0, online: 0, split: 0 }
     }
-    outletStats[tab.Outlet.name].total += tab.totalAmount
+    if (tab.paymentMode !== "COMPLEMENTARY") {
+      outletStats[tab.Outlet.name].total += tab.totalAmount
+    }
     if (tab.paymentMode === "CASH") outletStats[tab.Outlet.name].cash += tab.totalAmount
     if (tab.paymentMode === "ONLINE") outletStats[tab.Outlet.name].online += tab.totalAmount
     if (tab.paymentMode === "SPLIT") {
@@ -103,7 +109,7 @@ export default async function DashboardOverview() {
     tab.Items.forEach(item => {
       const cat = item.MenuItem.categoryId || "Misc"
       if (!categorySales[cat]) categorySales[cat] = 0
-      const itemRev = item.priceAtTime * item.quantity
+      const itemRev = tab.paymentMode === "COMPLEMENTARY" ? 0 : (item.priceAtTime * item.quantity)
       categorySales[cat] += itemRev
 
       if (!itemSales[item.menuItemId]) {

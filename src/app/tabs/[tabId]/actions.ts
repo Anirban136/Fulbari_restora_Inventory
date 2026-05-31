@@ -199,7 +199,7 @@ export async function closeTab(data: FormData) {
       status: isHold ? "PAID_HOLD" : "CLOSED",
       paymentMode,
       tokenNumber,
-      totalPaid: { increment: sessionSubtotal },
+      totalPaid: { increment: paymentMode === "COMPLEMENTARY" ? 0 : sessionSubtotal },
       closedAt: new Date(),
       splitCashAmount: paymentMode === "SPLIT" ? splitCashAmount : null,
       splitOnlineAmount: paymentMode === "SPLIT" ? splitOnlineAmount : null

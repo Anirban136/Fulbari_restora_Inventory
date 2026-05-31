@@ -104,6 +104,7 @@ export function EditTransactionModal({ tabId, currentAmount, currentMode }: { ta
                     <SelectItem value="CASH">CASH</SelectItem>
                     <SelectItem value="ONLINE">ONLINE (UPI/CARD)</SelectItem>
                     <SelectItem value="SPLIT">SPLIT</SelectItem>
+                    <SelectItem value="COMPLEMENTARY">COMPLEMENTARY</SelectItem>
                   </SelectContent>
                 </Select>
               </div>

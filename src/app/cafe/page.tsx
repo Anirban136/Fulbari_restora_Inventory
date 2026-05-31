@@ -98,16 +98,20 @@ export default async function CafeDashboard({ searchParams }: { searchParams: Pr
   const dailyReport = todaysTabs.reduce((acc, tab) => {
     if (tab.paymentMode === 'CASH') {
       acc.CASH += tab.totalAmount
+      acc.TOTAL += tab.totalAmount
     } else if (tab.paymentMode === 'ONLINE') {
       acc.ONLINE += tab.totalAmount
+      acc.TOTAL += tab.totalAmount
     } else if (tab.paymentMode === 'SPLIT') {
       acc.CASH += tab.splitCashAmount ?? 0
       acc.ONLINE += tab.splitOnlineAmount ?? 0
       acc.SPLIT += tab.totalAmount
+      acc.TOTAL += tab.totalAmount
+    } else if (tab.paymentMode === 'COMPLEMENTARY') {
+      acc.COMPLEMENTARY += tab.totalAmount
     }
-    acc.TOTAL += tab.totalAmount
     return acc
-  }, { CASH: 0, ONLINE: 0, SPLIT: 0, TOTAL: 0 });
+  }, { CASH: 0, ONLINE: 0, SPLIT: 0, COMPLEMENTARY: 0, TOTAL: 0 });
 
   return (
     <AppLayout user={session?.user}>
@@ -169,6 +173,16 @@ export default async function CafeDashboard({ searchParams }: { searchParams: Pr
                           <span className="text-xs font-black text-muted-foreground uppercase tracking-widest">Split/Other</span>
                        </div>
                        <span className="text-xl font-black text-foreground">₹{dailyReport.SPLIT.toFixed(2)}</span>
+                     </div>
+                   )}
+
+                   {dailyReport.COMPLEMENTARY > 0 && (
+                     <div className="flex justify-between items-center bg-foreground/5 p-5 rounded-2xl border border-border">
+                       <div className="flex items-center gap-3">
+                          <span className="text-xl">🎁</span>
+                          <span className="text-xs font-black text-muted-foreground uppercase tracking-widest">Complementary Giveaway</span>
+                       </div>
+                       <span className="text-xl font-black text-foreground">₹{dailyReport.COMPLEMENTARY.toFixed(2)}</span>
                      </div>
                    )}
   

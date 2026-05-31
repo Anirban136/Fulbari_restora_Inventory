@@ -6,6 +6,7 @@ import { EditTransactionModal } from "./EditTransactionModal"
 import { deleteClosedTab } from "@/app/dashboard/transactions/actions"
 import { DeleteVerificationDialog } from "./DeleteVerificationDialog"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 
 type Transaction = {
   id: string
@@ -134,7 +135,7 @@ export function TransactionsFeed({ tabs, userRole }: { tabs: any[], userRole?: s
                 </div>
                 <div className="flex justify-between items-end border-t border-border pt-4">
                   <div className="flex items-center gap-2">
-                     <div className={`w-2 h-2 rounded-full ${tab.paymentMode === 'CASH' ? 'bg-emerald-500 shadow-[0_0_10px_#10b981]' : 'bg-blue-500 shadow-[0_0_10px_#3b82f6]'}`}></div>
+                     <div className={`w-2 h-2 rounded-full ${tab.paymentMode === 'CASH' ? 'bg-emerald-500 shadow-[0_0_10px_#10b981]' : tab.paymentMode === 'ONLINE' || tab.paymentMode === 'UPI' ? 'bg-blue-500 shadow-[0_0_10px_#3b82f6]' : 'bg-purple-500 shadow-[0_0_10px_#a855f7]'}`}></div>
                      <span className="text-[9px] font-black text-muted-foreground uppercase tracking-widest">{tab.paymentMode}</span>
                   </div>
                    <p className="text-3xl font-black text-foreground tracking-tighter group-hover:text-primary transition-colors">₹{tab.totalAmount.toFixed(0)}</p>
@@ -223,7 +224,12 @@ export function TransactionsFeed({ tabs, userRole }: { tabs: any[], userRole?: s
                           )}
                           <span className="text-3xl font-black text-foreground tracking-tighter group-hover:text-primary transition-colors">₹{tab.totalAmount.toFixed(0)}</span>
                         </div>
-                        <span className="mt-1 px-3 py-1 bg-muted/20 rounded-full text-[8px] font-black text-muted-foreground uppercase tracking-widest group-hover:bg-primary/20 group-hover:text-primary transition-colors focus:ring-2 ring-primary/40 outline-none">
+                        <span className={cn(
+                          "mt-1 px-3 py-1 rounded-full text-[8px] font-black uppercase tracking-widest transition-colors focus:ring-2 ring-primary/40 outline-none",
+                          tab.paymentMode === "COMPLEMENTARY" 
+                            ? "bg-purple-500/10 text-purple-400 border border-purple-500/20 group-hover:bg-purple-500 group-hover:text-primary-foreground" 
+                            : "bg-muted/20 text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary"
+                        )}>
                           {tab.paymentMode}
                         </span>
                       </div>

@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Banknote, CreditCard, SplitSquareHorizontal, Receipt, Printer, CheckCircle2 } from "lucide-react"
+import { Banknote, CreditCard, SplitSquareHorizontal, Receipt, Printer, CheckCircle2, Gift } from "lucide-react"
 import { PrintReceiptButton } from "@/components/PrintReceiptButton"
 import { toast } from "sonner"
 import { closeTab, assignTokenToTab } from "./actions"
@@ -41,7 +41,7 @@ export function CheckoutSidebar({
     }
   }, [billGenerated, tabId])
 
-  const [paymentMode, setPaymentMode] = useState<"CASH" | "ONLINE" | "SPLIT">("CASH")
+  const [paymentMode, setPaymentMode] = useState<"CASH" | "ONLINE" | "SPLIT" | "COMPLEMENTARY">("CASH")
   const [isHold, setIsHold] = useState(false)
   const [splitCash, setSplitCash] = useState<string>("")
   const [splitOnline, setSplitOnline] = useState<string>("")
@@ -127,7 +127,7 @@ export function CheckoutSidebar({
                 </button>
               </div>
               <input type="hidden" name="paymentMode" value={paymentMode} />
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <button type="button" onClick={() => setPaymentMode("CASH")} className="group outline-none w-full">
                   <div className={`flex flex-col items-center justify-center gap-2 py-2 sm:py-4 rounded-xl border-2 transition-all text-[10px] sm:text-xs font-bold ${paymentMode === "CASH" ? (isCafe ? "border-orange-500 bg-orange-500/10 text-orange-400 shadow-[0_0_20px_-5px_#f97316]" : "border-sky-500 bg-sky-500/10 text-sky-400 shadow-[0_0_20px_-5px_#0ea5e9]") : "border-border bg-foreground/5 text-muted-foreground group-hover:bg-foreground/10"}`}>
                     <Banknote className="w-4 h-4 sm:w-5 sm:h-5 mb-1" />
@@ -136,7 +136,7 @@ export function CheckoutSidebar({
                 </button>
                 <button type="button" onClick={() => setPaymentMode("ONLINE")} className="group outline-none w-full">
                   <div className={`flex flex-col items-center justify-center gap-2 py-2 sm:py-4 rounded-xl border-2 transition-all text-[10px] sm:text-xs text-center leading-tight font-bold ${paymentMode === "ONLINE" ? (isCafe ? "border-orange-500 bg-orange-500/10 text-orange-400 shadow-[0_0_20px_-5px_#f97316]" : "border-sky-500 bg-sky-500/10 text-sky-400 shadow-[0_0_20px_-5px_#0ea5e9]") : "border-border bg-foreground/5 text-muted-foreground group-hover:bg-foreground/10"}`}>
-                    <Banknote className="w-4 h-4 sm:w-5 sm:h-5 mb-1" />
+                    <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 mb-1" />
                     UPI/CARD
                   </div>
                 </button>
@@ -144,6 +144,12 @@ export function CheckoutSidebar({
                   <div className={`flex flex-col items-center justify-center gap-2 py-2 sm:py-4 rounded-xl border-2 transition-all text-[10px] sm:text-xs font-bold ${paymentMode === "SPLIT" ? (isCafe ? "border-orange-500 bg-orange-500/10 text-orange-400 shadow-[0_0_20px_-5px_#f97316]" : "border-sky-500 bg-sky-500/10 text-sky-400 shadow-[0_0_20px_-5px_#0ea5e9]") : "border-border bg-foreground/5 text-muted-foreground group-hover:bg-foreground/10"}`}>
                     <SplitSquareHorizontal className="w-4 h-4 sm:w-5 sm:h-5 mb-1" />
                     SPLIT
+                  </div>
+                </button>
+                <button type="button" onClick={() => setPaymentMode("COMPLEMENTARY")} className="group outline-none w-full">
+                  <div className={`flex flex-col items-center justify-center gap-2 py-2 sm:py-4 rounded-xl border-2 transition-all text-[10px] sm:text-xs font-bold ${paymentMode === "COMPLEMENTARY" ? "border-purple-500 bg-purple-500/10 text-purple-400 shadow-[0_0_20px_-5px_#a855f7]" : "border-border bg-foreground/5 text-muted-foreground group-hover:bg-foreground/10"}`}>
+                    <Gift className="w-4 h-4 sm:w-5 sm:h-5 mb-1" />
+                    COMPLEMENTARY
                   </div>
                 </button>
               </div>
