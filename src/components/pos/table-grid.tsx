@@ -121,13 +121,17 @@ export function TableGrid({ activeTabs, outletId, isCafe }: TableGridProps) {
                                 <Users className={`w-3.5 h-3.5 ${isPaidHold ? "text-emerald-500/70" : "text-red-500/70"}`} />
                                 <span className={`text-foreground font-black text-sm line-clamp-2 group-hover:${isPaidHold ? "text-emerald-600" : "text-red-600"} transition-colors`}>{activeTab.customerName || "Walk-in"}</span>
                             </div>
-                            <div className="relative group/bill">
-                                <div className={`flex justify-between items-center bg-foreground/5 p-2.5 rounded-xl border border-border shadow-inner group-hover:${isPaidHold ? "border-emerald-500/20" : "border-red-500/20"} transition-colors`}>
+                            <div 
+                                className="relative group/bill" 
+                                tabIndex={0}
+                                onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                            >
+                                <div className={`flex justify-between items-center bg-foreground/5 p-2.5 rounded-xl border border-border shadow-inner group-hover:${isPaidHold ? "border-emerald-500/20" : "border-red-500/20"} transition-colors cursor-pointer`}>
                                     <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{isPaidHold ? "Final Check" : "Running Bill"}</span>
                                     <span className={`text-xs font-black ${isPaidHold ? "text-emerald-500" : "text-red-500"}`}>{itemsCount} Items</span>
                                 </div>
                                 {activeTab.Items?.length > 0 && (
-                                    <div className="absolute left-0 right-0 -bottom-2 translate-y-full p-3 bg-background/95 backdrop-blur-md border border-border rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] opacity-0 group-hover/bill:opacity-100 pointer-events-none transition-all duration-300 z-[100] max-h-40 overflow-y-auto custom-scrollbar-premium scale-95 group-hover/bill:scale-100 origin-top">
+                                    <div className="absolute left-0 right-0 -bottom-2 translate-y-full p-3 bg-background/95 backdrop-blur-md border border-border rounded-xl shadow-[0_10px_40px_-10px_rgba(0,0,0,0.5)] opacity-0 group-hover/bill:opacity-100 group-focus/bill:opacity-100 focus-within:opacity-100 pointer-events-none transition-all duration-300 z-[100] max-h-40 overflow-y-auto custom-scrollbar-premium scale-95 group-hover/bill:scale-100 group-focus/bill:scale-100 origin-top">
                                         <div className="flex flex-col gap-2">
                                             {activeTab.Items.map((item: any) => (
                                                 <div key={item.id} className="flex justify-between items-start text-xs">
