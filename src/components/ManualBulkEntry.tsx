@@ -499,7 +499,11 @@ export function ManualBulkEntry({
 
       {/* --- STEPPED EDITOR (MODAL/OVERLAY) --- */}
       {editingRow && mounted && typeof window !== "undefined" && createPortal(
-        <div className="fixed inset-0 z-[999] bg-background flex flex-col animate-in slide-in-from-bottom duration-500 md:rounded-[3rem] md:inset-4 md:shadow-[0_0_100px_rgba(0,0,0,0.5)] md:border-2 md:border-border/50 overflow-hidden">
+        <>
+          {/* Backdrop for desktop/tablet */}
+          <div className="fixed inset-0 z-[998] bg-black/60 backdrop-blur-sm animate-in fade-in duration-300" onClick={closeEditor} />
+          
+          <div className="fixed inset-0 md:inset-auto md:top-1/2 md:left-1/2 md:-translate-x-1/2 md:-translate-y-1/2 z-[999] bg-background flex flex-col animate-in slide-in-from-bottom duration-500 w-full md:max-w-3xl md:h-[80vh] md:max-h-[720px] rounded-none md:rounded-[2.5rem] md:shadow-[0_25px_70px_rgba(0,0,0,0.6)] md:border-2 md:border-border/50 overflow-hidden">
            {/* Header */}
            <div className="p-6 border-b border-border/50 flex items-center justify-between bg-muted/20">
               <div className="flex items-center gap-4">
@@ -768,8 +772,9 @@ export function ManualBulkEntry({
                 </div>
                )}
             </div>
-         </div>,
-         document.body
+          </div>
+        </>,
+        document.body
       )}
 
       {/* --- FLOATING MOBILE ACTION BAR --- */}
