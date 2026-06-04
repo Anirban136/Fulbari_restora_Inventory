@@ -348,7 +348,8 @@ export function ManualBulkEntry({
       </div>
 
       {/* --- SPREADSHEET TABLE (DESKTOP) --- */}
-      <div className="hidden md:block overflow-x-auto rounded-[2rem] border-2 border-border/50 bg-background/40 glass-panel shadow-sm">
+      <div className="hidden md:block rounded-[2rem] border-2 border-border/50 bg-background/40 glass-panel shadow-sm">
+         <div className="overflow-x-auto overflow-y-visible min-h-[500px]">
          <table className="w-full text-left text-sm whitespace-nowrap">
             <thead className="bg-muted/30 border-b border-border/50 text-[10px] font-black uppercase tracking-widest text-muted-foreground">
                <tr>
@@ -491,6 +492,7 @@ export function ManualBulkEntry({
             <Button onClick={addEmptyRow} variant="outline" className="w-full border-dashed border-primary/30 text-primary hover:bg-primary/5 rounded-xl font-black uppercase tracking-widest text-xs h-12 transition-all">
                <Plus className="w-4 h-4 mr-2" /> Insert New Row
             </Button>
+         </div>
          </div>
       </div>
 
