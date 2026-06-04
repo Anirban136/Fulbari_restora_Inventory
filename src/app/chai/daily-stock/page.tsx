@@ -54,6 +54,7 @@ export default async function ChaiDailyStockPage() {
   // All available menu items
   const menuItems = await prisma.menuItem.findMany({
     where: { outletId: chaiJoint.id, isAvailable: true },
+    include: { ingredients: true },
     orderBy: [{ categoryId: "asc" }, { name: "asc" }],
   })
 
@@ -71,13 +72,25 @@ export default async function ChaiDailyStockPage() {
 
   const items: StockItem[] = menuItems.map((mi) => {
     const existing = submissionMap.get(mi.id)
-    const startStock = mi.itemId ? (stockMap.get(mi.itemId) ?? 0) : 0
+    
+    let startStock = 0;
+    let actualItemId = mi.itemId;
+    
+    if (mi.itemId && stockMap.has(mi.itemId)) {
+      startStock = stockMap.get(mi.itemId) ?? 0;
+    } else if (mi.ingredients && mi.ingredients.length > 0) {
+      const primaryIng = mi.ingredients[0];
+      actualItemId = primaryIng.itemId;
+      const stock = stockMap.get(primaryIng.itemId) ?? 0;
+      startStock = primaryIng.quantity > 0 ? Math.floor(stock / primaryIng.quantity) : 0;
+    }
+
     return {
       menuItemId: mi.id,
       menuItemName: mi.name,
       category: mi.categoryId ?? "Uncategorized",
       price: mi.price,
-      itemId: mi.itemId ?? null,
+      itemId: actualItemId ?? null,
       startStock: existing ? existing.startStock : startStock,
       endStock: existing ? existing.endStock : null,
       salesQty: existing ? existing.salesQty : null,

@@ -43,6 +43,7 @@ export async function GET(req: NextRequest) {
     // Get all available menu items for the chai hub
     const menuItems = await prisma.menuItem.findMany({
       where: { outletId: chaiJoint.id, isAvailable: true },
+      include: { ingredients: true },
       orderBy: [{ categoryId: "asc" }, { name: "asc" }],
     })
 
@@ -64,16 +65,25 @@ export async function GET(req: NextRequest) {
 
     const items = menuItems.map((mi) => {
       const existing = submissionMap.get(mi.id)
-      // startStock: use current OutletStock quantity for the linked item
-      // If no linked item, default 0
-      const startStock = mi.itemId ? (stockMap.get(mi.itemId) ?? 0) : 0
+      
+      let startStock = 0;
+      let actualItemId = mi.itemId;
+      
+      if (mi.itemId && stockMap.has(mi.itemId)) {
+        startStock = stockMap.get(mi.itemId) ?? 0;
+      } else if (mi.ingredients && mi.ingredients.length > 0) {
+        const primaryIng = mi.ingredients[0];
+        actualItemId = primaryIng.itemId;
+        const stock = stockMap.get(primaryIng.itemId) ?? 0;
+        startStock = primaryIng.quantity > 0 ? Math.floor(stock / primaryIng.quantity) : 0;
+      }
 
       return {
         menuItemId: mi.id,
         menuItemName: mi.name,
         category: mi.categoryId ?? "Uncategorized",
         price: mi.price,
-        itemId: mi.itemId,
+        itemId: actualItemId,
         startStock: existing ? existing.startStock : startStock,
         endStock: existing ? existing.endStock : null,
         salesQty: existing ? existing.salesQty : null,
