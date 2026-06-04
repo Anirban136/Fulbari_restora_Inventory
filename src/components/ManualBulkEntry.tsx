@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useRef, useEffect, useMemo } from "react"
+import { createPortal } from "react-dom"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { 
@@ -175,6 +176,7 @@ export function ManualBulkEntry({
   existingVendors: VendorInfo[]
 }) {
   // State
+  const [mounted, setMounted] = useState(false)
   const [rows, setRows] = useState<ManualRow[]>([])
   const [editingRow, setEditingRow] = useState<ManualRow | null>(null)
   const [editorStep, setEditorStep] = useState(1)
@@ -182,6 +184,10 @@ export function ManualBulkEntry({
   const [importResult, setImportResult] = useState<ImportResult | null>(null)
   const [allCategories, setAllCategories] = useState<string[]>(existingCategories)
   const [allVendors, setAllVendors] = useState<string[]>(existingVendors.map(v => v.name))
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const itemNames = existingItems.map(i => i.name)
 
@@ -492,7 +498,7 @@ export function ManualBulkEntry({
       )}
 
       {/* --- STEPPED EDITOR (MODAL/OVERLAY) --- */}
-      {editingRow && (
+      {editingRow && mounted && typeof window !== "undefined" && createPortal(
         <div className="fixed inset-0 z-[999] bg-background flex flex-col animate-in slide-in-from-bottom duration-500 md:rounded-[3rem] md:inset-4 md:shadow-[0_0_100px_rgba(0,0,0,0.5)] md:border-2 md:border-border/50 overflow-hidden">
            {/* Header */}
            <div className="p-6 border-b border-border/50 flex items-center justify-between bg-muted/20">
@@ -760,9 +766,10 @@ export function ManualBulkEntry({
                       </Button>
                    </div>
                 </div>
-              )}
-           </div>
-        </div>
+               )}
+            </div>
+         </div>,
+         document.body
       )}
 
       {/* --- FLOATING MOBILE ACTION BAR --- */}
