@@ -2,8 +2,9 @@ import { prisma } from "@/lib/prisma"
 export const dynamic = 'force-dynamic'
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { DispatchForm } from "./DispatchForm"
+import { ManualBulkDispatch } from "@/components/ManualBulkDispatch"
 import { DispatchHistoryTable } from "./DispatchHistoryTable"
+import { ArrowRightLeft, History } from "lucide-react"
 
 export default async function DispatchPage() {
   const session = await getServerSession(authOptions)
@@ -16,15 +17,15 @@ export default async function DispatchPage() {
     prisma.outlet.findMany({ orderBy: { name: 'asc' } }),
     prisma.inventoryLedger.findMany({
       where: { type: "DISPATCH" },
-      include: { Item: true },
+      include: { Item: true, Outlet: true, User: true },
       orderBy: { createdAt: 'desc' },
       take: 50 // Increased limit for better filtering experience
     })
   ])
 
   return (
-    <div className="space-y-8 relative">
-      <div className="absolute top-[50%] left-[10%] w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[130px] pointer-events-none -translate-y-1/2"></div>
+    <div className="space-y-8 relative pb-20">
+      <div className="absolute top-[20%] left-[10%] w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[130px] pointer-events-none -translate-y-1/2"></div>
       
       <div className="glass-panel p-6 rounded-3xl relative z-10 flex items-center justify-between">
         <div>
@@ -32,29 +33,46 @@ export default async function DispatchPage() {
             Dispatch Stock
             <div className="h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_10px_#3b82f6]"></div>
           </h2>
-          <p className="text-muted-foreground mt-1 font-medium text-sm tracking-wide uppercase">Send inventory from Central Store to Outlets.</p>
+          <p className="text-muted-foreground mt-1 font-medium text-sm tracking-wide uppercase">Send bulk inventory from Central Store to Outlets.</p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
-        {/* Client form with error handling */}
-        <DispatchForm items={items} outlets={outlets} />
+      <div className="space-y-12 relative z-10">
+        
+        {/* Bulk Dispatch Spreadsheet */}
+        <ManualBulkDispatch 
+          existingItems={items} 
+          outlets={outlets} 
+        />
 
-        <div className="lg:col-span-2 glass-panel rounded-3xl overflow-hidden flex flex-col min-h-[500px]">
-          <div className="p-6 border-b border-border/50 bg-white/5 backdrop-blur-md flex items-center justify-between">
-            <h3 className="text-lg font-bold text-foreground tracking-wide">Dispatch History LEDGER</h3>
-            {isOwner && (
-              <span className="text-[10px] font-black tracking-widest bg-amber-500/10 border border-amber-500/20 text-amber-400 px-3 py-1 rounded-full uppercase">
-                Revert available
-              </span>
-            )}
+        {/* History Table */}
+        <div className="space-y-6 pt-8">
+          <div className="flex items-center gap-3 px-2">
+            <div className="h-10 w-10 bg-blue-500/10 rounded-2xl flex items-center justify-center border border-blue-500/20">
+              <History className="w-5 h-5 text-blue-500" />
+            </div>
+            <div>
+              <h3 className="text-xl font-bold text-foreground">Recent Dispatches Overview</h3>
+              <p className="text-muted-foreground text-xs font-medium uppercase tracking-widest opacity-60">Last 50 warehouse shipments</p>
+            </div>
           </div>
-          
-          <DispatchHistoryTable 
-            recentDispatches={recentDispatches} 
-            outlets={outlets} 
-            isOwner={isOwner} 
-          />
+
+          <div className="glass-panel rounded-3xl overflow-hidden flex flex-col min-h-[500px]">
+            <div className="p-6 border-b border-border/50 bg-white/5 backdrop-blur-md flex items-center justify-between">
+              <h3 className="text-lg font-bold text-foreground tracking-wide uppercase">Dispatch History LEDGER</h3>
+              {isOwner && (
+                <span className="text-[10px] font-black tracking-widest bg-amber-500/10 border border-amber-500/20 text-amber-400 px-3 py-1 rounded-full uppercase">
+                  Revert available
+                </span>
+              )}
+            </div>
+            
+            <DispatchHistoryTable 
+              recentDispatches={recentDispatches} 
+              outlets={outlets} 
+              isOwner={isOwner} 
+            />
+          </div>
         </div>
       </div>
     </div>
