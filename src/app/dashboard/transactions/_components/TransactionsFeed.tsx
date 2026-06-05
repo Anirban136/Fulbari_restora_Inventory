@@ -77,9 +77,9 @@ export function TransactionsFeed({ initialTransactions, userRole }: { initialTra
   }
 
   const renderSection = (title: string, icon: any, colorClass: string, trans: any[], accentBg: string) => (
-    <div className="glass-panel p-6 rounded-3xl relative overflow-hidden group">
+    <div className="glass-panel p-6 rounded-3xl relative overflow-hidden group border border-foreground/5 bg-foreground/[0.02]">
       <div className={cn("absolute top-0 right-0 w-64 h-64 rounded-full blur-[80px] pointer-events-none transition-all", accentBg)}></div>
-      <div className="flex items-center justify-between mb-8 border-b border-border pb-4">
+      <div className="flex items-center justify-between mb-8 border-b border-foreground/5 pb-4">
         <div className="flex items-center gap-4">
           <div className={cn("h-12 w-12 rounded-xl flex items-center justify-center border", colorClass)}>
             {icon}
@@ -99,12 +99,12 @@ export function TransactionsFeed({ initialTransactions, userRole }: { initialTra
 
       <div className="space-y-4">
         {trans.length === 0 ? (
-          <div className="p-12 text-center text-muted-foreground font-bold uppercase tracking-widest text-xs bg-foreground/5 rounded-2xl border border-border opacity-40">
+          <div className="p-12 text-center text-muted-foreground font-bold uppercase tracking-widest text-xs bg-foreground/5 rounded-2xl border border-foreground/5 opacity-40">
             No Transactions for this filter
           </div>
         ) : (
           trans.map(tab => (
-            <div key={tab.id} className="flex flex-col md:flex-row md:items-center justify-between p-5 rounded-2xl border border-border bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all group gap-4 relative">
+            <div key={tab.id} className="flex flex-col md:flex-row md:items-center justify-between p-5 rounded-2xl border border-foreground/5 bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all group gap-4 relative">
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
                   <span className="text-[10px] font-black text-muted-foreground uppercase tracking-widest">{formatTimeIST(new Date(tab.closedAt || tab.openedAt))}</span>
@@ -122,7 +122,7 @@ export function TransactionsFeed({ initialTransactions, userRole }: { initialTra
                 <div className="text-right">
                   <div className={cn(
                     "font-black tracking-tighter px-4 py-1.5 rounded-xl text-xl",
-                    tab.status === "CANCELLED" ? "text-foreground/20 bg-foreground/5" : "text-foreground bg-foreground/5 border border-border"
+                    tab.status === "CANCELLED" ? "text-foreground/20 bg-foreground/5" : "text-foreground bg-foreground/5 border border-foreground/5"
                   )}>
                     ₹{tab.totalAmount.toFixed(0)}
                   </div>
@@ -148,7 +148,7 @@ export function TransactionsFeed({ initialTransactions, userRole }: { initialTra
                     )}
                 </div>
                 
-                <div className="pl-4 border-l border-border shrink-0">
+                <div className="pl-4 border-l border-foreground/5 shrink-0">
                   <EditTransactionModal 
                     tabId={tab.id} 
                     currentAmount={tab.totalAmount} 
@@ -166,7 +166,7 @@ export function TransactionsFeed({ initialTransactions, userRole }: { initialTra
   return (
     <div className="space-y-8 pb-32">
       {/* GLOBAL CONTROL CENTER - TOP MOUNTED */}
-      <div className="glass-panel p-8 rounded-[2.5rem] border border-border relative overflow-hidden shadow-2xl">
+      <div className="glass-panel p-8 rounded-[2.5rem] border border-foreground/10 bg-foreground/[0.03] backdrop-blur-3xl relative overflow-hidden shadow-2xl">
         <div className="absolute top-0 left-0 w-full h-[2px] bg-gradient-to-r from-transparent via-emerald-500 to-transparent"></div>
         
         <div className="flex flex-col gap-8 relative z-10">
@@ -179,11 +179,11 @@ export function TransactionsFeed({ initialTransactions, userRole }: { initialTra
                   type="date" 
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  className="h-14 pl-12 pr-6 bg-muted border border-border rounded-2xl text-xs font-black text-foreground uppercase tracking-widest focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/50 transition-all outline-none"
+                  className="h-14 pl-12 pr-6 bg-muted border border-foreground/5 rounded-2xl text-xs font-black text-foreground uppercase tracking-widest focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/50 transition-all outline-none"
                 />
               </div>
 
-              <div className="flex p-1.5 bg-muted rounded-2xl border border-border items-center">
+              <div className="flex p-1.5 bg-muted rounded-2xl border border-foreground/5 items-center">
                 {(['ALL', 'CASH', 'ONLINE', 'COMPLEMENTARY'] as const).map(mode => (
                   <button
                     key={mode}
@@ -204,7 +204,7 @@ export function TransactionsFeed({ initialTransactions, userRole }: { initialTra
                   placeholder="Search Customers..."
                   value={searchTerm}
                   onChange={e => setSearchTerm(e.target.value)}
-                  className="h-14 pl-12 bg-background border-border rounded-2xl text-[10px] font-black uppercase tracking-widest w-[200px] lg:w-[280px] placeholder:text-muted-foreground/50"
+                  className="h-14 pl-12 bg-background border-foreground/5 rounded-2xl text-[10px] font-black uppercase tracking-widest w-[200px] lg:w-[280px] placeholder:text-muted-foreground/50"
                 />
               </div>
             </div>
@@ -218,9 +218,9 @@ export function TransactionsFeed({ initialTransactions, userRole }: { initialTra
           </div>
 
           {/* Row 2: Hub Specific Tab Switcher */}
-          <div className="flex items-center gap-4 pt-4 border-t border-border">
+          <div className="flex items-center gap-4 pt-4 border-t border-foreground/5">
             <p className="text-[10px] font-black text-foreground/40 uppercase tracking-[0.3em] mr-2">Audit Hub:</p>
-            <div className="flex p-1 bg-muted rounded-2xl border border-border items-center">
+            <div className="flex p-1 bg-muted rounded-2xl border border-foreground/5 items-center">
               {(['CAFE', 'CHAI'] as const).map(hub => (
                 <button
                   key={hub}
@@ -243,7 +243,7 @@ export function TransactionsFeed({ initialTransactions, userRole }: { initialTra
         </div>
 
         {/* Dynamic Analytics Strip */}
-        <div className="flex flex-wrap gap-12 mt-8 pt-8 border-t border-border">
+        <div className="flex flex-wrap gap-12 mt-8 pt-8 border-t border-foreground/5">
            <div className="group transition-transform hover:translate-y-[-2px]">
               <p className="text-[9px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-2 flex items-center gap-2">
                  <Layers className="w-3 h-3 text-muted-foreground/30" /> Filtered Volume

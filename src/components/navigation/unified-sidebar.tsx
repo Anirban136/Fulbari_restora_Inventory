@@ -115,7 +115,7 @@ export function UnifiedSidebar({ user }: { user: any }) {
 
       {/* Desktop Sidebar / Mobile Overlay */}
       <div className={cn(
-        "fixed inset-y-0 left-0 z-[100] w-[85vw] md:w-80 lg:w-72 transform transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen",
+        "fixed inset-y-0 left-0 z-[100] w-[85vw] md:w-80 lg:w-72 transform transition-transform duration-500 cubic-bezier(0.4, 0, 0.2, 1) lg:translate-x-0 lg:sticky lg:top-0 lg:h-screen lg:p-6",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         {/* Backdrop for mobile (High-Fidelity Blur) */}
@@ -127,8 +127,9 @@ export function UnifiedSidebar({ user }: { user: any }) {
         )}
 
         <aside className={cn(
-          "relative h-full flex flex-col border-r border-border bg-background/95 lg:bg-background/20 lg:backdrop-blur-none z-50 overflow-hidden transition-all duration-300 shadow-2xl",
-          isOpen ? "shadow-[20px_0_60px_rgba(0,0,0,0.2)] dark:shadow-[20px_0_60px_rgba(0,0,0,0.9)]" : "shadow-none"
+          "relative h-full flex flex-col border-r border-border bg-background/95 lg:bg-foreground/[0.03] lg:backdrop-blur-3xl lg:border lg:border-foreground/10 lg:rounded-[2.5rem] z-50 overflow-hidden transition-all duration-300",
+          isOpen ? "shadow-[20px_0_60px_rgba(0,0,0,0.2)] dark:shadow-[20px_0_60px_rgba(0,0,0,0.9)]" : "shadow-none",
+          "lg:shadow-2xl"
         )}>
           {/* Logo Section in Sidebar (Enlarged & Clickable) */}
           <div className="p-10 border-b border-border shrink-0 flex items-start justify-between">
@@ -148,6 +149,9 @@ export function UnifiedSidebar({ user }: { user: any }) {
               </Button>
             )}
           </div>
+          
+          {/* Decorative Sidebar Background Glow */}
+          <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[80px] rounded-full pointer-events-none -z-10 hidden lg:block"></div>
           
           {/* User Profile Hook */}
           <div className="p-8 border-b border-border bg-foreground/[0.02] shrink-0">
@@ -172,10 +176,10 @@ export function UnifiedSidebar({ user }: { user: any }) {
                   key={item.href} 
                   href={item.href}
                   className={cn(
-                    "flex items-center gap-4 px-5 py-5 lg:py-3.5 rounded-[1.5rem] transition-all duration-300 group relative overflow-hidden",
+                    "flex items-center gap-4 px-5 py-5 lg:py-4 rounded-[1.5rem] transition-all duration-300 group relative overflow-hidden border border-transparent",
                     isActive 
-                      ? "bg-primary/10 text-primary border border-primary/20 shadow-[0_10px_30px_rgba(16,185,129,0.1)]" 
-                      : "text-muted-foreground hover:text-foreground hover:bg-foreground/5 transition-colors"
+                      ? "bg-primary/10 text-primary border-primary/20 shadow-[0_10px_30px_rgba(16,185,129,0.1)]" 
+                      : "text-muted-foreground hover:text-foreground hover:bg-foreground/5 hover:border-foreground/10 transition-colors"
                   )}
                 >
                   <item.icon className={cn(

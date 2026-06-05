@@ -52,9 +52,9 @@ export function GlobalCatalogFeed({
   }, [items, searchTerm, activeCategory])
 
   return (
-    <div className="flex flex-col h-full bg-card rounded-[2.5rem] border border-border overflow-hidden backdrop-blur-xl">
+    <div className="flex flex-col h-full glass-panel rounded-[3rem] border border-foreground/10 bg-foreground/[0.03] shadow-3xl overflow-hidden backdrop-blur-3xl">
       {/* 1. STICKY FILTER BAR (Shared Design Pattern) */}
-      <div className="p-4 lg:p-6 bg-foreground/5 border-b border-border flex flex-col lg:flex-row gap-6 lg:items-center justify-between sticky top-0 z-30 backdrop-blur-3xl">
+      <div className="p-4 lg:p-6 bg-foreground/5 border-b border-foreground/5 flex flex-col lg:flex-row gap-6 lg:items-center justify-between sticky top-0 z-30 backdrop-blur-3xl">
         <div className="flex items-center gap-1 p-1 bg-foreground/5 rounded-2xl border border-border overflow-x-auto no-scrollbar scroll-smooth w-full lg:w-fit group/filters">
           <Button
             variant="ghost"
@@ -211,20 +211,20 @@ export function GlobalCatalogFeed({
         <div className="hidden lg:block">
           <Table>
             <TableHeader>
-              <TableRow className="border-b border-border hover:bg-transparent">
-                <TableHead className="px-8 font-black text-muted-foreground/80 dark:text-muted-foreground/40 uppercase tracking-[0.3em] text-[10px] h-14 bg-foreground/5 sticky top-0 z-20 border-r border-border">Product Detail</TableHead>
-                <TableHead className="px-8 font-black text-muted-foreground/80 dark:text-muted-foreground/40 uppercase tracking-[0.3em] text-[10px] h-14 bg-foreground/5 sticky top-0 z-20 border-r border-border">Category</TableHead>
-                <TableHead className="px-8 font-black text-muted-foreground/80 dark:text-muted-foreground/40 uppercase tracking-[0.3em] text-[10px] h-14 bg-foreground/5 sticky top-0 z-20 text-center border-r border-border">Inventory Status</TableHead>
-                <TableHead className="px-8 font-black text-muted-foreground/80 dark:text-muted-foreground/40 uppercase tracking-[0.3em] text-[10px] h-14 bg-foreground/5 sticky top-0 z-20 text-center border-r border-border">Base Unit</TableHead>
-                <TableHead className="px-8 font-black text-muted-foreground/80 dark:text-muted-foreground/40 uppercase tracking-[0.3em] text-[10px] h-14 bg-foreground/5 sticky top-0 z-20 text-center border-r border-border">Multiplier (PCS/Box)</TableHead>
-                <TableHead className="px-8 font-black text-muted-foreground/80 dark:text-muted-foreground/40 uppercase tracking-[0.3em] text-[10px] h-14 bg-foreground/5 sticky top-0 z-20 text-right border-r border-border">Buy Rate</TableHead>
-                <TableHead className="px-8 font-black text-muted-foreground/80 dark:text-muted-foreground/40 uppercase tracking-[0.3em] text-[10px] h-14 bg-foreground/5 sticky top-0 z-20 text-right border-r border-border">Sell Rate</TableHead>
+              <TableRow className="border-b border-foreground/5 hover:bg-transparent">
+                <TableHead className="px-8 font-black text-muted-foreground/80 dark:text-muted-foreground/40 uppercase tracking-[0.3em] text-[10px] h-14 bg-foreground/5 sticky top-0 z-20 border-r border-foreground/5">Product Detail</TableHead>
+                <TableHead className="px-8 font-black text-muted-foreground/80 dark:text-muted-foreground/40 uppercase tracking-[0.3em] text-[10px] h-14 bg-foreground/5 sticky top-0 z-20 border-r border-foreground/5">Category</TableHead>
+                <TableHead className="px-8 font-black text-muted-foreground/80 dark:text-muted-foreground/40 uppercase tracking-[0.3em] text-[10px] h-14 bg-foreground/5 sticky top-0 z-20 text-center border-r border-foreground/5">Inventory Status</TableHead>
+                <TableHead className="px-8 font-black text-muted-foreground/80 dark:text-muted-foreground/40 uppercase tracking-[0.3em] text-[10px] h-14 bg-foreground/5 sticky top-0 z-20 text-center border-r border-foreground/5">Base Unit</TableHead>
+                <TableHead className="px-8 font-black text-muted-foreground/80 dark:text-muted-foreground/40 uppercase tracking-[0.3em] text-[10px] h-14 bg-foreground/5 sticky top-0 z-20 text-center border-r border-foreground/5">Multiplier (PCS/Box)</TableHead>
+                <TableHead className="px-8 font-black text-muted-foreground/80 dark:text-muted-foreground/40 uppercase tracking-[0.3em] text-[10px] h-14 bg-foreground/5 sticky top-0 z-20 text-right border-r border-foreground/5">Buy Rate</TableHead>
+                <TableHead className="px-8 font-black text-muted-foreground/80 dark:text-muted-foreground/40 uppercase tracking-[0.3em] text-[10px] h-14 bg-foreground/5 sticky top-0 z-20 text-right border-r border-foreground/5">Sell Rate</TableHead>
                 <TableHead className="px-8 font-black text-muted-foreground/80 dark:text-muted-foreground/40 uppercase tracking-[0.3em] text-[10px] h-14 bg-foreground/5 sticky top-0 z-20 text-center">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredItems.length === 0 ? (
-                <TableRow className="border-b border-border hover:bg-transparent">
+                <TableRow className="border-b border-foreground/5 hover:bg-transparent">
                   <TableCell colSpan={8} className="h-64 text-center">
                     <div className="flex flex-col items-center justify-center space-y-4 opacity-20">
                       <Package className="w-16 h-16" />
@@ -242,11 +242,11 @@ export function GlobalCatalogFeed({
                     <TableRow 
                       key={item.id} 
                       className={cn(
-                        "border-b border-border hover:bg-foreground/[0.03] transition-all group",
+                        "border-b border-foreground/5 hover:bg-foreground/[0.03] transition-all group",
                         isCritical ? "bg-red-500/[0.02]" : isLow ? "bg-amber-500/[0.02]" : ""
                       )}
                     >
-                      <TableCell className="px-8 py-6 border-r border-border">
+                      <TableCell className="px-8 py-6 border-r border-foreground/5">
                         <div className="flex flex-col">
                           <span className="text-sm font-black text-foreground uppercase tracking-tight group-hover:text-primary transition-colors">
                             {item.name}
@@ -262,7 +262,7 @@ export function GlobalCatalogFeed({
                         </div>
                       </TableCell>
                       
-                      <TableCell className="px-8 py-6 border-r border-border">
+                      <TableCell className="px-8 py-6 border-r border-foreground/5">
                         <span className={cn(
                           "text-[10px] font-black px-3 py-1 rounded-lg uppercase tracking-widest",
                           isCritical ? "bg-red-500/10 text-red-500" : 
@@ -273,7 +273,7 @@ export function GlobalCatalogFeed({
                         </span>
                       </TableCell>
 
-                      <TableCell className="px-8 py-6 text-center border-r border-border">
+                      <TableCell className="px-8 py-6 text-center border-r border-foreground/5">
                          <div className="inline-flex flex-col items-center">
                            <div className="flex items-center gap-3">
                              <span className={cn(
@@ -292,13 +292,13 @@ export function GlobalCatalogFeed({
                          </div>
                       </TableCell>
 
-                      <TableCell className="px-8 py-6 text-center border-r border-border">
-                        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] px-3 py-1 bg-foreground/5 rounded-lg border border-border">
+                      <TableCell className="px-8 py-6 text-center border-r border-foreground/5">
+                        <span className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.2em] px-3 py-1 bg-foreground/5 rounded-lg border border-foreground/5">
                           {hasConversion ? 'PCS' : item.unit}
                         </span>
                       </TableCell>
 
-                      <TableCell className="px-8 py-6 text-center border-r border-border">
+                      <TableCell className="px-8 py-6 text-center border-r border-foreground/5">
                         {hasConversion ? (
                           <div className="flex flex-col items-center">
                              <span className="text-sm font-black text-foreground">{item.piecesPerBox}</span>
@@ -309,7 +309,7 @@ export function GlobalCatalogFeed({
                         )}
                       </TableCell>
 
-                      <TableCell className="px-8 py-6 text-right border-r border-border">
+                      <TableCell className="px-8 py-6 text-right border-r border-foreground/5">
                         <div className="flex flex-col items-end">
                           <span className="text-sm font-black text-muted-foreground">
                             ₹{item.costPerUnit?.toFixed(2)}
@@ -318,7 +318,7 @@ export function GlobalCatalogFeed({
                         </div>
                       </TableCell>
 
-                      <TableCell className="px-8 py-6 text-right border-r border-border">
+                      <TableCell className="px-8 py-6 text-right border-r border-foreground/5">
                          <div className="flex flex-col items-end">
                           <span className="text-sm font-black text-primary drop-shadow-[0_0_10px_rgba(16,185,129,0.3)]">
                             ₹{item.sellPrice?.toFixed(2)}

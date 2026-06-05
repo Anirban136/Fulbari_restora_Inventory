@@ -13,7 +13,7 @@ import { PrintReceiptButton } from "@/components/PrintReceiptButton"
 import { reopenTab } from "@/app/tabs/[tabId]/actions"
 import { DateRangePicker } from "@/components/DateRangePicker"
 import { redirect } from "next/navigation"
-
+import { HeroHeader } from "@/components/ui/hero-header"
 export default async function CafeDashboard({ searchParams }: { searchParams: Promise<{ start?: string, end?: string }> }) {
   const { start, end } = await searchParams || {}
   const cafe = await prisma.outlet.findFirst({ where: { type: "CAFE" }})
@@ -116,19 +116,16 @@ export default async function CafeDashboard({ searchParams }: { searchParams: Pr
   return (
     <AppLayout user={session?.user}>
       <div className="w-full max-w-6xl px-6 py-10 relative z-10 flex flex-col min-h-full">
-        <header className="flex items-center justify-between pb-8 mb-8 border-b border-foreground/10">
-          <div className="flex items-center gap-4">
-             <div className="h-14 w-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center border border-foreground/10 shadow-[0_0_30px_-5px_oklch(0.65_0.22_25_/_0.5)] p-1">
-               <div className="h-full w-full bg-background/50 rounded-xl flex items-center justify-center backdrop-blur-md">
-                 <Coffee className="text-amber-400 w-6 h-6" />
-               </div>
-             </div>
-            <div>
-              <h1 className="text-4xl font-black text-foreground tracking-tight">Cafe Hub</h1>
-              <p className="text-amber-500 font-bold mt-1 tracking-widest uppercase text-xs">Manager & POS Operations</p>
-            </div>
-          </div>
-        </header>
+        
+        <HeroHeader 
+          title="Cafe"
+          highlightedWord="Hub"
+          subtitle="Manager & Point-of-Sale Operations"
+          badgeText="Outlet Operations"
+          icon={<Coffee className="w-6 h-6 text-foreground" />}
+          colorGradient="from-amber-500/50 to-orange-500"
+          className="mb-8"
+        />
 
         <div className="space-y-12">
           {/* 1. TOP PRIORITY: TODAY'S REPORT */}

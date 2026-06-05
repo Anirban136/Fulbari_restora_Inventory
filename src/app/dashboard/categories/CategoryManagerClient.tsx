@@ -94,17 +94,17 @@ export function CategoryManagerClient({ initialCategories }: { initialCategories
     <div className="space-y-8 pb-20">
       {/* ELITE STATS GRID */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="glass-panel p-6 rounded-3xl border border-border relative overflow-hidden group hover:border-emerald-500/30 transition-all">
+        <div className="glass-panel p-6 rounded-3xl border border-foreground/5 relative overflow-hidden group hover:border-emerald-500/30 transition-all">
            <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl -z-10 group-hover:bg-emerald-500/20 transition-all"></div>
            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-3">Audited Classes</p>
            <p className="text-4xl font-black text-foreground tracking-tighter">{stats.total}</p>
         </div>
-        <div className="glass-panel p-6 rounded-3xl border border-border relative overflow-hidden group hover:border-amber-500/30 transition-all">
+        <div className="glass-panel p-6 rounded-3xl border border-foreground/5 relative overflow-hidden group hover:border-amber-500/30 transition-all">
            <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl -z-10 group-hover:bg-amber-500/20 transition-all"></div>
            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-3">Primary Category</p>
            <p className="text-2xl font-black text-amber-500 tracking-tight uppercase truncate">{stats.topCategory}</p>
         </div>
-        <div className="glass-panel p-6 rounded-3xl border border-border relative overflow-hidden group hover:border-blue-500/30 transition-all">
+        <div className="glass-panel p-6 rounded-3xl border border-foreground/5 relative overflow-hidden group hover:border-blue-500/30 transition-all">
            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-3xl -z-10 group-hover:bg-blue-500/20 transition-all"></div>
            <p className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] mb-3">Catalog Gaps</p>
            <p className="text-4xl font-black text-blue-500 dark:text-blue-400 tracking-tighter">{stats.uncategorizedCount}</p>
@@ -112,8 +112,8 @@ export function CategoryManagerClient({ initialCategories }: { initialCategories
       </div>
 
       {/* FILTER BAR: PERSPECTIVE SWITCHING */}
-      <div className="flex flex-col lg:flex-row items-center gap-6 justify-between glass-panel p-4 rounded-3xl border border-border">
-        <div className="flex p-1.5 bg-muted rounded-2xl border border-border w-full lg:w-fit group">
+      <div className="flex flex-col lg:flex-row items-center gap-6 justify-between glass-panel p-4 rounded-3xl border border-foreground/5">
+        <div className="flex p-1.5 bg-muted rounded-2xl border border-foreground/5 w-full lg:w-fit group">
            {[
              { id: "ALL", label: "Total Audit", icon: LayoutGrid },
              { id: "CATALOG", label: "Global Catalog", icon: Warehouse },
@@ -141,7 +141,7 @@ export function CategoryManagerClient({ initialCategories }: { initialCategories
              placeholder="Search classifications..." 
              value={searchTerm}
              onChange={e => setSearchTerm(e.target.value)}
-             className="h-14 pl-12 bg-background border-border rounded-2xl text-[10px] font-black uppercase tracking-widest placeholder:text-muted-foreground/30 focus-visible:ring-emerald-500/30"
+             className="h-14 pl-12 bg-background border-foreground/5 rounded-2xl text-[10px] font-black uppercase tracking-widest placeholder:text-muted-foreground/30 focus-visible:ring-emerald-500/30"
            />
         </div>
       </div>
@@ -155,9 +155,9 @@ export function CategoryManagerClient({ initialCategories }: { initialCategories
           </div>
         ) : (
           filteredCategories.map((cat) => (
-            <div key={cat.name} className="glass-panel p-6 rounded-[2rem] border border-border bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 group">
+            <div key={cat.name} className="glass-panel p-6 rounded-[2rem] border border-foreground/5 bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all flex flex-col md:flex-row md:items-center justify-between gap-6 group">
               <div className="flex items-center gap-6">
-                 <div className="h-16 w-16 rounded-[1.25rem] bg-muted border border-border flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform shadow-inner">
+                 <div className="h-16 w-16 rounded-[1.25rem] bg-muted border border-foreground/5 flex items-center justify-center text-emerald-500 group-hover:scale-110 transition-transform shadow-inner">
                     <Layers className="w-7 h-7" />
                  </div>
                  <div>
@@ -173,7 +173,7 @@ export function CategoryManagerClient({ initialCategories }: { initialCategories
                  </div>
               </div>
 
-               <div className="flex items-center gap-3 pl-0 md:pl-6 border-l-0 md:border-l border-border shrink-0">
+               <div className="flex items-center gap-3 pl-0 md:pl-6 border-l-0 md:border-l border-foreground/5 shrink-0">
                  <Button 
                    variant="ghost" 
                    size="icon" 
@@ -205,7 +205,7 @@ export function CategoryManagerClient({ initialCategories }: { initialCategories
 
       {/* RENAME DIALOG (Standardizing to UPPERCASE) */}
       <Dialog open={isEditing} onOpenChange={setIsEditing}>
-         <DialogContent className="glass-panel border-border rounded-[2.5rem] bg-background/95 backdrop-blur-3xl text-foreground max-w-md">
+         <DialogContent className="glass-panel border-foreground/5 rounded-[2.5rem] bg-background/95 backdrop-blur-3xl text-foreground max-w-md">
             <DialogHeader>
                <DialogTitle className="text-2xl font-black tracking-tighter flex items-center gap-3 uppercase">
                   <div className="h-10 w-10 rounded-xl bg-emerald-500/10 flex items-center justify-center text-emerald-500">
@@ -215,7 +215,7 @@ export function CategoryManagerClient({ initialCategories }: { initialCategories
                </DialogTitle>
             </DialogHeader>
             <div className="space-y-6 py-4">
-               <div className="p-4 rounded-2xl bg-foreground/5 border border-border text-[10px] uppercase font-bold text-muted-foreground tracking-widest">
+               <div className="p-4 rounded-2xl bg-foreground/5 border border-foreground/5 text-[10px] uppercase font-bold text-muted-foreground tracking-widest">
                   Current Name: <span className="text-foreground ml-2">{selectedCategory?.name}</span>
                </div>
                <div className="space-y-3">
@@ -223,7 +223,7 @@ export function CategoryManagerClient({ initialCategories }: { initialCategories
                   <Input 
                     value={newLabel}
                     onChange={e => setNewLabel(e.target.value)}
-                    className="h-14 bg-background border-border rounded-2xl text-base font-black tracking-tight uppercase"
+                    className="h-14 bg-background border-foreground/5 rounded-2xl text-base font-black tracking-tight uppercase"
                     placeholder="E.G. BEVERAGES"
                   />
                </div>

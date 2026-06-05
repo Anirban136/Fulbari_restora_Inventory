@@ -11,6 +11,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { FinancialReports } from "@/components/FinancialReports"
+import { HeroHeader } from "@/components/ui/hero-header"
 
 export default async function DashboardOverview() {
   const session = await getServerSession(authOptions)
@@ -140,22 +141,17 @@ export default async function DashboardOverview() {
       {/* Background Decorators */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-primary/10 rounded-full blur-[100px] pointer-events-none -z-10"></div>
 
-      <header className="relative z-10 pt-4 lg:pt-0 mb-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            <h2 className="text-4xl lg:text-7xl font-extrabold tracking-tighter text-foreground flex items-center gap-4">
-              <span className="text-primary">Dashboard</span>
-              <div className="h-4 w-4 rounded-full bg-emerald-500 animate-pulse-slow shadow-[0_0_30px_#10b981]"></div>
-            </h2>
-            <p className="text-muted-foreground mt-2 text-[10px] lg:text-sm font-black uppercase tracking-[0.4em]">
-              Live Flow Analysis • {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' })}
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row items-center gap-4">
-            <FinancialReports />
-          </div>
-        </div>
-      </header>
+      <HeroHeader 
+        title="Command"
+        highlightedWord="Center"
+        subtitle={`Live Flow Analysis • ${new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' })}`}
+        badgeText="Overview"
+        statusText="Systems Active"
+        icon={<Activity className="w-6 h-6 text-foreground" />}
+        sideComponent={<FinancialReports />}
+        colorGradient="from-primary/50 to-emerald-500"
+        className="mb-8"
+      />
 
       {/* Primary Alerts (Mobile-First / Top Sticky) */}
       <CriticalSupplyAlert criticalAlerts={criticalAlerts} />

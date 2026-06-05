@@ -15,6 +15,7 @@ import {
   TableRow,
 } from "@/components/ui/table"
 import { cn } from "@/lib/utils"
+import { HeroHeader } from "@/components/ui/hero-header"
 
 export default async function VendorsPage() {
   const session = await getServerSession(authOptions)
@@ -97,29 +98,15 @@ export default async function VendorsPage() {
       <div className="absolute top-[-100px] left-[-10% ] w-[30%] h-[500px] bg-emerald-500/5 rounded-full blur-[150px] pointer-events-none -z-10"></div>
       <div className="absolute top-[20%] right-[-5%] w-[25%] h-[400px] bg-purple-500/5 rounded-full blur-[120px] pointer-events-none -z-10"></div>
 
-      {/* Hero Section */}
-      <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8 relative z-10">
-        <div className="space-y-4">
-          <div className="flex items-center gap-4">
-             <div className="hidden sm:flex p-4 bg-emerald-500/10 rounded-3xl border border-emerald-500/20 shadow-[0_0_30px_rgba(16,185,129,0.1)]">
-               <Truck className="text-emerald-500 w-8 h-8" />
-             </div>
-             <div className="flex flex-col">
-               <h2 className="text-4xl lg:text-7xl font-black tracking-tighter text-foreground leading-tight uppercase">
-                 VENDOR <span className="text-emerald-400">LEDGER</span>
-               </h2>
-               <p className="text-muted-foreground mt-2 font-black text-[9px] lg:text-xs tracking-[0.3em] uppercase opacity-60 flex items-center gap-2">
-                 <Truck className="sm:hidden w-3 h-3 text-emerald-500" />
-                 SUPPLY CHAIN • FINANCIAL OBLIGATIONS
-               </p>
-             </div>
-          </div>
-        </div>
-        
-        <div className="flex items-center gap-3 self-start lg:self-end">
-          <AddVendorDialog />
-        </div>
-      </div>
+      <HeroHeader 
+        title="Vendor"
+        highlightedWord="Ledger"
+        subtitle="Manage supplier profiles, payment settlements, and trace supply chain acquisitions."
+        badgeText="Supply Chain"
+        icon={<Truck className="w-6 h-6 text-foreground" />}
+        sideComponent={<div className="flex items-center gap-3"><AddVendorDialog /></div>}
+        colorGradient="from-emerald-500/50 to-primary"
+      />
 
       {/* Executive Stats Widgets - High-Density Neon Design */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 relative z-10">
@@ -179,14 +166,14 @@ export default async function VendorsPage() {
       </div>
 
       {/* Main Vendor Table - Premium Glass Experience */}
-      <div className="glass-panel overflow-hidden rounded-[2.5rem] border border-border bg-foreground/[0.01] shadow-2xl relative w-full">
+      <div className="glass-panel rounded-[3rem] border border-foreground/10 bg-foreground/[0.03] shadow-3xl overflow-hidden backdrop-blur-3xl relative w-full">
         <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-emerald-500/20 to-transparent"></div>
         
         {/* Desktop View - Hidden on Mobile */}
         <div className="hidden lg:block overflow-x-auto custom-scrollbar-premium w-full">
           <table className="w-full text-left border-collapse min-w-[1200px]">
             <thead>
-              <tr className="bg-foreground/[0.03] border-b border-border">
+              <tr className="bg-foreground/[0.03] border-b border-foreground/5">
                 <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/80 dark:text-muted-foreground/40">VENDOR PROFILE</th>
                 <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/80 dark:text-muted-foreground/40">COMMUNICATION</th>
                 <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/80 dark:text-muted-foreground/40 text-right">VOLUME</th>
@@ -196,7 +183,7 @@ export default async function VendorsPage() {
                 <th className="px-8 py-6 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/80 dark:text-muted-foreground/40 text-center">OPS</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-border">
+            <tbody className="divide-y divide-foreground/5">
               {vendorStats.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="py-32 text-center">
@@ -293,7 +280,7 @@ export default async function VendorsPage() {
         </div>
 
         {/* Mobile Card View - Visible only on small screens */}
-        <div className="lg:hidden divide-y divide-border">
+        <div className="lg:hidden divide-y divide-foreground/5">
           {vendorStats.length === 0 ? (
             <div className="py-20 text-center">
               <Truck className="w-12 h-12 text-muted-foreground/10 mx-auto mb-4" />
