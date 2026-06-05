@@ -18,6 +18,8 @@ export async function logStockIn(data: FormData) {
     const notes = (data.get("notes") as string) || ""
     const vendorId = data.get("vendorId") as string || null
     const unitType = data.get("unitType") as string
+    const autoDispatchOutletId = data.get("autoDispatchOutletId") as string || null
+
 
     const item = await prisma.item.findUnique({ where: { id: itemId } }) as any
     if (!item) return { error: "Item not found" }
@@ -37,7 +39,7 @@ export async function logStockIn(data: FormData) {
     const notePrefix = isContainer ? `[${unitType.toUpperCase()}-ENTRY: ${quantity} ${unitType}s @ ₹${inputCost}/${unitType}] ` : ""
 
     // Transaction to update Inventory Ledger and Global Catalog
-    await prisma.$transaction([
+    const transactionOps: any[] = [
       prisma.inventoryLedger.create({
         data: {
           type: "STOCK_IN",
@@ -47,15 +49,47 @@ export async function logStockIn(data: FormData) {
           userId: session.user.id,
           notes: `${notePrefix}Cost Info: Cost=${isNaN(unitCost) ? 0 : unitCost.toFixed(4)}. ${notes}`,
         }
-      }),
-      prisma.item.update({
-        where: { id: itemId },
-        data: {
-          currentStock: { increment: finalQuantity },
-          costPerUnit: isNaN(unitCost) ? undefined : (unitCost || undefined),
-        }
       })
-    ])
+    ]
+
+    if (autoDispatchOutletId) {
+      transactionOps.push(
+        prisma.inventoryLedger.create({
+          data: {
+            type: "DISPATCH",
+            itemId,
+            outletId: autoDispatchOutletId,
+            quantity: finalQuantity,
+            userId: session.user.id,
+            notes: `[Auto-dispatched during stock intake] ${notePrefix}`,
+          }
+        }),
+        prisma.outletStock.upsert({
+          where: { outletId_itemId: { outletId: autoDispatchOutletId, itemId } },
+          update: { quantity: { increment: finalQuantity } },
+          create: { outletId: autoDispatchOutletId, itemId, quantity: finalQuantity }
+        }),
+        prisma.item.update({
+          where: { id: itemId },
+          data: {
+            costPerUnit: isNaN(unitCost) ? undefined : (unitCost || undefined),
+          }
+        })
+      )
+    } else {
+      transactionOps.push(
+        prisma.item.update({
+          where: { id: itemId },
+          data: {
+            currentStock: { increment: finalQuantity },
+            costPerUnit: isNaN(unitCost) ? undefined : (unitCost || undefined),
+          }
+        })
+      )
+    }
+
+    await prisma.$transaction(transactionOps)
+
 
     revalidatePath("/dashboard/inventory/stock-in")
     revalidatePath("/dashboard/inventory")

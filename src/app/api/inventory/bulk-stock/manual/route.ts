@@ -134,8 +134,7 @@ export async function POST(req: NextRequest) {
         const totalCost = (unitCost || 0) * Math.abs(stockDifference)
         const finalQuantity = currentStock + stockDifference
 
-        // Create inventory ledger entry
-        await prisma.$transaction([
+        const transactionOps: any[] = [
           prisma.inventoryLedger.create({
             data: {
               type: stockDifference >= 0 ? "STOCK_IN" : "ADJUSTMENT",
@@ -145,17 +144,50 @@ export async function POST(req: NextRequest) {
               userId: session.user.id,
               notes: `[MANUAL-BULK] ${isAdjustment ? "TOTAL_UPDATE" : "ENTRY"}: Diff=${stockDifference > 0 ? "+" : ""}${stockDifference} ${unitType}. Cost=${isNaN(unitCost) ? 0 : unitCost.toFixed(4)}. ${notes}`,
             }
-          }),
-          prisma.item.update({
-            where: { id: item.id },
-            data: {
-              currentStock: finalQuantity,
-              costPerUnit: isNaN(unitCost) || unitCost === 0 ? undefined : unitCost,
-              sellPrice: sellPrice !== undefined && !isNaN(sellPrice) ? sellPrice : undefined,
-              piecesPerBox: piecesPerBox !== undefined && !isNaN(piecesPerBox) ? piecesPerBox : undefined,
-            }
           })
-        ])
+        ]
+
+        if (row.autoDispatchOutletId && stockDifference > 0 && !isAdjustment) {
+          transactionOps.push(
+            prisma.inventoryLedger.create({
+              data: {
+                type: "DISPATCH",
+                itemId: item.id,
+                outletId: row.autoDispatchOutletId,
+                quantity: Math.abs(stockDifference),
+                userId: session.user.id,
+                notes: `[Auto-dispatched during bulk intake]`,
+              }
+            }),
+            prisma.outletStock.upsert({
+              where: { outletId_itemId: { outletId: row.autoDispatchOutletId, itemId: item.id } },
+              update: { quantity: { increment: Math.abs(stockDifference) } },
+              create: { outletId: row.autoDispatchOutletId, itemId: item.id, quantity: Math.abs(stockDifference) }
+            }),
+            prisma.item.update({
+              where: { id: item.id },
+              data: {
+                costPerUnit: isNaN(unitCost) || unitCost === 0 ? undefined : unitCost,
+                sellPrice: sellPrice !== undefined && !isNaN(sellPrice) ? sellPrice : undefined,
+                piecesPerBox: piecesPerBox !== undefined && !isNaN(piecesPerBox) ? piecesPerBox : undefined,
+              }
+            })
+          )
+        } else {
+          transactionOps.push(
+            prisma.item.update({
+              where: { id: item.id },
+              data: {
+                currentStock: finalQuantity,
+                costPerUnit: isNaN(unitCost) || unitCost === 0 ? undefined : unitCost,
+                sellPrice: sellPrice !== undefined && !isNaN(sellPrice) ? sellPrice : undefined,
+                piecesPerBox: piecesPerBox !== undefined && !isNaN(piecesPerBox) ? piecesPerBox : undefined,
+              }
+            })
+          )
+        }
+
+        await prisma.$transaction(transactionOps)
 
         results.push({
           rowNum,

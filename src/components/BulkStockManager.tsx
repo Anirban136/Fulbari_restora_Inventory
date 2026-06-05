@@ -18,6 +18,6 @@ interface VendorInfo {
   name: string
 }
 
-export function BulkStockManager({ items, categories, vendors = [] }: { items: CatalogItem[], categories: string[], vendors?: VendorInfo[] }) {
-  return <ManualBulkEntry existingItems={items} existingCategories={categories} existingVendors={vendors} />
+export function BulkStockManager({ items, categories, vendors = [], outlets = [] }: { items: CatalogItem[], categories: string[], vendors?: VendorInfo[], outlets?: any[] }) {
+  return <ManualBulkEntry existingItems={items} existingCategories={categories} existingVendors={vendors} outlets={outlets} />
 }

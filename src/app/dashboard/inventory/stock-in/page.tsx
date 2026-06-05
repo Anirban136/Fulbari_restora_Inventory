@@ -35,6 +35,8 @@ export default async function StockInPage() {
 
   const items = await prisma.item.findMany({ orderBy: { name: 'asc' } })
   const vendors = await prisma.vendor.findMany({ orderBy: { name: 'asc' } })
+  const outlets = await prisma.outlet.findMany({ orderBy: { name: 'asc' } })
+
   const recentLogs = await prisma.inventoryLedger.findMany({
     where: { type: "STOCK_IN" },
     include: { Item: true, User: true, Vendor: true },
@@ -60,12 +62,13 @@ export default async function StockInPage() {
       <div className="space-y-12 relative z-10">
         
         <StockIntakeTabs 
-          singleForm={<StockInForm items={items} vendors={vendors} />}
+          singleForm={<StockInForm items={items} vendors={vendors} outlets={outlets} />}
           bulkManager={
             <BulkStockManager 
               items={JSON.parse(JSON.stringify(items))} 
               categories={Array.from(new Set(items.map((item: any) => item.category).filter(Boolean))) as string[]} 
               vendors={JSON.parse(JSON.stringify(vendors))}
+              outlets={JSON.parse(JSON.stringify(outlets))}
             />
           }
         />

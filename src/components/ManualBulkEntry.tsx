@@ -42,6 +42,7 @@ interface ManualRow {
   notes: string
   isNew: boolean
   isNewVendor: boolean
+  autoDispatchOutletId: string | null
 }
 
 interface ImportResult {
@@ -168,10 +169,12 @@ export function ManualBulkEntry({
   existingItems,
   existingCategories,
   existingVendors,
+  outlets = [],
 }: {
   existingItems: CatalogItem[]
   existingCategories: string[]
   existingVendors: VendorInfo[]
+  outlets?: { id: string, name: string }[]
 }) {
   // State
   const [rows, setRows] = useState<ManualRow[]>([])
@@ -207,6 +210,7 @@ export function ManualBulkEntry({
       notes: "",
       isNew: true,
       isNewVendor: false,
+      autoDispatchOutletId: null,
     }])
   }
 
@@ -357,7 +361,7 @@ export function ManualBulkEntry({
                  <th className="p-4 w-[280px]">Product & Category</th>
                  <th className="p-4 w-[220px]">Quantity & Unit</th>
                  <th className="p-4 w-[240px]">Cost & Sell Price (₹)</th>
-                 <th className="p-4 w-[240px]">Vendor & Notes</th>
+                 <th className="p-4 w-[280px]">Vendor, Dispatch & Notes</th>
                  <th className="p-4 text-right w-16 sticky right-0 bg-muted/30 z-10 backdrop-blur-md">Act</th>
                </tr>
             </thead>
@@ -452,7 +456,7 @@ export function ManualBulkEntry({
                         </div>
                      </td>
 
-                     {/* Vendor & Notes */}
+                     {/* Vendor, Dispatch & Notes */}
                      <td className="p-4 space-y-2 align-top">
                         <CompactSearchableDropdown 
                            options={allVendors}
@@ -464,6 +468,19 @@ export function ManualBulkEntry({
                            icon={Truck}
                            className="bg-background shadow-none"
                         />
+                        <div className="relative group/select w-full">
+                          <select
+                            value={row.autoDispatchOutletId || ""}
+                            onChange={(e) => updateRow(row.id, "autoDispatchOutletId", e.target.value === "" ? null : e.target.value)}
+                            className="h-8 w-full rounded-md border border-border/50 bg-background text-[10px] font-bold text-foreground outline-none px-2 appearance-none shadow-none focus:ring-1 focus:ring-primary/30"
+                          >
+                            <option value="">No Auto Dispatch</option>
+                            {outlets.map(o => (
+                              <option key={o.id} value={o.id}>To: {o.name}</option>
+                            ))}
+                          </select>
+                          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+                        </div>
                         <Input 
                           placeholder="Delivery notes..."
                           value={row.notes}
@@ -628,14 +645,31 @@ export function ManualBulkEntry({
                         </div>
                      </div>
                      <div className="space-y-2">
-                        <label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Notes</label>
-                        <Input 
-                          placeholder="Invoice..."
-                          value={row.notes}
-                          onChange={(e) => updateRow(row.id, "notes", e.target.value)}
-                          className="h-10 bg-background border-border/50 text-foreground text-sm shadow-sm"
-                        />
+                        <label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Auto Dispatch</label>
+                        <div className="relative w-full">
+                          <select
+                            value={row.autoDispatchOutletId || ""}
+                            onChange={(e) => updateRow(row.id, "autoDispatchOutletId", e.target.value === "" ? null : e.target.value)}
+                            className="h-10 w-full rounded-xl border border-border/50 bg-background text-[10px] font-black uppercase tracking-widest text-foreground outline-none px-2 appearance-none shadow-sm"
+                          >
+                            <option value="">No</option>
+                            {outlets.map(o => (
+                              <option key={o.id} value={o.id}>To: {o.name}</option>
+                            ))}
+                          </select>
+                          <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground pointer-events-none" />
+                        </div>
                      </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                     <label className="text-[9px] font-black uppercase tracking-widest text-muted-foreground ml-1">Notes</label>
+                     <Input 
+                       placeholder="Invoice..."
+                       value={row.notes}
+                       onChange={(e) => updateRow(row.id, "notes", e.target.value)}
+                       className="h-10 bg-background border-border/50 text-foreground text-sm shadow-sm"
+                     />
                   </div>
                </div>
             </div>

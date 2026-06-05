@@ -25,7 +25,12 @@ interface Vendor {
   name: string
 }
 
-export function StockInForm({ items, vendors }: { items: Item[], vendors: Vendor[] }) {
+interface Outlet {
+  id: string
+  name: string
+}
+
+export function StockInForm({ items, vendors, outlets }: { items: Item[], vendors: Vendor[], outlets: Outlet[] }) {
   const [loading, setLoading] = useState(false)
   const [status, setStatus] = useState<{ error?: string; success?: boolean } | null>(null)
   
@@ -240,6 +245,32 @@ export function StockInForm({ items, vendors }: { items: Item[], vendors: Vendor
                   <IndianRupee className="w-4 h-4 text-amber-500" />
                 </div>
                 <Input id="cost" name="cost" type="number" step="0.01" min="0" placeholder="0.00" className="h-14 pl-16 bg-background border-amber-500/20 text-foreground font-black text-xl rounded-2xl focus-visible:ring-amber-500/20 shadow-inner" />
+              </div>
+            </div>
+          </div>
+
+          {/* Section 4: Auto Dispatch (Orange theme) */}
+          <div className="space-y-4 p-6 rounded-[2rem] bg-orange-500/[0.03] border border-orange-500/10 relative">
+            <div className="absolute -right-4 -top-4 opacity-5">
+               <Truck className="w-20 h-20 text-orange-500" />
+            </div>
+            
+            <div className="space-y-3">
+              <Label className="text-[10px] font-black text-orange-500/60 uppercase tracking-[0.2em] ml-1 flex items-center gap-2">
+                <ArrowRight className="w-3 h-3" /> Step 4: Direct Dispatch (Optional)
+              </Label>
+              <div className="relative group/select">
+                <select
+                  id="autoDispatchOutletId"
+                  name="autoDispatchOutletId"
+                  className="w-full h-14 pl-5 pr-10 rounded-2xl border border-orange-500/20 bg-background/50 hover:bg-background transition-all shadow-inner font-bold text-foreground appearance-none focus:ring-2 focus:ring-orange-500/20 outline-none"
+                >
+                  <option value="">No Auto Dispatch (Keep in Central Store)</option>
+                  {outlets.map(o => (
+                    <option key={o.id} value={o.id}>Dispatch to {o.name}</option>
+                  ))}
+                </select>
+                <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground group-hover/select:text-orange-500 transition-colors pointer-events-none" />
               </div>
             </div>
           </div>
