@@ -165,7 +165,7 @@ export function OutletStockClient({
         <div className="relative glass-panel p-8 lg:p-12 rounded-[3rem] border border-foreground/20 bg-foreground/[0.02] backdrop-blur-3xl overflow-hidden shadow-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-10">
           
           {/* Decorative background elements */}
-          <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent"></div>
+          <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-foreground/20 to-transparent"></div>
           <div className="absolute -right-40 -top-40 w-96 h-96 bg-primary/20 blur-[120px] rounded-full animate-pulse"></div>
           <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-purple-600/10 blur-[100px] rounded-full"></div>
           
@@ -188,7 +188,7 @@ export function OutletStockClient({
             </div>
 
             <h1 className="text-5xl lg:text-7xl font-black text-foreground tracking-tighter leading-none mb-6">
-              Outlet <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-white/90 to-white/60">Repository</span>
+              Outlet <span className="text-transparent bg-clip-text bg-gradient-to-r from-foreground via-foreground/90 to-foreground/60">Repository</span>
             </h1>
             
             <p className="text-lg text-foreground/60 max-w-2xl font-medium leading-relaxed">
@@ -259,7 +259,7 @@ export function OutletStockClient({
                     className={cn(
                       "px-4 py-2 rounded-xl text-[9px] font-black uppercase tracking-widest transition-all",
                       selectedOutletId === outlet.id
-                        ? "bg-white text-black shadow-xl"
+                        ? "bg-foreground text-background shadow-xl"
                         : "bg-foreground/5 text-foreground/30 border border-foreground/5 hover:border-foreground/20"
                     )}
                   >
@@ -298,7 +298,7 @@ export function OutletStockClient({
                       <SelectValue placeholder="All Categories" />
                     </div>
                   </SelectTrigger>
-                  <SelectContent className="bg-[#0c0c0c] border-foreground/10 rounded-2xl shadow-3xl">
+                  <SelectContent className="bg-background border-foreground/10 rounded-2xl shadow-3xl">
                     <SelectItem value="ALL" className="text-[10px] font-black uppercase tracking-widest py-3 hover:bg-foreground/5">All Categories</SelectItem>
                     {categories.map(cat => (
                       <SelectItem key={cat} value={cat} className="text-[10px] font-black uppercase tracking-widest py-3 hover:bg-foreground/5">{cat}</SelectItem>
@@ -446,7 +446,7 @@ export function OutletStockClient({
               </div>
 
               {/* Mobile View (Cards) */}
-              <div className="lg:hidden flex flex-col divide-y divide-white/5">
+              <div className="lg:hidden flex flex-col divide-y divide-foreground/5">
                  {filteredStock.map((stock: any) => {
                     const isLow = stock.quantity <= (stock.Item.minStock || 0);
                     return (
@@ -459,7 +459,7 @@ export function OutletStockClient({
                            <div 
                              className={cn(
                                "px-4 py-2 rounded-xl border font-black text-sm tracking-tighter cursor-pointer",
-                               isLow ? "bg-red-500/10 border-red-500/20 text-red-500" : "bg-foreground/5 border-foreground/10 text-white"
+                               isLow ? "bg-red-500/10 border-red-500/20 text-red-500" : "bg-foreground/5 border-foreground/10 text-foreground"
                              )}
                              onClick={() => {
                                if (editingStockId !== stock.id) {
@@ -524,7 +524,7 @@ export function OutletStockClient({
                <p className="text-[10px] text-foreground/30 font-black uppercase tracking-[0.3em] mt-1">Real-time consumption & audit logs</p>
              </div>
            </div>
-           <div className="h-[1px] flex-1 bg-gradient-to-r from-white/10 via-white/5 to-transparent mx-10 hidden sm:block"></div>
+           <div className="h-[1px] flex-1 bg-gradient-to-r from-foreground/10 via-foreground/5 to-transparent mx-10 hidden sm:block"></div>
            <button className="hidden sm:flex items-center gap-2 px-6 py-3 bg-foreground/5 border border-foreground/5 rounded-xl text-[9px] font-black uppercase tracking-widest text-foreground/40 hover:text-foreground transition-all">
               View All History <ChevronRight className="w-3 h-3" />
            </button>

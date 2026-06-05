@@ -26,7 +26,7 @@ export default async function OutletsStockPage() {
   })
 
   return (
-    <div className="min-h-screen bg-[#0a0a0c] relative overflow-hidden">
+    <div className="relative overflow-hidden">
       {/* Background radial highlights */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
         <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-purple-600/20 blur-[150px] rounded-full"></div>
