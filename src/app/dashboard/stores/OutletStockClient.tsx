@@ -33,8 +33,9 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog"
-import { AdjustStockForm } from "./AdjustStockForm"
 import { cn } from "@/lib/utils"
+import { adjustOutletStock } from "../inventory/actions"
+import { toast } from "sonner"
 import { Input } from "@/components/ui/input"
 import { 
   Select,
@@ -55,7 +56,44 @@ export function OutletStockClient({
   const [selectedOutletId, setSelectedOutletId] = useState(outlets[0]?.id || "")
   const [selectedCategory, setSelectedCategory] = useState("ALL")
   const [searchQuery, setSearchQuery] = useState("")
-  const [isAdjustOpen, setIsAdjustOpen] = useState(false)
+  
+  const [editingStockId, setEditingStockId] = useState<string | null>(null)
+  const [editQuantity, setEditQuantity] = useState<string>("")
+  const [isSaving, setIsSaving] = useState(false)
+
+  const handleSaveInline = async (stock: any) => {
+    if (!editQuantity) {
+      setEditingStockId(null)
+      return
+    }
+    const newQty = parseFloat(editQuantity)
+    if (isNaN(newQty) || newQty < 0) {
+      toast.error("Invalid quantity")
+      setEditingStockId(null)
+      return
+    }
+    const diff = newQty - stock.quantity
+    if (diff === 0) {
+      setEditingStockId(null)
+      return
+    }
+    
+    setIsSaving(true)
+    try {
+      const formData = new FormData()
+      formData.append("outletId", selectedOutletId)
+      formData.append("itemId", stock.itemId)
+      formData.append("quantity", Math.abs(diff).toString())
+      formData.append("mode", diff > 0 ? "ADD" : "REMOVE")
+      await adjustOutletStock(formData)
+      toast.success(`Stock adjusted successfully!`)
+      setEditingStockId(null)
+    } catch (error: any) {
+      toast.error(error.message || "Failed to adjust stock")
+    } finally {
+      setIsSaving(false)
+    }
+  }
 
   // Group outlets by type and deduplicate by name
   const groupedOutlets = useMemo(() => {
@@ -160,29 +198,6 @@ export function OutletStockClient({
           </div>
 
           <div className="relative z-10 flex flex-col gap-4">
-            <Dialog open={isAdjustOpen} onOpenChange={setIsAdjustOpen}>
-              <DialogTrigger render={
-                <button className={cn(
-                  "group/btn relative px-10 py-6 rounded-3xl font-black uppercase tracking-[0.2em] text-[13px] text-white shadow-2xl transition-all active:scale-95 overflow-hidden",
-                  "bg-gradient-to-br hover:shadow-[0_20px_60px_-10px_rgba(0,0,0,0.5)]",
-                  getTypeColor(selectedOutlet?.type || "")
-                )}>
-                  <div className="absolute inset-0 bg-white/10 opacity-0 group-hover/btn:opacity-100 transition-opacity"></div>
-                  <div className="absolute inset-x-0 bottom-0 h-[2px] bg-white/20"></div>
-                  <div className="flex items-center gap-4">
-                    <Zap className="w-5 h-5 fill-white group-hover/btn:scale-125 transition-transform" />
-                    <span>Instant Adjustment</span>
-                  </div>
-                </button>
-              } />
-              <DialogContent className="max-w-2xl bg-black/90 backdrop-blur-3xl border-white/10 p-0 overflow-hidden rounded-[3rem] shadow-[0_0_100px_rgba(0,0,0,0.8)]">
-                <AdjustStockForm 
-                  outlets={outlets} 
-                  onSuccess={() => setIsAdjustOpen(false)} 
-                />
-              </DialogContent>
-            </Dialog>
-
             <div className="flex items-center gap-3 px-6 py-4 bg-white/5 border border-white/5 rounded-2xl backdrop-blur-md">
                <Activity className="w-4 h-4 text-primary animate-pulse" />
                <span className="text-[10px] font-black text-white/40 uppercase tracking-widest">System Health: Optimal</span>
@@ -373,21 +388,46 @@ export function OutletStockClient({
                             </TableCell>
 
                             <TableCell className="px-10 py-8 text-right">
-                               <div className={cn(
-                                 "inline-flex flex-col items-end px-8 py-4 rounded-3xl border transition-all",
-                                 isLow 
-                                   ? "bg-red-500/10 border-red-500/30 text-red-500 shadow-[0_0_30px_rgba(239,68,68,0.1)]" 
-                                   : "bg-white/5 border-white/10 text-white group-hover/row:border-primary/40 group-hover/row:bg-white/[0.08]"
-                               )}>
-                                  <div className="flex items-baseline gap-2">
-                                    <span className="text-2xl font-black tracking-tighter">
-                                      {stock.quantity}
-                                    </span>
-                                    <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
-                                      {stock.Item.piecesPerBox ? 'pcs' : stock.Item.unit}
-                                    </span>
-                                  </div>
-                                  {stock.Item.piecesPerBox && (
+                               <div 
+                                 className={cn(
+                                   "inline-flex flex-col items-end px-8 py-4 rounded-3xl border transition-all cursor-pointer",
+                                   isLow 
+                                     ? "bg-red-500/10 border-red-500/30 text-red-500 shadow-[0_0_30px_rgba(239,68,68,0.1)]" 
+                                     : "bg-white/5 border-white/10 text-white group-hover/row:border-primary/40 group-hover/row:bg-white/[0.08]"
+                                 )}
+                                 onClick={() => {
+                                   if (editingStockId !== stock.id) {
+                                     setEditingStockId(stock.id)
+                                     setEditQuantity(stock.quantity.toString())
+                                   }
+                                 }}
+                               >
+                                  {editingStockId === stock.id ? (
+                                    <Input 
+                                      autoFocus
+                                      type="number"
+                                      step="0.01"
+                                      value={editQuantity}
+                                      onChange={(e) => setEditQuantity(e.target.value)}
+                                      onKeyDown={(e) => {
+                                        if (e.key === 'Enter') e.currentTarget.blur()
+                                        if (e.key === 'Escape') setEditingStockId(null)
+                                      }}
+                                      onBlur={() => handleSaveInline(stock)}
+                                      disabled={isSaving}
+                                      className="w-24 h-10 text-xl font-black text-right bg-black/50 border-white/20 focus-visible:ring-primary/50"
+                                    />
+                                  ) : (
+                                    <div className="flex items-baseline gap-2">
+                                      <span className="text-2xl font-black tracking-tighter">
+                                        {stock.quantity}
+                                      </span>
+                                      <span className="text-[10px] font-black uppercase tracking-widest opacity-40">
+                                        {stock.Item.piecesPerBox ? 'pcs' : stock.Item.unit}
+                                      </span>
+                                    </div>
+                                  )}
+                                  {stock.Item.piecesPerBox && editingStockId !== stock.id && (
                                     <div className="flex items-center gap-1 mt-1">
                                       <div className="w-1 h-1 rounded-full bg-white/20"></div>
                                       <span className="text-[9px] font-bold text-white/20 uppercase">
@@ -416,11 +456,38 @@ export function OutletStockClient({
                               <h4 className="text-base font-black text-white uppercase tracking-tight">{stock.Item.name}</h4>
                               <span className="text-[9px] font-black text-white/30 uppercase tracking-widest">{stock.Item.category}</span>
                            </div>
-                           <div className={cn(
-                             "px-4 py-2 rounded-xl border font-black text-sm tracking-tighter",
-                             isLow ? "bg-red-500/10 border-red-500/20 text-red-500" : "bg-white/5 border-white/10 text-white"
-                           )}>
-                              {stock.quantity} <span className="text-[10px] opacity-40">{stock.Item.piecesPerBox ? 'pcs' : stock.Item.unit}</span>
+                           <div 
+                             className={cn(
+                               "px-4 py-2 rounded-xl border font-black text-sm tracking-tighter cursor-pointer",
+                               isLow ? "bg-red-500/10 border-red-500/20 text-red-500" : "bg-white/5 border-white/10 text-white"
+                             )}
+                             onClick={() => {
+                               if (editingStockId !== stock.id) {
+                                 setEditingStockId(stock.id)
+                                 setEditQuantity(stock.quantity.toString())
+                               }
+                             }}
+                           >
+                              {editingStockId === stock.id ? (
+                                 <Input 
+                                   autoFocus
+                                   type="number"
+                                   step="0.01"
+                                   value={editQuantity}
+                                   onChange={(e) => setEditQuantity(e.target.value)}
+                                   onKeyDown={(e) => {
+                                     if (e.key === 'Enter') e.currentTarget.blur()
+                                     if (e.key === 'Escape') setEditingStockId(null)
+                                   }}
+                                   onBlur={() => handleSaveInline(stock)}
+                                   disabled={isSaving}
+                                   className="w-20 h-8 text-sm font-black text-right bg-black/50 border-white/20 px-2 inline-flex"
+                                 />
+                              ) : (
+                                 <>
+                                   {stock.quantity} <span className="text-[10px] opacity-40">{stock.Item.piecesPerBox ? 'pcs' : stock.Item.unit}</span>
+                                 </>
+                              )}
                            </div>
                         </div>
                         <div className="h-1 w-full bg-white/5 rounded-full overflow-hidden">
