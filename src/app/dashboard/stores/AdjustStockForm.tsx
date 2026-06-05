@@ -161,7 +161,7 @@ export function AdjustStockForm({ outlets, onSuccess }: { outlets: any[], onSucc
           onClick={() => setMode('REMOVE')}
           className={cn(
             "flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all",
-            mode === 'REMOVE' ? "bg-purple-600 text-white shadow-lg" : "text-muted-foreground hover:text-foreground"
+            mode === 'REMOVE' ? "bg-purple-600 text-foreground shadow-lg" : "text-muted-foreground hover:text-foreground"
           )}
         >
           <Minus className="w-3 h-3" /> Remove
@@ -291,7 +291,7 @@ export function AdjustStockForm({ outlets, onSuccess }: { outlets: any[], onSucc
           type="submit"
           disabled={isSubmitting || !selectedItemId || !quantity || parseFloat(quantity) <= 0}
           className={cn(
-            "w-full h-16 text-white font-black uppercase tracking-[0.2em] rounded-2xl shadow-2xl active:scale-[0.98] transition-all",
+            "w-full h-16 text-foreground font-black uppercase tracking-[0.2em] rounded-2xl shadow-2xl active:scale-[0.98] transition-all",
             mode === 'ADD' ? "bg-emerald-600 hover:bg-emerald-500" : "bg-purple-600 hover:bg-purple-500"
           )}
         >

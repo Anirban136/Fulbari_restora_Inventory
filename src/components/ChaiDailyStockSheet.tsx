@@ -618,7 +618,7 @@ export function ChaiDailyStockSheet({
           onClick={handleSubmit}
           disabled={isSubmitting || totals.filled === 0}
           className={cn(
-            "flex-1 h-16 rounded-[2rem] font-black uppercase tracking-widest text-white transition-all active:scale-95 shadow-xl",
+            "flex-1 h-16 rounded-[2rem] font-black uppercase tracking-widest text-foreground transition-all active:scale-95 shadow-xl",
             submitted
               ? "bg-blue-600 hover:bg-blue-700 shadow-blue-500/20"
               : "bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-700 hover:to-blue-600 shadow-blue-500/30"

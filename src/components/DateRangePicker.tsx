@@ -25,7 +25,7 @@ export function DateRangePicker({
   }
 
   return (
-    <div className="flex flex-col sm:flex-row items-end gap-3 bg-white/5 p-4 rounded-2xl border border-white/10 backdrop-blur-md">
+    <div className="flex flex-col sm:flex-row items-end gap-3 bg-foreground/5 p-4 rounded-2xl border border-foreground/10 backdrop-blur-md">
       <div className="space-y-1.5 flex-1 w-full">
         <label className="text-[10px] font-black text-muted-foreground uppercase tracking-widest ml-1">From Date</label>
         <div className="relative">
@@ -57,7 +57,7 @@ export function DateRangePicker({
            params.delete('end')
            router.push(`${pathname}?${params.toString()}`)
         }}
-        className="h-10 px-4 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-[10px] font-black uppercase tracking-widest transition-all"
+        className="h-10 px-4 rounded-xl bg-foreground/5 hover:bg-foreground/10 border border-foreground/10 text-[10px] font-black uppercase tracking-widest transition-all"
       >
         Reset
       </button>

@@ -92,8 +92,8 @@ export function StockInForm({ items, vendors, outlets }: { items: Item[], vendor
         <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-emerald-500 to-blue-500 opacity-80 rounded-t-[3rem]" />
 
         <div className="flex items-center gap-5 mb-10">
-          <div className="h-14 w-14 bg-gradient-to-br from-primary to-emerald-600 rounded-2xl flex items-center justify-center border border-white/20 shadow-[0_10px_30px_-5px_rgba(16,185,129,0.4)]">
-            <Truck className="w-7 h-7 text-white" />
+          <div className="h-14 w-14 bg-gradient-to-br from-primary to-emerald-600 rounded-2xl flex items-center justify-center border border-foreground/20 shadow-[0_10px_30px_-5px_rgba(16,185,129,0.4)]">
+            <Truck className="w-7 h-7 text-foreground" />
           </div>
           <div>
             <h3 className="text-2xl font-black text-foreground tracking-tight uppercase">Single Entry <span className="text-emerald-500">Intake</span></h3>

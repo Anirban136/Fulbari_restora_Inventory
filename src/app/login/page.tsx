@@ -43,7 +43,7 @@ export default function LoginPage() {
         {/* Simple Clean Header */}
         <div className="text-center mb-10">
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-600 mb-6 shadow-lg shadow-emerald-500/20">
-            <Navigation className="w-8 h-8 text-white fill-white/20" />
+            <Navigation className="w-8 h-8 text-foreground fill-white/20" />
           </div>
           <h1 className="text-3xl font-bold text-foreground tracking-tight mb-2">Fulbari Operations</h1>
           <p className="text-muted-foreground text-sm font-medium">Log in to your terminal</p>

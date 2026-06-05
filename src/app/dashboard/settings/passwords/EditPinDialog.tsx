@@ -40,7 +40,7 @@ export function EditPinDialog({ userId, userName, currentPin }: { userId: string
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger className="h-8 w-8 p-0 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 flex items-center justify-center rounded-md transition-all active:scale-95 border border-white/5">
+      <DialogTrigger className="h-8 w-8 p-0 text-emerald-400 hover:text-emerald-300 hover:bg-emerald-500/10 flex items-center justify-center rounded-md transition-all active:scale-95 border border-foreground/5">
         <Edit2 className="w-4 h-4" />
       </DialogTrigger>
       <DialogContent className="border-border bg-background/95 backdrop-blur-2xl text-foreground shadow-[0_0_100px_-20px_oklch(0.55_0.16_150)]">

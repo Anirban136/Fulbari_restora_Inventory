@@ -20,10 +20,10 @@ export default async function CategoryManagerPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-12 relative z-10 glass-panel p-8 rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6 mb-12 relative z-10 glass-panel p-8 rounded-[2.5rem] border border-foreground/10 shadow-2xl overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-emerald-500/50 to-transparent"></div>
         <div>
-          <h2 className="text-4xl font-black text-white tracking-tighter flex items-center gap-4">
+          <h2 className="text-4xl font-black text-foreground tracking-tighter flex items-center gap-4">
             Category Manager
             <div className="h-3 w-3 rounded-full bg-emerald-500 shadow-[0_0_15px_#10b981]"></div>
           </h2>

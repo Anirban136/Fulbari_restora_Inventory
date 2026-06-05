@@ -36,7 +36,7 @@ export default async function PasscodeManagementPage() {
         </div>
       </header>
 
-      <div className="glass-panel overflow-hidden rounded-[2.5rem] border border-white/10 shadow-[0_30px_70px_-20px_rgba(0,0,0,0.5)]">
+      <div className="glass-panel overflow-hidden rounded-[2.5rem] border border-foreground/10 shadow-[0_30px_70px_-20px_rgba(0,0,0,0.5)]">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
@@ -49,7 +49,7 @@ export default async function PasscodeManagementPage() {
             </thead>
             <tbody className="divide-y divide-white/5">
               {users.map((u: any) => (
-                <tr key={u.id} className="group hover:bg-white/[0.02] transition-colors">
+                <tr key={u.id} className="group hover:bg-foreground/[0.02] transition-colors">
                   <td className="px-8 py-6">
                     <div className="flex items-center gap-4">
                       <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center border border-emerald-500/20 text-emerald-600 dark:text-emerald-400">
@@ -59,7 +59,7 @@ export default async function PasscodeManagementPage() {
                     </div>
                   </td>
                   <td className="px-8 py-6">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-white/5 border border-white/10 text-slate-400">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-foreground/5 border border-foreground/10 text-slate-400">
                       {u.role.replace('_', ' ')}
                     </span>
                   </td>

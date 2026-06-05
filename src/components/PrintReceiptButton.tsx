@@ -408,7 +408,7 @@ export function PrintReceiptButton({
             ? "bg-emerald-500/20 border-emerald-500/30 text-emerald-500"
             : printStatus === "error"
             ? "bg-red-500/20 border-red-500/30 text-red-500"
-            : "bg-purple-600 border-purple-500/50 text-white hover:bg-purple-500 shadow-[0_0_25px_-5px_rgba(147,51,234,0.4)]"
+            : "bg-purple-600 border-purple-500/50 text-foreground hover:bg-purple-500 shadow-[0_0_25px_-5px_rgba(147,51,234,0.4)]"
         }`}
       >
         {printStatus === "printing_kitchen" ? (

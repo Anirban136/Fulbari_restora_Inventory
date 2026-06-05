@@ -90,7 +90,7 @@ export default async function WasteTrackingPage({ searchParams }: { searchParams
 
         {/* Right Table */}
         <div className="lg:col-span-2 glass-panel rounded-3xl overflow-hidden flex flex-col">
-          <div className="p-6 border-b border-border/50 bg-white/5 backdrop-blur-md flex items-center justify-between">
+          <div className="p-6 border-b border-border/50 bg-foreground/5 backdrop-blur-md flex items-center justify-between">
             <h3 className="text-lg font-bold text-foreground tracking-wide">Recent Waste / Spoilage</h3>
             <div className="flex items-center gap-3">
               <WasteTimeFilter />
@@ -117,7 +117,7 @@ export default async function WasteTrackingPage({ searchParams }: { searchParams
               </TableHeader>
               <TableBody>
                  {recentLogs.length === 0 ? (
-                   <TableRow className="border-b border-white/10">
+                   <TableRow className="border-b border-foreground/10">
                     <TableCell colSpan={isOwner ? 6 : 5} className="h-40 text-center text-slate-500">
                       <span className="flex flex-col items-center justify-center">
                         <Search className="w-8 h-8 opacity-20 mb-2" />
@@ -127,7 +127,7 @@ export default async function WasteTrackingPage({ searchParams }: { searchParams
                   </TableRow>
                  ) : (
                   recentLogs.map((log) => (
-                    <TableRow key={log.id} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                    <TableRow key={log.id} className="border-b border-foreground/5 hover:bg-foreground/5 transition-colors group">
                       <TableCell className="text-slate-500 font-medium whitespace-nowrap text-sm">
                         <span className="text-slate-300">{formatDateIST(log.createdAt)}</span> <span className="opacity-50">{formatTimeIST(log.createdAt)}</span>
                       </TableCell>

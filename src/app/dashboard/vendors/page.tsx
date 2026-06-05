@@ -155,7 +155,7 @@ export default async function VendorsPage() {
 
         {/* Balance Due Card */}
         <div className={cn(
-          "group relative glass-panel p-6 rounded-[2rem] border border-white/5 transition-all duration-500 overflow-hidden",
+          "group relative glass-panel p-6 rounded-[2rem] border border-foreground/5 transition-all duration-500 overflow-hidden",
           totalBalance > 0 
             ? "bg-red-500/[0.02] hover:bg-red-500/[0.04] border-red-500/10" 
             : "bg-emerald-500/[0.02] border-emerald-500/10"
@@ -206,7 +206,7 @@ export default async function VendorsPage() {
                 </tr>
               ) : (
                 vendorStats.map(vendor => (
-                  <TableRow key={vendor.id} className="group hover:bg-white/[0.04] transition-all duration-300">
+                  <TableRow key={vendor.id} className="group hover:bg-foreground/[0.04] transition-all duration-300">
                     <TableCell className="px-8 py-6">
                       <Link href={`/dashboard/vendors/${vendor.id}`} className="flex flex-col space-y-1 group/link">
                         <span className="text-lg font-black text-foreground uppercase tracking-tight group-hover/link:text-emerald-400 transition-colors">
@@ -273,7 +273,7 @@ export default async function VendorsPage() {
 
                     <TableCell className="px-8 py-6">
                       <div className="flex items-center justify-center gap-2">
-                        <Link href={`/dashboard/vendors/${vendor.id}`} className="p-3 rounded-2xl bg-white/5 border border-white/5 text-blue-400/60 hover:text-blue-400 transition-all hover:bg-blue-500/10 active:scale-90" title="Full Ledger">
+                        <Link href={`/dashboard/vendors/${vendor.id}`} className="p-3 rounded-2xl bg-foreground/5 border border-foreground/5 text-blue-400/60 hover:text-blue-400 transition-all hover:bg-blue-500/10 active:scale-90" title="Full Ledger">
                           <FileText className="w-4 h-4" />
                         </Link>
                         <AddManualBillDialog vendor={vendor} />
@@ -321,8 +321,8 @@ export default async function VendorsPage() {
                 </div>
 
                 {/* Mobile Card Stats Row */}
-                <div className="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-white/[0.02] border border-white/5">
-                  <div className="space-y-1 text-center border-r border-white/5">
+                <div className="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-foreground/[0.02] border border-foreground/5">
+                  <div className="space-y-1 text-center border-r border-foreground/5">
                     <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest block">Volume (Units)</span>
                     <span className="text-xs font-black text-emerald-400">{vendor.netCollection.toFixed(1)}</span>
                   </div>
@@ -334,7 +334,7 @@ export default async function VendorsPage() {
 
                 {/* Mobile Card Actions */}
                 <div className="flex items-center gap-2 pt-1 overflow-x-auto pb-1 no-scrollbar">
-                  <Link href={`/dashboard/vendors/${vendor.id}`} className="flex-1 h-12 min-w-[100px] rounded-xl bg-white/5 border border-white/5 flex items-center justify-center text-blue-400 font-black text-[10px] uppercase tracking-widest group-hover:bg-blue-500/5 transition-colors">
+                  <Link href={`/dashboard/vendors/${vendor.id}`} className="flex-1 h-12 min-w-[100px] rounded-xl bg-foreground/5 border border-foreground/5 flex items-center justify-center text-blue-400 font-black text-[10px] uppercase tracking-widest group-hover:bg-blue-500/5 transition-colors">
                     <FileText className="w-3.5 h-3.5 mr-2" />
                     Ledger
                   </Link>

@@ -56,7 +56,7 @@ export function DispatchHistoryTable({
       {/* FILTER BAR */}
       {/* FILTER BAR */}
       <div className="p-4 lg:p-6 bg-muted/10 border-b border-border/10 flex flex-col lg:flex-row gap-4 lg:items-center justify-between sticky top-0 z-30 backdrop-blur-3xl">
-        <div className="flex items-center gap-1 p-1 bg-black/40 rounded-2xl border border-white/5 overflow-x-auto no-scrollbar scroll-smooth w-full lg:w-fit group/filters">
+        <div className="flex items-center gap-1 p-1 bg-black/40 rounded-2xl border border-foreground/5 overflow-x-auto no-scrollbar scroll-smooth w-full lg:w-fit group/filters">
           <Button
             variant="ghost"
             size="sm"
@@ -68,7 +68,7 @@ export function DispatchHistoryTable({
           >
             <LayoutGrid className="w-3 h-3" /> ALL
           </Button>
-          <div className="w-[1px] h-4 bg-white/10 mx-1 hidden sm:block" />
+          <div className="w-[1px] h-4 bg-foreground/10 mx-1 hidden sm:block" />
           <Button
             variant="ghost"
             size="sm"
@@ -110,7 +110,7 @@ export function DispatchHistoryTable({
             placeholder="Search items..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="h-11 pl-11 bg-black/40 border-white/10 rounded-2xl focus-visible:ring-blue-500/50 text-[10px] font-black uppercase tracking-[0.2em] placeholder:tracking-normal placeholder:font-medium shadow-inner"
+            className="h-11 pl-11 bg-black/40 border-foreground/10 rounded-2xl focus-visible:ring-blue-500/50 text-[10px] font-black uppercase tracking-[0.2em] placeholder:tracking-normal placeholder:font-medium shadow-inner"
           />
         </div>
       </div>
@@ -130,7 +130,7 @@ export function DispatchHistoryTable({
           </TableHeader>
           <TableBody>
             {filteredDispatches.length === 0 ? (
-              <TableRow className="border-b border-white/10 hover:bg-transparent">
+              <TableRow className="border-b border-foreground/10 hover:bg-transparent">
                 <TableCell colSpan={isOwner ? 5 : 4} className="h-40 text-center text-slate-500">
                   <span className="flex flex-col items-center justify-center">
                     <Search className="w-8 h-8 opacity-20 mb-2" />
@@ -142,7 +142,7 @@ export function DispatchHistoryTable({
               filteredDispatches.map((log) => {
                 const destinationOutlet = outlets.find(o => o.id === log.outletId)
                 return (
-                  <TableRow key={log.id} className="border-b border-white/5 hover:bg-white/5 transition-colors group">
+                  <TableRow key={log.id} className="border-b border-foreground/5 hover:bg-foreground/5 transition-colors group">
                     <TableCell className="text-slate-500 font-medium whitespace-nowrap text-xs">
                       <span className="text-slate-300 block">{formatDateIST(log.createdAt)}</span>
                       <span className="opacity-50 text-[10px]">{formatTimeIST(log.createdAt)}</span>
@@ -157,7 +157,7 @@ export function DispatchHistoryTable({
                         destinationOutlet?.type === 'RESTAURANT' ? "bg-rose-500/10 text-rose-500" :
                         destinationOutlet?.type === 'CAFE' ? "bg-amber-500/10 text-amber-500" :
                         destinationOutlet?.type === 'CHAI_JOINT' ? "bg-blue-500/10 text-blue-500" :
-                        "bg-white/5 text-slate-400"
+                        "bg-foreground/5 text-slate-400"
                       )}>
                         {destinationOutlet?.name}
                       </span>

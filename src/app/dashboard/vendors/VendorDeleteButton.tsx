@@ -25,7 +25,7 @@ export function VendorDeleteButton({ vendor }: { vendor: any }) {
     <>
       <button 
         onClick={() => setIsOpen(true)}
-        className="p-3 rounded-2xl bg-white/5 border border-white/5 text-red-400/60 hover:text-red-400 transition-all hover:bg-red-500/10 active:scale-90" 
+        className="p-3 rounded-2xl bg-foreground/5 border border-foreground/5 text-red-400/60 hover:text-red-400 transition-all hover:bg-red-500/10 active:scale-90" 
         title="Terminate Link"
       >
         <Trash2 className="w-4 h-4" />

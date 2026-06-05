@@ -58,7 +58,7 @@ export default async function DispatchPage() {
           </div>
 
           <div className="glass-panel rounded-3xl overflow-hidden flex flex-col min-h-[500px]">
-            <div className="p-6 border-b border-border/50 bg-white/5 backdrop-blur-md flex items-center justify-between">
+            <div className="p-6 border-b border-border/50 bg-foreground/5 backdrop-blur-md flex items-center justify-between">
               <h3 className="text-lg font-bold text-foreground tracking-wide uppercase">Dispatch History LEDGER</h3>
               {isOwner && (
                 <span className="text-[10px] font-black tracking-widest bg-amber-500/10 border border-amber-500/20 text-amber-400 px-3 py-1 rounded-full uppercase">

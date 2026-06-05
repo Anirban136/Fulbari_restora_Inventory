@@ -86,7 +86,7 @@ export default async function StockInPage() {
           </div>
 
           <div className="glass-panel rounded-3xl overflow-hidden flex flex-col border border-border/50">
-            <div className="p-6 border-b border-border/50 bg-white/5 backdrop-blur-md flex items-center justify-between">
+            <div className="p-6 border-b border-border/50 bg-foreground/5 backdrop-blur-md flex items-center justify-between">
               <h3 className="text-sm font-black text-foreground uppercase tracking-widest opacity-40">Transaction History</h3>
               {isOwner && (
                 <span className="text-[10px] font-black tracking-widest bg-amber-500/10 border border-amber-500/20 text-amber-400 px-3 py-1 rounded-full uppercase">
@@ -109,7 +109,7 @@ export default async function StockInPage() {
                 </TableHeader>
                 <TableBody>
                    {recentLogs.length === 0 ? (
-                     <TableRow className="border-b border-white/10">
+                     <TableRow className="border-b border-foreground/10">
                       <TableCell colSpan={isOwner ? 5 : 4} className="h-40 text-center text-slate-500">
                         <span className="flex flex-col items-center justify-center">
                           <Search className="w-8 h-8 opacity-20 mb-2" />

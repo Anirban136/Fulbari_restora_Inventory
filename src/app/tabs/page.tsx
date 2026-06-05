@@ -50,9 +50,9 @@ export default async function ActiveTabsPage({ searchParams }: { searchParams: P
 
         <div className="max-w-7xl w-full mx-auto space-y-8 relative z-10 flex-1 flex flex-col">
           
-          <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-white/10 gap-4">
+          <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-6 border-b border-foreground/10 gap-4">
             <div className="flex items-center gap-4">
-             <div className={`h-14 w-14 bg-gradient-to-br ${isCafe ? "from-orange-500 to-amber-600 shadow-[0_0_30px_-5px_oklch(0.65_0.22_25_/_0.5)]" : "from-sky-500 to-blue-600 shadow-[0_0_30px_-5px_rgba(14,165,233,0.5)]"} rounded-2xl flex items-center justify-center border border-white/10 p-1`}>
+             <div className={`h-14 w-14 bg-gradient-to-br ${isCafe ? "from-orange-500 to-amber-600 shadow-[0_0_30px_-5px_oklch(0.65_0.22_25_/_0.5)]" : "from-sky-500 to-blue-600 shadow-[0_0_30px_-5px_rgba(14,165,233,0.5)]"} rounded-2xl flex items-center justify-center border border-foreground/10 p-1`}>
                <div className="h-full w-full bg-background/50 rounded-xl flex items-center justify-center backdrop-blur-md">
                  {isCafe ? <Utensils className="text-orange-400 w-6 h-6" /> : <Coffee className="text-sky-400 w-6 h-6" />}
                </div>
@@ -76,7 +76,7 @@ export default async function ActiveTabsPage({ searchParams }: { searchParams: P
           </div>
         </header>
 
-        <div className={`flex flex-col md:flex-row justify-between items-center glass-panel p-6 rounded-3xl border border-white/10 ${isCafe ? "shadow-[0_20px_60px_-15px_rgba(245,158,11,0.1)]" : "shadow-[0_20px_60px_-15px_rgba(14,165,233,0.1)]"} gap-6`}>
+        <div className={`flex flex-col md:flex-row justify-between items-center glass-panel p-6 rounded-3xl border border-foreground/10 ${isCafe ? "shadow-[0_20px_60px_-15px_rgba(245,158,11,0.1)]" : "shadow-[0_20px_60px_-15px_rgba(14,165,233,0.1)]"} gap-6`}>
            <div className="flex items-center gap-4">
              <div className={`w-14 h-14 rounded-2xl ${isCafe ? "bg-orange-500/20 border-orange-500/30" : "bg-sky-500/20 border-sky-500/30"} border flex items-center justify-center shadow-inner`}>
                <LayoutGrid className={`${isCafe ? "text-orange-400" : "text-sky-400"} w-7 h-7`} />
@@ -103,7 +103,7 @@ export default async function ActiveTabsPage({ searchParams }: { searchParams: P
             {outlet ? (
                 <TableGrid activeTabs={activeTabs} outletId={outlet.id} isCafe={isCafe} />
             ) : (
-                <div className="flex flex-col items-center justify-center py-20 bg-black/20 rounded-[3rem] border-2 border-dashed border-white/5">
+                <div className="flex flex-col items-center justify-center py-20 bg-black/20 rounded-[3rem] border-2 border-dashed border-foreground/5">
                     <LayoutGrid className="w-16 h-16 text-slate-700 mb-4" />
                     <p className="text-slate-500 font-bold uppercase tracking-widest">No Outlet Assigned</p>
                 </div>

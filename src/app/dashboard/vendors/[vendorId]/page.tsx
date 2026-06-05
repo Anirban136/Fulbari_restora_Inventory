@@ -288,10 +288,10 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
 
       {/* Transaction Ledger */}
       <div className="glass-panel rounded-3xl overflow-hidden relative z-10 shadow-2xl">
-        <div className="px-6 py-4 border-b border-white/5 flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-foreground/5 flex items-center justify-between">
           <h3 className="text-lg font-black text-foreground tracking-tight flex items-center gap-2">
             Transaction Ledger
-            <span className="text-xs font-medium text-slate-500 bg-white/5 px-2 py-0.5 rounded-full">{totalTransactions} entries</span>
+            <span className="text-xs font-medium text-slate-500 bg-foreground/5 px-2 py-0.5 rounded-full">{totalTransactions} entries</span>
           </h3>
         </div>
 
@@ -332,7 +332,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
 
                   <Table>
                     <TableHeader>
-                      <TableRow className="border-b border-white/5 hover:bg-transparent">
+                      <TableRow className="border-b border-foreground/5 hover:bg-transparent">
                         <TableHead className="text-[10px] font-bold text-slate-500 uppercase tracking-widest h-10 px-6">Date</TableHead>
                         <TableHead className="text-[10px] font-bold text-slate-500 uppercase tracking-widest h-10 px-6">Type</TableHead>
                         <TableHead className="text-[10px] font-bold text-slate-500 uppercase tracking-widest h-10 px-6">Description</TableHead>
@@ -449,7 +449,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
                   <span className="text-[10px] text-red-400/60 uppercase block">Waste Deducted</span>
                   <span className="text-sm font-black text-red-400">₹{totalWaste.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                 </div>
-                <div className="text-right pl-4 border-l border-white/10">
+                <div className="text-right pl-4 border-l border-foreground/10">
                   <span className="text-[10px] text-slate-500 uppercase block">Net Balance</span>
                   <span className={`text-lg font-black ${balanceDue > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
                     ₹{Math.abs(balanceDue).toLocaleString('en-IN', { minimumFractionDigits: 2 })}

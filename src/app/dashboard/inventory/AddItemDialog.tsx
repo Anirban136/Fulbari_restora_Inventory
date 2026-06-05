@@ -120,19 +120,19 @@ export function AddItemDialog({ existingCategories = [], variant = "default" }: 
               </div>
               <div className="space-y-3">
                 <Label htmlFor="sellPrice" className="text-[10px] font-black text-primary uppercase tracking-[0.3em] ml-1">SELL PRICE (₹)</Label>
-                <Input id="sellPrice" name="sellPrice" type="number" step="0.01" placeholder="0.00" className="h-14 bg-white/[0.03] border-primary/20 text-primary placeholder:text-primary/10 rounded-2xl focus-visible:ring-primary/40 font-black text-lg shadow-[0_0_20px_rgba(16,185,129,0.05)]" />
+                <Input id="sellPrice" name="sellPrice" type="number" step="0.01" placeholder="0.00" className="h-14 bg-foreground/[0.03] border-primary/20 text-primary placeholder:text-primary/10 rounded-2xl focus-visible:ring-primary/40 font-black text-lg shadow-[0_0_20px_rgba(16,185,129,0.05)]" />
               </div>
             </div>
 
             <div className={`grid gap-6 transition-all duration-500 ${showPiecesPerBox ? 'grid-cols-1 sm:grid-cols-2' : 'grid-cols-1'}`}>
               <div className="space-y-3">
                 <Label htmlFor="minStock" className="text-[10px] font-black text-amber-500 uppercase tracking-[0.3em] ml-1">LOW STOCK ALERT</Label>
-                <Input id="minStock" name="minStock" type="number" step="0.01" placeholder="5.00" className="h-14 bg-white/[0.03] border-amber-500/20 text-amber-500 placeholder:text-amber-500/10 rounded-2xl focus-visible:ring-amber-500/40 font-black text-lg" />
+                <Input id="minStock" name="minStock" type="number" step="0.01" placeholder="5.00" className="h-14 bg-foreground/[0.03] border-amber-500/20 text-amber-500 placeholder:text-amber-500/10 rounded-2xl focus-visible:ring-amber-500/40 font-black text-lg" />
               </div>
               {showPiecesPerBox && (
                 <div className="space-y-3 animate-in fade-in slide-in-from-right-4 duration-300">
                   <Label htmlFor="piecesPerBox" className="text-[10px] font-black text-blue-400 uppercase tracking-[0.3em] ml-1">Pieces / {unit}</Label>
-                  <Input id="piecesPerBox" name="piecesPerBox" type="number" placeholder="20" required className="h-14 bg-white/[0.03] border-blue-500/20 text-blue-400 placeholder:text-blue-400/10 rounded-2xl focus-visible:ring-blue-500/40 font-black text-lg shadow-inner" />
+                  <Input id="piecesPerBox" name="piecesPerBox" type="number" placeholder="20" required className="h-14 bg-foreground/[0.03] border-blue-500/20 text-blue-400 placeholder:text-blue-400/10 rounded-2xl focus-visible:ring-blue-500/40 font-black text-lg shadow-inner" />
                 </div>
               )}
             </div>

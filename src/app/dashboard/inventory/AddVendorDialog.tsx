@@ -40,7 +40,7 @@ export function AddVendorDialog() {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={
-        <Button variant="outline" className="h-12 px-6 rounded-xl border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold transition-all active:scale-95 gap-2 w-full" />
+        <Button variant="outline" className="h-12 px-6 rounded-xl border-foreground/10 bg-foreground/5 hover:bg-foreground/10 text-foreground font-bold transition-all active:scale-95 gap-2 w-full" />
       }>
         <PlusCircle className="w-5 h-5" /> Add New Vendor
       </DialogTrigger>

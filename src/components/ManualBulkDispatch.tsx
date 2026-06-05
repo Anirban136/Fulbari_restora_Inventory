@@ -275,7 +275,7 @@ export function ManualBulkDispatch({
            <div className="space-y-2">
               <div className="flex items-center gap-3">
                  <div className="h-14 w-14 bg-blue-500 rounded-2xl flex items-center justify-center shadow-lg shadow-blue-500/30">
-                    <ArrowRightLeft className="w-7 h-7 text-white" />
+                    <ArrowRightLeft className="w-7 h-7 text-foreground" />
                  </div>
                  <div>
                     <h3 className="text-3xl font-black text-foreground tracking-tighter uppercase">Bulk <span className="text-blue-500 italic">Dispatch</span></h3>
@@ -590,7 +590,7 @@ export function ManualBulkDispatch({
            <div className="flex items-center justify-between mb-8">
               <div className="flex items-center gap-4">
                  <div className="h-12 w-12 bg-emerald-500 rounded-2xl flex items-center justify-center shadow-lg shadow-emerald-500/30">
-                    <CheckCircle2 className="w-6 h-6 text-white" />
+                    <CheckCircle2 className="w-6 h-6 text-foreground" />
                  </div>
                  <div>
                     <h4 className="text-xl font-black text-foreground uppercase tracking-tight">Dispatch Complete</h4>

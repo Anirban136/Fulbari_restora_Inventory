@@ -116,9 +116,9 @@ export default async function CafeDashboard({ searchParams }: { searchParams: Pr
   return (
     <AppLayout user={session?.user}>
       <div className="w-full max-w-6xl px-6 py-10 relative z-10 flex flex-col min-h-full">
-        <header className="flex items-center justify-between pb-8 mb-8 border-b border-white/10">
+        <header className="flex items-center justify-between pb-8 mb-8 border-b border-foreground/10">
           <div className="flex items-center gap-4">
-             <div className="h-14 w-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center border border-white/10 shadow-[0_0_30px_-5px_oklch(0.65_0.22_25_/_0.5)] p-1">
+             <div className="h-14 w-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center border border-foreground/10 shadow-[0_0_30px_-5px_oklch(0.65_0.22_25_/_0.5)] p-1">
                <div className="h-full w-full bg-background/50 rounded-xl flex items-center justify-center backdrop-blur-md">
                  <Coffee className="text-amber-400 w-6 h-6" />
                </div>
@@ -134,7 +134,7 @@ export default async function CafeDashboard({ searchParams }: { searchParams: Pr
           {/* 1. TOP PRIORITY: TODAY'S REPORT */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
             <section className="animate-in fade-in slide-in-from-top-4 duration-700">
-               <div className="glass-panel p-8 rounded-[2.5rem] group transition-all border border-amber-500/10 hover:border-amber-500/20 bg-foreground/5 dark:bg-white/[0.01]">
+               <div className="glass-panel p-8 rounded-[2.5rem] group transition-all border border-amber-500/10 hover:border-amber-500/20 bg-foreground/5 dark:bg-foreground/[0.01]">
                   <h2 className="text-xl font-black text-foreground uppercase tracking-widest mb-8 flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <Receipt className="w-6 h-6 text-amber-500" />
@@ -357,7 +357,7 @@ export default async function CafeDashboard({ searchParams }: { searchParams: Pr
                                    )}
                                    {(tab.status === "CLOSED" || tab.status === "CANCELLED") && (
                                     <form action={reopenTab.bind(null, tab.id)}>
-                                      <Button type="submit" variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-slate-400 hover:text-amber-400 hover:bg-amber-500/10 border border-white/5 hover:border-amber-500/20 transition-all">
+                                      <Button type="submit" variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-slate-400 hover:text-amber-400 hover:bg-amber-500/10 border border-foreground/5 hover:border-amber-500/20 transition-all">
                                         <Edit className="w-4 h-4" />
                                       </Button>
                                     </form>
@@ -376,7 +376,7 @@ export default async function CafeDashboard({ searchParams }: { searchParams: Pr
             <div className="lg:col-span-4 order-3">
                <div className="glass-panel p-8 rounded-[2.5rem] border border-border bg-foreground/5 flex flex-col h-full shadow-xl">
                   <div className="flex items-center justify-between mb-8 px-1">
-                    <h2 className="text-sm font-black text-white uppercase tracking-[0.3em] flex items-center gap-3">
+                    <h2 className="text-sm font-black text-foreground uppercase tracking-[0.3em] flex items-center gap-3">
                       <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div> Live Stock
                     </h2>
                     <span className="text-[10px] font-black text-slate-500 uppercase tracking-tighter italic opacity-50">Real-time update</span>
@@ -429,7 +429,7 @@ export default async function CafeDashboard({ searchParams }: { searchParams: Pr
           </div>
 
           {/* Incoming Dispatches */}
-          <section className="glass-panel rounded-[2.5rem] overflow-hidden border border-white/5 bg-white/[0.01]">
+          <section className="glass-panel rounded-[2.5rem] overflow-hidden border border-foreground/5 bg-foreground/[0.01]">
              <div className="p-8 border-b border-border bg-foreground/5 flex items-center gap-4">
                <PackageOpen className="w-6 h-6 text-muted-foreground" />
                <h2 className="text-xl font-black text-foreground uppercase tracking-tighter">Deliveries from Warehouse</h2>
@@ -443,7 +443,7 @@ export default async function CafeDashboard({ searchParams }: { searchParams: Pr
                 ) : (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {incomingDispatches.map(log => (
-                      <div key={log.id} className="flex items-center justify-between p-5 rounded-2xl border border-white/5 bg-white/[0.02] hover:bg-white/[0.04] transition-all">
+                      <div key={log.id} className="flex items-center justify-between p-5 rounded-2xl border border-foreground/5 bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all">
                         <div>
                           <p className="text-[9px] font-black text-slate-500 mb-1 uppercase tracking-widest">{formatTimeIST(log.createdAt)}</p>
                           <span className="font-black text-slate-200 text-sm uppercase">{log.Item.name}</span>

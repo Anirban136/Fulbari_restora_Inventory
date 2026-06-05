@@ -274,7 +274,7 @@ export default async function DashboardOverview() {
                       <span className="text-xs font-black text-foreground uppercase tracking-tight">{cat}</span>
                       <span className="text-lg font-black text-primary">₹{amount.toFixed(0)}</span>
                     </div>
-                    <div className="h-3 bg-muted/20 dark:bg-white/5 rounded-full overflow-hidden border border-border">
+                    <div className="h-3 bg-muted/20 dark:bg-foreground/5 rounded-full overflow-hidden border border-border">
                       <div 
                         className="h-full rounded-full transition-all duration-1000 ease-out shadow-[0_0_15px_rgba(16,185,129,0.3)]"
                         style={{ 

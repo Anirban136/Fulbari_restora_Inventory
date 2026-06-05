@@ -47,7 +47,7 @@ export default async function MenusPage() {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8 relative z-10">
         
         {/* ADD MENU FORM */}
-        <div className="glass-panel p-6 sm:p-8 rounded-3xl self-start hover:border-white/20 transition-all">
+        <div className="glass-panel p-6 sm:p-8 rounded-3xl self-start hover:border-foreground/20 transition-all">
           <div className="flex items-center gap-4 mb-8">
              <div className="h-12 w-12 bg-indigo-500/20 rounded-2xl flex items-center justify-center border border-indigo-500/30 shadow-[0_0_15px_-3px_rgba(99,102,241,0.3)]">
                <MenuSquare className="w-6 h-6 text-indigo-500" />

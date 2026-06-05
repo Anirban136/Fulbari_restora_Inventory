@@ -67,14 +67,14 @@ export default function WipePage() {
       </Button>
 
       <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
-        <DialogContent className="sm:max-w-[425px] bg-[#0A0A0B] border-white/10 rounded-2xl shadow-2xl">
+        <DialogContent className="sm:max-w-[425px] bg-[#0A0A0B] border-foreground/10 rounded-2xl shadow-2xl">
           <DialogHeader>
             <div className="w-12 h-12 bg-amber-500/10 text-amber-500 rounded-full flex items-center justify-center mb-4 border border-amber-500/20">
               <ShieldCheck className="w-6 h-6" />
             </div>
-            <DialogTitle className="text-2xl font-bold text-white">Security Verification</DialogTitle>
+            <DialogTitle className="text-2xl font-bold text-foreground">Security Verification</DialogTitle>
             <DialogDescription className="text-slate-400 text-base">
-              This action is destructive and cannot be undone. To proceed, please enter your <strong className="text-white">Admin PIN</strong> for confirmation.
+              This action is destructive and cannot be undone. To proceed, please enter your <strong className="text-foreground">Admin PIN</strong> for confirmation.
             </DialogDescription>
           </DialogHeader>
           
@@ -87,7 +87,7 @@ export default function WipePage() {
                   id="pin"
                   type="password"
                   placeholder="Enter 4-digit PIN"
-                  className="pl-10 h-12 bg-white/5 border-white/10 text-white rounded-xl focus:ring-amber-500/50 focus:border-amber-500 transition-all text-lg tracking-widest"
+                  className="pl-10 h-12 bg-foreground/5 border-foreground/10 text-foreground rounded-xl focus:ring-amber-500/50 focus:border-amber-500 transition-all text-lg tracking-widest"
                   value={pin}
                   onChange={(e) => {
                     setPin(e.target.value)
@@ -108,7 +108,7 @@ export default function WipePage() {
               type="button" 
               variant="outline" 
               onClick={() => setShowConfirm(false)}
-              className="rounded-xl border-white/10 hover:bg-white/5 text-slate-300"
+              className="rounded-xl border-foreground/10 hover:bg-foreground/5 text-slate-300"
             >
               Cancel
             </Button>
