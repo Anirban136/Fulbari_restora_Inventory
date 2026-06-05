@@ -5,6 +5,8 @@ import { ShieldAlert, KeyRound, UserRound, ShieldCheck } from "lucide-react"
 import { EditPinDialog } from "./EditPinDialog"
 import { redirect } from "next/navigation"
 
+import { HeroHeader } from "@/components/ui/hero-header"
+
 export const dynamic = 'force-dynamic'
 
 export default async function PasscodeManagementPage() {
@@ -20,21 +22,15 @@ export default async function PasscodeManagementPage() {
 
   return (
     <div className="w-full max-w-5xl px-6 py-10 relative z-10 flex flex-col min-h-full">
-      <header className="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-8 mb-12 border-b border-border gap-4">
-        <div className="flex items-center gap-4">
-          <div className="h-16 w-16 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-2xl flex items-center justify-center border border-border/50 shadow-[0_0_35px_-5px_oklch(0.65_0.22_150_/_0.4)] p-1">
-            <div className="h-full w-full bg-background/40 rounded-xl flex items-center justify-center backdrop-blur-md">
-              <KeyRound className="text-emerald-600 dark:text-emerald-400 w-8 h-8" />
-            </div>
-          </div>
-          <div>
-            <h1 className="text-4xl font-black text-foreground tracking-tight">Passcode Control</h1>
-            <p className="text-emerald-600 dark:text-emerald-400 font-bold mt-1 tracking-widest uppercase text-xs flex items-center gap-2">
-              <ShieldCheck className="w-3 h-3" /> System Security Management
-            </p>
-          </div>
-        </div>
-      </header>
+      <HeroHeader 
+        title="Passcode"
+        highlightedWord="Control"
+        subtitle="System Security Management"
+        badgeText="Security"
+        icon={<KeyRound className="w-6 h-6 text-foreground" />}
+        colorGradient="from-emerald-500/50 to-teal-500"
+        className="mb-12"
+      />
 
       <div className="glass-panel overflow-hidden rounded-[2.5rem] border border-foreground/10 shadow-[0_30px_70px_-20px_rgba(0,0,0,0.5)]">
         <div className="overflow-x-auto">

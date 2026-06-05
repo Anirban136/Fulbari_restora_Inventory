@@ -25,6 +25,8 @@ import {
 } from "@/components/ui/dialog"
 import { formatTimeIST, formatDateIST, getISTDateBounds } from "@/lib/utils"
 
+import { HeroHeader } from "@/components/ui/hero-header"
+
 export default async function WasteTrackingPage({ searchParams }: { searchParams: { filter?: string } }) {
   const session = await getServerSession(authOptions)
   const isOwner = session?.user?.role === "OWNER"
@@ -71,17 +73,15 @@ export default async function WasteTrackingPage({ searchParams }: { searchParams
 
   return (
     <div className="space-y-8 relative">
-      <div className="absolute top-[20%] right-[-100px] w-[500px] h-[500px] bg-red-500/10 rounded-full blur-[120px] pointer-events-none"></div>
-
-      <div className="glass-panel p-6 rounded-3xl relative z-10 flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-black text-foreground tracking-tight flex items-center gap-3">
-            Waste Tracking
-            <div className="h-2 w-2 rounded-full bg-red-500 shadow-[0_0_10px_#ef4444]"></div>
-          </h2>
-          <p className="text-muted-foreground mt-1 font-medium text-sm tracking-wide uppercase">Deduct damaged stock and penalize vendor balances.</p>
-        </div>
-      </div>
+      
+      <HeroHeader 
+        title="Waste"
+        highlightedWord="Tracking"
+        subtitle="Deduct damaged stock and penalize vendor balances."
+        badgeText="Loss Mitigation"
+        icon={<Undo2 className="w-6 h-6 text-foreground" />}
+        colorGradient="from-red-500/50 to-rose-500"
+      />
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 relative z-10">
         

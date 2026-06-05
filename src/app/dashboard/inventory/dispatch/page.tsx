@@ -5,6 +5,7 @@ import { authOptions } from "@/lib/auth"
 import { ManualBulkDispatch } from "@/components/ManualBulkDispatch"
 import { DispatchHistoryTable } from "./DispatchHistoryTable"
 import { ArrowRightLeft, History } from "lucide-react"
+import { HeroHeader } from "@/components/ui/hero-header"
 
 export default async function DispatchPage() {
   const session = await getServerSession(authOptions)
@@ -25,17 +26,15 @@ export default async function DispatchPage() {
 
   return (
     <div className="space-y-8 relative pb-20">
-      <div className="absolute top-[20%] left-[10%] w-[400px] h-[400px] bg-blue-500/10 rounded-full blur-[130px] pointer-events-none -translate-y-1/2"></div>
       
-      <div className="glass-panel p-6 rounded-3xl relative z-10 flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-black text-foreground tracking-tight flex items-center gap-3">
-            Dispatch Stock
-            <div className="h-2 w-2 rounded-full bg-blue-500 shadow-[0_0_10px_#3b82f6]"></div>
-          </h2>
-          <p className="text-muted-foreground mt-1 font-medium text-sm tracking-wide uppercase">Send bulk inventory from Central Store to Outlets.</p>
-        </div>
-      </div>
+      <HeroHeader 
+        title="Dispatch"
+        highlightedWord="Operations"
+        subtitle="Send bulk inventory from Central Store to Outlets."
+        badgeText="Logistics"
+        icon={<ArrowRightLeft className="w-6 h-6 text-foreground" />}
+        colorGradient="from-blue-500/50 to-sky-500"
+      />
 
       <div className="space-y-12 relative z-10">
         

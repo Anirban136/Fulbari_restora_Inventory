@@ -8,6 +8,7 @@ import { ChaiDailyStockSheet, type StockItem } from "@/components/ChaiDailyStock
 import { ClipboardList, CupSoda, CalendarDays, ArrowLeft } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+import { HeroHeader } from "@/components/ui/hero-header"
 
 function getISTDateOnly(): Date {
   const istOffset = 5.5 * 3600000
@@ -103,43 +104,32 @@ export default async function ChaiDailyStockPage() {
     <AppLayout user={session?.user}>
       <div className="w-full max-w-6xl px-6 py-10 relative z-10 flex flex-col min-h-full">
 
-        {/* Page Header */}
-        <header className="flex items-start justify-between pb-8 mb-8 border-b border-border">
-          <div className="flex items-center gap-4">
-            <div className="h-14 w-14 bg-gradient-to-br from-blue-500 to-sky-600 rounded-2xl flex items-center justify-center border border-border shadow-[0_0_30px_-5px_oklch(0.65_0.22_25_/_0.5)] p-1">
-              <div className="h-full w-full bg-background/50 rounded-xl flex items-center justify-center backdrop-blur-md">
-                <ClipboardList className="text-blue-600 dark:text-blue-400 w-6 h-6" />
+        <HeroHeader 
+          title="Daily Closing"
+          highlightedWord="Stock"
+          subtitle="Count the physical stock remaining at the Chai Hub counter"
+          badgeText={chaiJoint.name}
+          icon={<ClipboardList className="w-6 h-6 text-foreground" />}
+          colorGradient="from-blue-500/50 to-sky-500"
+          className="mb-8"
+          sideComponent={
+            <div className="flex flex-col items-end gap-3">
+              <Link href="/chai">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="h-9 px-4 text-[10px] font-black text-muted-foreground hover:text-foreground hover:bg-foreground/5 border border-border rounded-xl uppercase tracking-widest"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5 mr-1.5" /> Chai Hub
+                </Button>
+              </Link>
+              <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-foreground/5 border border-border">
+                <CalendarDays className="w-3.5 h-3.5 text-blue-500" />
+                <span className="text-[10px] font-black text-foreground/70 uppercase tracking-wider">{displayDate}</span>
               </div>
             </div>
-            <div>
-              <h1 className="text-3xl font-black text-foreground tracking-tight">
-                Daily Closing Stock
-              </h1>
-              <div className="flex items-center gap-2 mt-1">
-                <CupSoda className="w-3.5 h-3.5 text-blue-500" />
-                <p className="text-blue-600 dark:text-blue-500 font-bold tracking-widest uppercase text-xs">
-                  {chaiJoint.name}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col items-end gap-3">
-            <Link href="/chai">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-9 px-4 text-[10px] font-black text-muted-foreground hover:text-foreground hover:bg-foreground/5 border border-border rounded-xl uppercase tracking-widest"
-              >
-                <ArrowLeft className="w-3.5 h-3.5 mr-1.5" /> Chai Hub
-              </Button>
-            </Link>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-xl bg-foreground/5 border border-border">
-              <CalendarDays className="w-3.5 h-3.5 text-blue-500" />
-              <span className="text-[10px] font-black text-foreground/70 uppercase tracking-wider">{displayDate}</span>
-            </div>
-          </div>
-        </header>
+          }
+        />
 
         {/* Instructions Banner */}
         <div className="mb-8 p-5 rounded-2xl bg-blue-500/5 border border-blue-500/15 flex items-start gap-4">

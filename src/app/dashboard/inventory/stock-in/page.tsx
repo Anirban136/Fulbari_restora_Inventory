@@ -28,6 +28,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { formatTimeIST, formatDateIST } from "@/lib/utils"
+import { HeroHeader } from "@/components/ui/hero-header"
 
 export default async function StockInPage() {
   const session = await getServerSession(authOptions)
@@ -46,18 +47,15 @@ export default async function StockInPage() {
 
   return (
     <div className="space-y-8 relative">
-      {/* Background Decorators */}
-      <div className="absolute top-[20%] right-[-100px] w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
-
-      <div className="glass-panel p-6 rounded-3xl relative z-10 flex items-center justify-between">
-        <div>
-          <h2 className="text-3xl font-black text-foreground tracking-tight flex items-center gap-3">
-            Stock Intake
-            <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_10px_#10b981]"></div>
-          </h2>
-          <p className="text-muted-foreground mt-1 font-medium text-sm tracking-wide uppercase">Log new warehouse deliveries and update central inventory.</p>
-        </div>
-      </div>
+      
+      <HeroHeader 
+        title="Stock"
+        highlightedWord="Intake"
+        subtitle="Log new warehouse deliveries and update central inventory."
+        badgeText="Inbound"
+        icon={<Truck className="w-6 h-6 text-foreground" />}
+        colorGradient="from-emerald-500/50 to-teal-500"
+      />
 
       <div className="space-y-12 relative z-10">
         

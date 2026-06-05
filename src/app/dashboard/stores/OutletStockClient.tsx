@@ -28,6 +28,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import { HeroHeader } from "@/components/ui/hero-header"
 import {
   Dialog,
   DialogContent,
@@ -156,55 +157,21 @@ export function OutletStockClient({
     <div className="space-y-10 pb-24 max-w-[1500px] mx-auto animate-in fade-in duration-1000">
       
       {/* 1. HERO HEADER SECTION */}
-      <header className="relative group perspective-1000">
-        <div className={cn(
-          "absolute -inset-1 bg-gradient-to-r blur-2xl opacity-30 group-hover:opacity-50 transition-all duration-1000 rounded-[3rem]",
-          getTypeColor(selectedOutlet?.type || "")
-        )}></div>
-        
-        <div className="relative glass-panel p-8 lg:p-12 rounded-[3rem] border border-foreground/20 bg-foreground/[0.02] backdrop-blur-3xl overflow-hidden shadow-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-10">
-          
-          {/* Decorative background elements */}
-          <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-foreground/20 to-transparent"></div>
-          <div className="absolute -right-40 -top-40 w-96 h-96 bg-primary/20 blur-[120px] rounded-full animate-pulse"></div>
-          <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-purple-600/10 blur-[100px] rounded-full"></div>
-          
-          <div className="relative z-10 flex-1">
-            <div className="flex items-center gap-3 mb-6">
-              <div className={cn(
-                "p-3 rounded-2xl shadow-lg border border-foreground/20 flex items-center justify-center animate-bounce-slow",
-                "bg-gradient-to-br",
-                getTypeColor(selectedOutlet?.type || "")
-              )}>
-                <Package className="w-6 h-6 text-foreground" />
-              </div>
-              <div className="flex flex-col">
-                <span className="text-[10px] font-black uppercase tracking-[0.4em] text-foreground/60 mb-1">Central Intelligence</span>
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shadow-[0_0_10px_rgba(16,185,129,0.5)]"></div>
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-400">Live Network Active</span>
-                </div>
-              </div>
-            </div>
-
-            <h1 className="text-5xl lg:text-7xl font-black text-foreground tracking-tighter leading-none mb-6">
-              Outlet <span className="text-transparent bg-clip-text bg-gradient-to-r from-foreground via-foreground/90 to-foreground/60">Repository</span>
-            </h1>
-            
-            <p className="text-lg text-foreground/60 max-w-2xl font-medium leading-relaxed">
-              Precision inventory management across the <span className="text-foreground font-bold">Fulbari Network</span>. 
-              Monitor burn rates, adjust stock levels, and visualize product flow in real-time.
-            </p>
+      <HeroHeader 
+        title="Outlet"
+        highlightedWord="Repository"
+        subtitle="Precision inventory management across the Fulbari Network. Monitor burn rates, adjust stock levels, and visualize product flow in real-time."
+        badgeText="Central Intelligence"
+        statusText="Live Network Active"
+        icon={<StoreIcon className="w-6 h-6 text-foreground" />}
+        colorGradient={getTypeColor(selectedOutlet?.type || "")}
+        sideComponent={
+          <div className="flex items-center gap-3 px-6 py-4 bg-foreground/5 border border-foreground/5 rounded-2xl backdrop-blur-md">
+             <Activity className="w-4 h-4 text-primary animate-pulse" />
+             <span className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">System Health: <span className="text-emerald-500">Optimal</span></span>
           </div>
-
-          <div className="relative z-10 flex flex-col gap-4">
-            <div className="flex items-center gap-3 px-6 py-4 bg-foreground/5 border border-foreground/5 rounded-2xl backdrop-blur-md">
-               <Activity className="w-4 h-4 text-primary animate-pulse" />
-               <span className="text-[10px] font-black text-foreground/40 uppercase tracking-widest">System Health: Optimal</span>
-            </div>
-          </div>
-        </div>
-      </header>
+        }
+      />
 
       {/* 2. NAVIGATION & ANALYTICS BAR */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-end">
