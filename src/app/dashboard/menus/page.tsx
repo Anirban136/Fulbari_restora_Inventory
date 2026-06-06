@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import { addMenuItem, toggleMenuItem, deleteMenuItem } from "./actions"
 import { MenuSquare } from "lucide-react"
 import { AddMenuItemForm } from "./AddMenuItemForm"
+import { BulkAddMenuDialog } from "./BulkAddMenuDialog"
 import { MenuManagementTable } from "./MenuManagementTable"
 import { HeroHeader } from "@/components/ui/hero-header"
 
@@ -39,6 +40,7 @@ export default async function MenusPage() {
         subtitle="Configure POS menus, formulate pricing, and manage recipes for operational hubs."
         badgeText="Sales Catalog"
         icon={<MenuSquare className="w-6 h-6 text-foreground" />}
+        sideComponent={<BulkAddMenuDialog outlets={outlets} existingCategories={existingCategories} />}
         colorGradient="from-indigo-500/50 to-purple-500"
       />
 

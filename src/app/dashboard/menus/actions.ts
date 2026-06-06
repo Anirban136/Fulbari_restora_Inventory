@@ -164,3 +164,64 @@ export async function deleteMenuItem(menuItemId: string, pin: string) {
 
   revalidatePath("/dashboard/menus")
 }
+
+export async function addBulkMenuItems(items: any[]) {
+  const session = await getServerSession(authOptions)
+  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER" && session.user.role !== "ADMIN")) {
+    throw new Error("Unauthorized")
+  }
+
+  if (!items || items.length === 0) return { success: false, error: "No items provided" }
+
+  try {
+    let count = 0
+    await prisma.$transaction(async (tx) => {
+      // Find outlets if ANY of the items want BOTH
+      const needsBoth = items.some(item => item.outletId === "BOTH")
+      let bothOutlets: any[] = []
+      if (needsBoth) {
+        bothOutlets = await tx.outlet.findMany({
+          where: { type: { in: ["CAFE", "CHAI_JOINT"] } }
+        })
+      }
+
+      for (const item of items) {
+        const name = item.name as string
+        const price = parseFloat(item.price as string)
+        const categoryId = item.category?.toUpperCase().trim() || "GENERAL"
+        
+        if (!name || isNaN(price)) continue
+
+        if (item.outletId === "BOTH") {
+          for (const o of bothOutlets) {
+            await tx.menuItem.create({
+              data: {
+                outletId: o.id,
+                name,
+                price,
+                categoryId,
+              }
+            })
+            count++
+          }
+        } else {
+          await tx.menuItem.create({
+            data: {
+              outletId: item.outletId,
+              name,
+              price,
+              categoryId,
+            }
+          })
+          count++
+        }
+      }
+    })
+
+    revalidatePath("/dashboard/menus")
+    return { success: true, count }
+  } catch (error) {
+    console.error("Bulk add menu items error:", error)
+    return { success: false, error: "Failed to bulk add menu items" }
+  }
+}
