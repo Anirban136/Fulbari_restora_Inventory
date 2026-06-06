@@ -3,6 +3,7 @@ export const dynamic = 'force-dynamic'
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { AddItemDialog } from "./AddItemDialog"
+import { BulkAddItemDialog } from "./BulkAddItemDialog"
 import { GlobalCatalogFeed } from "./GlobalCatalogFeed"
 import { Layers } from "lucide-react"
 import { HeroHeader } from "@/components/ui/hero-header"
@@ -36,7 +37,12 @@ export default async function GlobalCatalogPage() {
         subtitle="Manage the master product registry, stock definitions, and global item categorization."
         badgeText="Repository Control"
         icon={<Layers className="w-6 h-6 text-foreground" />}
-        sideComponent={<AddItemDialog existingCategories={existingCategories} />}
+        sideComponent={
+          <div className="flex flex-col sm:flex-row gap-4 items-center">
+            <BulkAddItemDialog existingCategories={existingCategories} />
+            <AddItemDialog existingCategories={existingCategories} />
+          </div>
+        }
         colorGradient="from-emerald-500/50 to-primary"
       />
 

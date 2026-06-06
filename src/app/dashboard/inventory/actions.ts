@@ -173,6 +173,40 @@ export async function addItem(data: FormData) {
   revalidatePath("/dashboard/inventory/stock-in")
 }
 
+export async function addBulkItems(items: any[]) {
+  const session = await getServerSession(authOptions)
+  if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER" && session.user.role !== "ADMIN")) {
+    throw new Error("Unauthorized")
+  }
+
+  if (!items || items.length === 0) return { success: false, error: "No items provided" }
+
+  const formattedItems = items.map(item => ({
+    name: item.name,
+    category: item.category || "Uncategorized",
+    unit: item.unit || "pieces",
+    costPerUnit: item.costPerUnit ? parseFloat(item.costPerUnit) : null,
+    sellPrice: item.sellPrice ? parseFloat(item.sellPrice) : null,
+    minStock: item.minStock ? parseFloat(item.minStock) : 0,
+    piecesPerBox: item.piecesPerBox ? parseInt(item.piecesPerBox) : null,
+  }))
+
+  try {
+    // using createMany to insert multiple records
+    await (prisma.item as any).createMany({
+      data: formattedItems,
+      skipDuplicates: true, // skip items with same ID or potentially unique fields if defined
+    })
+  } catch (error) {
+    console.error("Bulk add items error:", error)
+    throw new Error("Failed to bulk add items")
+  }
+
+  revalidatePath("/dashboard/inventory")
+  revalidatePath("/dashboard/inventory/stock-in")
+  return { success: true, count: formattedItems.length }
+}
+
 export async function updateItem(data: FormData) {
   const session = await getServerSession(authOptions)
   if (!session || (session.user.role !== "OWNER" && session.user.role !== "INV_MANAGER" && session.user.role !== "ADMIN")) {
