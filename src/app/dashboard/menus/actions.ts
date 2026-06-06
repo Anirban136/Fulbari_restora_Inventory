@@ -194,7 +194,7 @@ export async function addBulkMenuItems(items: any[]) {
 
         if (item.outletId === "BOTH") {
           for (const o of bothOutlets) {
-            await tx.menuItem.create({
+            const menuItem = await tx.menuItem.create({
               data: {
                 outletId: o.id,
                 name,
@@ -202,10 +202,19 @@ export async function addBulkMenuItems(items: any[]) {
                 categoryId,
               }
             })
+            if (item.ingredientItemId) {
+              await tx.menuItemIngredient.create({
+                data: {
+                  menuItemId: menuItem.id,
+                  itemId: item.ingredientItemId,
+                  quantity: parseFloat(item.ingredientQty) || 1
+                }
+              })
+            }
             count++
           }
         } else {
-          await tx.menuItem.create({
+          const menuItem = await tx.menuItem.create({
             data: {
               outletId: item.outletId,
               name,
@@ -213,6 +222,15 @@ export async function addBulkMenuItems(items: any[]) {
               categoryId,
             }
           })
+          if (item.ingredientItemId) {
+            await tx.menuItemIngredient.create({
+              data: {
+                menuItemId: menuItem.id,
+                itemId: item.ingredientItemId,
+                quantity: parseFloat(item.ingredientQty) || 1
+              }
+            })
+          }
           count++
         }
       }

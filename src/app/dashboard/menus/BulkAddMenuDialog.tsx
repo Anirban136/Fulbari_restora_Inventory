@@ -24,9 +24,19 @@ interface BulkMenuItemRow {
   price: string
   category: string
   outletId: string
+  ingredientItemId: string
+  ingredientQty: string
 }
 
-export function BulkAddMenuDialog({ outlets = [], existingCategories = [] }: { outlets?: any[], existingCategories?: string[] }) {
+export function BulkAddMenuDialog({ 
+  outlets = [], 
+  existingCategories = [],
+  globalItems = []
+}: { 
+  outlets?: any[], 
+  existingCategories?: string[],
+  globalItems?: any[]
+}) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [mode, setMode] = useState<"grid" | "csv">("grid")
@@ -37,7 +47,9 @@ export function BulkAddMenuDialog({ outlets = [], existingCategories = [] }: { o
     name: "",
     price: "",
     category: "GENERAL",
-    outletId: "BOTH"
+    outletId: "BOTH",
+    ingredientItemId: "",
+    ingredientQty: "1"
   })
 
   const [rows, setRows] = useState<BulkMenuItemRow[]>([createEmptyRow()])
@@ -59,7 +71,7 @@ export function BulkAddMenuDialog({ outlets = [], existingCategories = [] }: { o
     const lines = csvText.split('\n')
     const newRows: BulkMenuItemRow[] = []
     
-    // Format: Name, Price, Category, Outlet ID (or BOTH)
+    // Format: Name, Price, Category, Outlet ID (or BOTH), Ingredient Item ID, Ingredient Qty
     lines.forEach(line => {
       if (!line.trim()) return
       const parts = line.split(',').map(s => s.trim())
@@ -69,7 +81,9 @@ export function BulkAddMenuDialog({ outlets = [], existingCategories = [] }: { o
           name: parts[0] || "",
           price: parts[1] || "",
           category: parts[2] || "GENERAL",
-          outletId: parts[3] || "BOTH"
+          outletId: parts[3] || "BOTH",
+          ingredientItemId: parts[4] || "",
+          ingredientQty: parts[5] || "1"
         })
       }
     })
@@ -115,7 +129,7 @@ export function BulkAddMenuDialog({ outlets = [], existingCategories = [] }: { o
           <MenuSquare className="w-5 h-5" /> BULK ADD MENUS
         </Button>
       } />
-      <DialogContent className="sm:max-w-[800px] w-[95vw] lg:w-full bg-background/95 backdrop-blur-3xl border-border rounded-[2.5rem] sm:rounded-[3rem] shadow-2xl p-0 overflow-hidden max-h-[92vh] flex flex-col" showCloseButton={false}>
+      <DialogContent className="sm:max-w-[1000px] w-[95vw] lg:w-full bg-background/95 backdrop-blur-3xl border-border rounded-[2.5rem] sm:rounded-[3rem] shadow-2xl p-0 overflow-hidden max-h-[92vh] flex flex-col" showCloseButton={false}>
         <DialogClose render={<button className="absolute top-8 right-8 p-3 rounded-2xl bg-foreground/5 border border-border text-foreground/40 hover:text-foreground transition-all active:scale-90 z-50"><X className="w-5 h-5" /></button>} />
         
         <div className="absolute top-0 left-0 w-40 h-40 bg-indigo-500/10 rounded-full blur-[80px] -z-10"></div>
@@ -127,7 +141,7 @@ export function BulkAddMenuDialog({ outlets = [], existingCategories = [] }: { o
              </div>
             <DialogTitle className="text-3xl sm:text-4xl font-black text-foreground tracking-tighter uppercase leading-none">Bulk Menu Entry</DialogTitle>
             <DialogDescription className="text-slate-400 font-medium mt-4 tracking-tight leading-relaxed text-sm">
-              Quickly create standalone POS items for your outlets without mapped recipes.
+              Quickly create POS items and optionally map an auto-deduction ingredient.
             </DialogDescription>
           </DialogHeader>
 
@@ -143,8 +157,8 @@ export function BulkAddMenuDialog({ outlets = [], existingCategories = [] }: { o
           {mode === "csv" && (
             <div className="space-y-4 flex-1">
               <div className="text-xs text-muted-foreground bg-muted/50 p-4 rounded-xl border border-border/50">
-                <span className="font-bold text-foreground">Format:</span> Name, Price, Category, Outlet ID<br/>
-                <span className="italic">Example: Paneer Butter Masala, 150, Main Course, BOTH</span>
+                <span className="font-bold text-foreground">Format:</span> Name, Price, Category, Outlet ID, Ingredient ID (Optional), Deduct Qty (Optional)<br/>
+                <span className="italic">Example: Paneer Butter Masala, 150, Main Course, BOTH, clyz..., 1</span>
               </div>
               <textarea 
                 value={csvText}
@@ -160,13 +174,15 @@ export function BulkAddMenuDialog({ outlets = [], existingCategories = [] }: { o
 
           {mode === "grid" && (
             <div className="flex-1 overflow-x-auto overflow-y-visible border border-border/50 rounded-2xl shadow-inner bg-background/50">
-              <table className="w-full text-left text-sm whitespace-nowrap min-w-[600px]">
+              <table className="w-full text-left text-sm whitespace-nowrap min-w-[900px]">
                 <thead className="bg-muted/30 border-b border-border/50 text-[10px] font-black uppercase tracking-widest text-muted-foreground sticky top-0 z-10 backdrop-blur-md">
                   <tr>
                     <th className="p-3">Name *</th>
-                    <th className="p-3 w-[120px]">Price (₹) *</th>
-                    <th className="p-3 w-[150px]">Category</th>
-                    <th className="p-3 w-[200px]">Outlet</th>
+                    <th className="p-3 w-[100px]">Price (₹) *</th>
+                    <th className="p-3 w-[120px]">Category</th>
+                    <th className="p-3 w-[150px]">Outlet</th>
+                    <th className="p-3 w-[180px]">Mapped Item (Optional)</th>
+                    <th className="p-3 w-[80px]">Deduct Qty</th>
                     <th className="p-3 w-[50px]"></th>
                   </tr>
                 </thead>
@@ -189,6 +205,17 @@ export function BulkAddMenuDialog({ outlets = [], existingCategories = [] }: { o
                             <option key={o.id} value={o.id}>{o.name}</option>
                           ))}
                         </select>
+                      </td>
+                      <td className="p-2">
+                        <select value={row.ingredientItemId} onChange={(e) => handleUpdateRow(row.id, "ingredientItemId", e.target.value)} className="h-9 w-full rounded-md border border-transparent hover:border-border/50 bg-transparent text-xs outline-none px-2 shadow-none cursor-pointer">
+                          <option value="">None</option>
+                          {globalItems.map(item => (
+                            <option key={item.id} value={item.id}>{item.name}</option>
+                          ))}
+                        </select>
+                      </td>
+                      <td className="p-2">
+                        <Input type="number" step="0.01" min="0" value={row.ingredientQty} onChange={(e) => handleUpdateRow(row.id, "ingredientQty", e.target.value)} disabled={!row.ingredientItemId} className="h-9 text-xs bg-transparent border-transparent hover:border-border/50 shadow-none disabled:opacity-30" />
                       </td>
                       <td className="p-2 text-right">
                         <Button variant="ghost" size="icon" onClick={() => handleRemoveRow(row.id)} className="h-8 w-8 text-red-500/50 hover:text-red-500 hover:bg-red-500/10">
@@ -221,3 +248,4 @@ export function BulkAddMenuDialog({ outlets = [], existingCategories = [] }: { o
     </Dialog>
   )
 }
+

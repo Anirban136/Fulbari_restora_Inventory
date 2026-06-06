@@ -40,7 +40,7 @@ export default async function MenusPage() {
         subtitle="Configure POS menus, formulate pricing, and manage recipes for operational hubs."
         badgeText="Sales Catalog"
         icon={<MenuSquare className="w-6 h-6 text-foreground" />}
-        sideComponent={<BulkAddMenuDialog outlets={outlets} existingCategories={existingCategories} />}
+        sideComponent={<BulkAddMenuDialog outlets={outlets} existingCategories={existingCategories} globalItems={globalItems} />}
         colorGradient="from-indigo-500/50 to-purple-500"
       />
 
