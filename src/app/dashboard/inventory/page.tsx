@@ -38,7 +38,7 @@ export default async function GlobalCatalogPage() {
         badgeText="Repository Control"
         icon={<Layers className="w-6 h-6 text-foreground" />}
         sideComponent={
-          <div className="flex flex-col sm:flex-row gap-4 items-center">
+          <div className="flex flex-col sm:flex-row gap-4 items-center shrink-0">
             <BulkAddItemDialog existingCategories={existingCategories} />
             <AddItemDialog existingCategories={existingCategories} />
           </div>

@@ -31,7 +31,7 @@ export function HeroHeader({
         colorGradient
       )}></div>
       
-      <div className="relative glass-panel p-8 lg:p-12 rounded-[3rem] border border-foreground/20 bg-foreground/[0.02] backdrop-blur-3xl overflow-hidden shadow-2xl flex flex-col lg:flex-row lg:items-center justify-between gap-10">
+      <div className="relative glass-panel p-8 lg:p-12 rounded-[3rem] border border-foreground/20 bg-foreground/[0.02] backdrop-blur-3xl overflow-hidden shadow-2xl flex flex-col lg:flex-row lg:items-center lg:flex-wrap justify-between gap-10">
         
         {/* Decorative background elements */}
         <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-foreground/20 to-transparent"></div>
@@ -72,7 +72,7 @@ export function HeroHeader({
         </div>
 
         {sideComponent && (
-          <div className="relative z-10 flex flex-col gap-4">
+          <div className="relative z-10 flex flex-col gap-4 shrink-0">
             {sideComponent}
           </div>
         )}
