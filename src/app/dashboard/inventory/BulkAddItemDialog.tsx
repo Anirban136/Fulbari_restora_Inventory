@@ -120,7 +120,7 @@ export function BulkAddItemDialog({ existingCategories = [] }: { existingCategor
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={
-        <Button className="h-14 px-8 rounded-[2rem] bg-indigo-500 hover:bg-indigo-400 text-white font-black shadow-[0_15px_30px_-10px_rgba(99,102,241,0.5)] transition-all active:scale-95 gap-3 uppercase tracking-[0.2em] text-xs">
+        <Button className="h-14 px-8 rounded-[2rem] bg-indigo-500 hover:bg-indigo-400 text-white font-black shadow-[0_15px_30px_-10px_rgba(99,102,241,0.5)] transition-all active:scale-95 gap-3 uppercase tracking-[0.2em] text-xs sm:w-auto w-full">
           <PackageOpen className="w-5 h-5" /> BULK ADD ITEMS
         </Button>
       } />
