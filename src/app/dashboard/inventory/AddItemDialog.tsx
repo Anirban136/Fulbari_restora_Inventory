@@ -51,7 +51,7 @@ export function AddItemDialog({ existingCategories = [], variant = "default" }: 
             <PlusCircle className="w-4 h-4 text-primary" /> New Item
           </Button>
         ) : (
-          <Button className="h-14 px-8 rounded-[2rem] bg-primary hover:bg-emerald-500 text-primary-foreground font-black shadow-[0_15px_30px_-10px_rgba(16,185,129,0.5)] transition-all active:scale-95 gap-3 sm:w-auto w-full uppercase tracking-[0.2em] text-xs">
+          <Button className="h-12 px-6 rounded-2xl md:rounded-[2rem] bg-primary hover:bg-emerald-500 text-primary-foreground font-black shadow-[0_15px_30px_-10px_rgba(16,185,129,0.5)] transition-all active:scale-95 gap-2.5 sm:w-auto w-full uppercase tracking-wider text-[11px]">
             <PlusCircle className="w-5 h-5" /> ADD NEW ITEM
           </Button>
         )

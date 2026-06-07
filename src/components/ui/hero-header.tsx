@@ -31,14 +31,14 @@ export function HeroHeader({
         colorGradient
       )}></div>
       
-      <div className="relative glass-panel p-8 lg:p-12 rounded-[3rem] border border-foreground/20 bg-foreground/[0.02] backdrop-blur-3xl overflow-hidden shadow-2xl flex flex-col lg:flex-row lg:items-center lg:flex-wrap justify-between gap-10">
+      <div className="relative glass-panel p-8 lg:p-12 rounded-[3rem] border border-foreground/20 bg-foreground/[0.02] backdrop-blur-3xl overflow-hidden shadow-2xl flex flex-col xl:flex-row xl:items-center xl:flex-wrap justify-between gap-10">
         
         {/* Decorative background elements */}
         <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-foreground/20 to-transparent"></div>
         <div className="absolute -right-40 -top-40 w-96 h-96 bg-primary/20 blur-[120px] rounded-full animate-pulse"></div>
         <div className="absolute -left-20 -bottom-20 w-64 h-64 bg-purple-600/10 blur-[100px] rounded-full"></div>
         
-        <div className="relative z-10 flex-1">
+        <div className="relative z-10 flex-auto min-w-[280px] sm:min-w-[400px] xl:min-w-[600px]">
           <div className="flex items-center gap-3 mb-6">
             <div className={cn(
               "p-3 rounded-2xl shadow-lg border border-foreground/20 flex items-center justify-center animate-bounce-slow",
@@ -58,7 +58,7 @@ export function HeroHeader({
             </div>
           </div>
 
-          <h1 className="text-5xl lg:text-7xl font-black text-foreground tracking-tighter leading-none mb-6">
+          <h1 className="text-5xl md:text-6xl xl:text-7xl font-black text-foreground tracking-tighter leading-none mb-6">
             {title} {highlightedWord && (
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-foreground via-foreground/90 to-foreground/60">
                 {highlightedWord}
@@ -72,7 +72,7 @@ export function HeroHeader({
         </div>
 
         {sideComponent && (
-          <div className="relative z-10 flex flex-col gap-4 shrink-0">
+          <div className="relative z-10 flex flex-col gap-4 shrink-0 w-full sm:w-auto">
             {sideComponent}
           </div>
         )}
