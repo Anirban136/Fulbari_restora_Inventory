@@ -76,13 +76,20 @@ export function PosMenuGrid({ categorizedMenu, tabId, isCafe }: { categorizedMen
             const isLowStock = stock !== null && stock < 10
             const isOutOfStock = stock !== null && stock <= 0
 
+            const isTobaccoCategory = activeCategory === "TOBACCO" || activeCategory === "CIGARETTE"
+            let piecesPerBox = 1
+            if (hasIngredients && isTobaccoCategory) {
+              piecesPerBox = item.ingredients[0]?.Item?.piecesPerBox || 1
+            }
+
             return (
-              <div key={item.id} className="relative animate-in slide-in-from-bottom-2 duration-300">
-                <form action={addTabItem.bind(null, tabId, item.id, item.price, 1)} className="h-full">
-                  <button 
-                    type="submit" 
-                    className={`w-full text-left bg-foreground/5 backdrop-blur-md ${isOutOfStock ? "opacity-70 grayscale-[50%]" : ""} ${isCafe ? "hover:bg-orange-500/10 hover:border-orange-500/50 hover:shadow-[0_0_25px_-5px_rgba(249,115,22,0.3)] border-border" : "hover:bg-sky-500/10 hover:border-sky-500/50 hover:shadow-[0_0_25px_-5px_rgba(14,165,233,0.3)] border-border"} border-2 rounded-2xl p-4 lg:p-6 transition-all active:scale-95 group shadow-lg h-full min-h-[160px] flex flex-col`}
-                  >
+              <div key={item.id} className={`relative animate-in slide-in-from-bottom-2 duration-300 w-full text-left bg-foreground/5 backdrop-blur-md ${isOutOfStock ? "opacity-70 grayscale-[50%]" : ""} ${isCafe ? "hover:bg-orange-500/10 hover:border-orange-500/50 hover:shadow-[0_0_25px_-5px_rgba(249,115,22,0.3)] border-border" : "hover:bg-sky-500/10 hover:border-sky-500/50 hover:shadow-[0_0_25px_-5px_rgba(14,165,233,0.3)] border-border"} border-2 rounded-2xl transition-all group shadow-lg h-full min-h-[160px] flex flex-col overflow-hidden`}>
+                
+                {/* MAIN CLICKABLE AREA */}
+                <form action={addTabItem.bind(null, tabId, item.id, item.price, 1, false)} className="flex-1 flex flex-col p-4 lg:p-6 pb-12">
+                  <button type="submit" className="absolute inset-0 w-full h-full opacity-0 z-0 text-left cursor-pointer"></button>
+                  
+                  <div className="relative z-10 pointer-events-none flex flex-col h-full">
                     {/* Card Header: Stock Info */}
                     {stock !== null && (
                       <div className={`mb-3 self-start px-2 py-1 rounded-lg text-[9px] font-black tracking-tight uppercase border transition-all flex items-center gap-2 ${
@@ -107,8 +114,17 @@ export function PosMenuGrid({ categorizedMenu, tabId, isCafe }: { categorizedMen
                     <div className="mt-auto pt-2 border-t border-border/50">
                        <div className={`${isCafe ? "text-orange-500" : "text-sky-500"} font-extrabold text-xl lg:text-2xl`}>₹{item.price.toFixed(0)}</div>
                     </div>
-                  </button>
+                  </div>
                 </form>
+
+                {/* SECONDARY BOX BUTTON */}
+                {isTobaccoCategory && piecesPerBox > 1 && (
+                  <form action={addTabItem.bind(null, tabId, item.id, item.price * piecesPerBox, 1, true)} className="absolute bottom-4 right-4 z-20">
+                    <button type="submit" className="px-3 py-1.5 bg-foreground/10 hover:bg-foreground/20 text-[10px] font-black tracking-widest uppercase rounded-lg transition-colors border border-foreground/10 active:scale-95 text-foreground backdrop-blur-md">
+                      BOX ({piecesPerBox})
+                    </button>
+                  </form>
+                )}
               </div>
             )
           })}

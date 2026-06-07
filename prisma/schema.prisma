@@ -157,6 +157,7 @@ model TabItem {
   priceAtTime Float
   addedAt     DateTime @default(now())
   isPaid      Boolean  @default(false)
+  isBox       Boolean  @default(false)
   MenuItem    MenuItem @relation(fields: [menuItemId], references: [id])
   Tab         Tab      @relation(fields: [tabId], references: [id])
 }

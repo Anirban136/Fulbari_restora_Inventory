@@ -61,7 +61,7 @@ export default async function TabTerminal({ params }: { params: Promise<{ tabId:
             <div className="space-y-2 mb-4">
               {tab.Items.map((item: any) => (
                 <div key={item.id} className="flex justify-between items-center text-sm">
-                  <span className="text-muted-foreground font-medium">{item.quantity}x {item.MenuItem.name}</span>
+                  <span className="text-muted-foreground font-medium">{item.quantity}x {item.MenuItem.name}{item.isBox ? " (Box)" : ""}</span>
                   <span className="text-foreground font-bold">₹{(item.quantity * item.priceAtTime).toFixed(0)}</span>
                 </div>
               ))}
@@ -197,7 +197,7 @@ export default async function TabTerminal({ params }: { params: Promise<{ tabId:
                             isCafe ? "text-orange-400" : "text-sky-400"
                           )}>X</span>
                        </div>
-                       <p className="font-bold text-foreground text-sm sm:text-lg line-clamp-2 whitespace-normal flex-1">{item.MenuItem.name}</p>
+                       <p className="font-bold text-foreground text-sm sm:text-lg line-clamp-2 whitespace-normal flex-1">{item.MenuItem.name}{item.isBox && " (Box)"}</p>
                     </div>
                     <p className="text-muted-foreground font-medium text-[10px] sm:text-xs pl-1">₹{item.priceAtTime.toFixed(2)} each</p>
                   </div>

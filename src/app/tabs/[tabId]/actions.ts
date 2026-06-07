@@ -5,10 +5,10 @@ import { revalidatePath } from "next/cache"
 import { redirect } from "next/navigation"
 import { getISTDateBounds } from "@/lib/utils"
 
-export async function addTabItem(tabId: string, menuItemId: string, price: number, forcedQuantity: number = 1) {
+export async function addTabItem(tabId: string, menuItemId: string, price: number, forcedQuantity: number = 1, isBox: boolean = false) {
   // Check if it already exists to increment quantity instead
   const existingItem = await prisma.tabItem.findFirst({
-    where: { tabId, menuItemId }
+    where: { tabId, menuItemId, isBox }
   })
 
   if (existingItem) {
@@ -18,7 +18,7 @@ export async function addTabItem(tabId: string, menuItemId: string, price: numbe
     })
   } else {
     await prisma.tabItem.create({
-      data: { tabId, menuItemId, priceAtTime: price, quantity: forcedQuantity }
+      data: { tabId, menuItemId, priceAtTime: price, quantity: forcedQuantity, isBox }
     })
   }
 
@@ -119,7 +119,11 @@ export async function closeTab(data: FormData) {
         include: { 
           MenuItem: { 
             include: { 
-              ingredients: true 
+              ingredients: {
+                include: {
+                  Item: true
+                }
+              } 
             } 
           } 
         } 
@@ -139,7 +143,8 @@ export async function closeTab(data: FormData) {
      // 2. Handle Multi-Ingredient Recipes
      if (menuItem.ingredients && menuItem.ingredients.length > 0) {
        for (const ingredient of menuItem.ingredients) {
-         const totalDuction = ingredient.quantity * orderQty
+         const piecesMultiplier = tabItem.isBox ? (ingredient.Item.piecesPerBox || 1) : 1
+         const totalDuction = ingredient.quantity * orderQty * piecesMultiplier
          try {
            await prisma.outletStock.upsert({
              where: { outletId_itemId: { outletId: tab.outletId, itemId: ingredient.itemId } },
@@ -222,7 +227,11 @@ export async function reopenTab(tabId: string) {
         include: { 
           MenuItem: { 
             include: { 
-              ingredients: true 
+              ingredients: {
+                include: {
+                  Item: true
+                }
+              } 
             } 
           } 
         } 
@@ -238,7 +247,8 @@ export async function reopenTab(tabId: string) {
      // 2. Revert Multi-Ingredient Recipes
      if (menuItem.ingredients && menuItem.ingredients.length > 0) {
        for (const ingredient of menuItem.ingredients) {
-         const totalReversal = ingredient.quantity * orderQty
+         const piecesMultiplier = tabItem.isBox ? (ingredient.Item.piecesPerBox || 1) : 1
+         const totalReversal = ingredient.quantity * orderQty * piecesMultiplier
          try {
            await prisma.outletStock.update({
              where: { outletId_itemId: { outletId: tab.outletId, itemId: ingredient.itemId } },

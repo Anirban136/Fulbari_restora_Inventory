@@ -22,6 +22,7 @@ interface PrintReceiptButtonProps {
   items: Array<{
     quantity: number
     priceAtTime: number
+    isBox?: boolean
     MenuItem: { name: string }
   }>
   totalAmount: number
@@ -281,7 +282,7 @@ export function PrintReceiptButton({
 
     const dateObj = closedAt ? (typeof closedAt === 'string' ? new Date(closedAt) : closedAt) : new Date()
     const receiptItems = items.map(item => ({
-      name: item.MenuItem.name, quantity: item.quantity, price: item.priceAtTime
+      name: item.MenuItem.name + (item.isBox ? " (Box)" : ""), quantity: item.quantity, price: item.priceAtTime
     }))
     const baseData = {
       outletName, 
