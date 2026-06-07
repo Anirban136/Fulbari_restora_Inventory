@@ -372,9 +372,9 @@ export function ChaiDailyStockSheet({
                 : "border-border/50 bg-foreground/5 text-foreground"
             )}
           >
-            <option value="__all__">All Categories</option>
+            <option value="__all__" className="bg-card text-foreground">All Categories</option>
             {categories.map((cat) => (
-              <option key={cat} value={cat}>
+              <option key={cat} value={cat} className="bg-card text-foreground">
                 {cat}
               </option>
             ))}
