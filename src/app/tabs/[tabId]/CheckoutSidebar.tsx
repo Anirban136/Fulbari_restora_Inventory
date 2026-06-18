@@ -55,7 +55,7 @@ export function CheckoutSidebar({
     setSplitOnline((dueAmount - cash).toFixed(2))
   }
 
-  const isSplitValid = paymentMode !== "SPLIT" || (parseFloat(splitCash) + parseFloat(splitOnline) === dueAmount)
+  const isSplitValid = paymentMode !== "SPLIT" || (Math.abs((parseFloat(splitCash) || 0) + (parseFloat(splitOnline) || 0) - dueAmount) < 0.01)
 
   // Helper that also clears storage (used for "Edit Order" button)
   const clearBill = () => {
