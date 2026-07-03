@@ -55,12 +55,12 @@ export function EditPinDialog({ userId, userName, currentPin }: { userId: string
           <div className="py-10 flex flex-col items-center justify-center text-center animate-in zoom-in-95">
             <CheckCircle2 className="w-16 h-16 text-emerald-500 mb-4 drop-shadow-[0_0_15px_rgba(16,185,129,0.5)]" />
             <h3 className="text-xl font-bold text-foreground mb-2">PIN Updated!</h3>
-            <p className="text-slate-400 font-medium">The passcode has been successfully<br/>reset by the system administrator.</p>
+            <p className="text-muted-foreground font-medium">The passcode has been successfully<br/>reset by the system administrator.</p>
           </div>
         ) : (
           <form onSubmit={handleSubmit} className="space-y-6 py-4">
             <div className="space-y-2">
-              <label className="text-xs font-bold text-slate-400 uppercase tracking-widest">New 4-Digit PIN</label>
+              <label className="text-xs font-bold text-muted-foreground uppercase tracking-widest">New 4-Digit PIN</label>
               <Input 
                 type="password" pattern="[0-9]*" inputMode="numeric" maxLength={4}
                 value={newPin} onChange={e => setNewPin(e.target.value)}

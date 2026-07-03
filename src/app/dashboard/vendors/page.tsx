@@ -310,11 +310,11 @@ export default async function VendorsPage() {
                 {/* Mobile Card Stats Row */}
                 <div className="grid grid-cols-2 gap-4 p-4 rounded-2xl bg-foreground/[0.02] border border-foreground/5">
                   <div className="space-y-1 text-center border-r border-foreground/5">
-                    <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest block">Volume (Units)</span>
+                    <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest block">Volume (Units)</span>
                     <span className="text-xs font-black text-emerald-400">{vendor.netCollection.toFixed(1)}</span>
                   </div>
                   <div className="space-y-1 text-center">
-                    <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest block">Total Bill</span>
+                    <span className="text-[8px] font-black text-muted-foreground uppercase tracking-widest block">Total Bill</span>
                     <span className="text-xs font-black text-amber-500 font-mono">₹{vendor.totalOwed.toLocaleString('en-IN')}</span>
                   </div>
                 </div>

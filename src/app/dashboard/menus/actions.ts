@@ -20,7 +20,7 @@ export async function addMenuItem(data: FormData) {
   const ingredientsRaw = data.get("ingredients") as string
   
   // Parse ingredients if provided
-  let ingredients: { itemId: string, quantity: number }[] = []
+  let ingredients: { itemId: string, quantity: number, unitUsed?: string }[] = []
   if (ingredientsRaw) {
     try {
       ingredients = JSON.parse(ingredientsRaw)
@@ -55,6 +55,7 @@ export async function addMenuItem(data: FormData) {
               menuItemId: menuItem.id,
               itemId: ing.itemId,
               quantity: ing.quantity,
+              unitUsed: ing.unitUsed || null,
             }))
           })
         }
@@ -77,6 +78,7 @@ export async function addMenuItem(data: FormData) {
           menuItemId: menuItem.id,
           itemId: ing.itemId,
           quantity: ing.quantity,
+          unitUsed: ing.unitUsed || null,
         }))
       })
     }
@@ -109,7 +111,7 @@ export async function updateMenuItem(data: FormData) {
   const itemId = data.get("itemId") as string
   const ingredientsRaw = data.get("ingredients") as string
 
-  let ingredients: { itemId: string, quantity: number }[] = []
+  let ingredients: { itemId: string, quantity: number, unitUsed?: string }[] = []
   if (ingredientsRaw) {
     try {
       ingredients = JSON.parse(ingredientsRaw)
@@ -121,29 +123,115 @@ export async function updateMenuItem(data: FormData) {
   if (!id || !outletId || !name || isNaN(price)) return
 
   await prisma.$transaction(async (tx) => {
-    // Update main item
-    await tx.menuItem.update({
-      where: { id },
-      data: {
-        outletId,
-        name,
-        price,
-        categoryId,
-        itemId: itemId || null,
-      }
-    })
-
-    // Sync ingredients (delete and recreate)
-    await tx.menuItemIngredient.deleteMany({ where: { menuItemId: id } })
-    
-    if (ingredients.length > 0) {
-      await tx.menuItemIngredient.createMany({
-        data: ingredients.map(ing => ({
-          menuItemId: id,
-          itemId: ing.itemId,
-          quantity: ing.quantity,
-        }))
+    if (outletId === "BOTH") {
+      const outlets = await tx.outlet.findMany({
+        where: { type: { in: ["CAFE", "CHAI_JOINT"] } }
       })
+      
+      const currentItem = await tx.menuItem.findUnique({ where: { id } })
+      if (!currentItem) throw new Error("Item not found")
+
+      let primaryOutletId = currentItem.outletId;
+      const outletIds = outlets.map(o => o.id);
+      if (!outletIds.includes(primaryOutletId)) {
+        primaryOutletId = outletIds[0];
+      }
+
+      // Update the main item
+      await tx.menuItem.update({
+        where: { id },
+        data: {
+          outletId: primaryOutletId,
+          name,
+          price,
+          categoryId,
+          itemId: itemId || null,
+        }
+      })
+
+      // Sync ingredients for primary
+      await tx.menuItemIngredient.deleteMany({ where: { menuItemId: id } })
+      if (ingredients.length > 0) {
+        await tx.menuItemIngredient.createMany({
+          data: ingredients.map(ing => ({
+            menuItemId: id,
+            itemId: ing.itemId,
+            quantity: ing.quantity,
+            unitUsed: ing.unitUsed || null,
+          }))
+        })
+      }
+
+      // Sync to other outlets
+      const remainingOutlets = outlets.filter(o => o.id !== primaryOutletId);
+      for (const ro of remainingOutlets) {
+        const existing = await tx.menuItem.findFirst({
+          where: { outletId: ro.id, name }
+        });
+
+        if (existing) {
+          await tx.menuItem.update({
+            where: { id: existing.id },
+            data: { price, categoryId, itemId: itemId || null }
+          })
+          await tx.menuItemIngredient.deleteMany({ where: { menuItemId: existing.id } })
+          if (ingredients.length > 0) {
+            await tx.menuItemIngredient.createMany({
+              data: ingredients.map(ing => ({
+                menuItemId: existing.id,
+                itemId: ing.itemId,
+                quantity: ing.quantity,
+                unitUsed: ing.unitUsed || null,
+              }))
+            })
+          }
+        } else {
+          const newItem = await tx.menuItem.create({
+            data: {
+              outletId: ro.id,
+              name,
+              price,
+              categoryId,
+              itemId: itemId || null,
+            }
+          })
+          if (ingredients.length > 0) {
+            await tx.menuItemIngredient.createMany({
+              data: ingredients.map(ing => ({
+                menuItemId: newItem.id,
+                itemId: ing.itemId,
+                quantity: ing.quantity,
+                unitUsed: ing.unitUsed || null,
+              }))
+            })
+          }
+        }
+      }
+    } else {
+      // Normal single-outlet update
+      await tx.menuItem.update({
+        where: { id },
+        data: {
+          outletId,
+          name,
+          price,
+          categoryId,
+          itemId: itemId || null,
+        }
+      })
+
+      await tx.menuItemIngredient.deleteMany({ where: { menuItemId: id } })
+      
+      if (ingredients.length > 0) {
+        await tx.menuItemIngredient.createMany({
+          data: ingredients.map(ing => ({
+            menuItemId: id,
+            itemId: ing.itemId,
+            quantity: ing.quantity,
+            unitUsed: ing.unitUsed || null,
+          }))
+        })
+      }
     }
   })
 
@@ -227,7 +315,8 @@ export async function addBulkMenuItems(items: any[]) {
               data: {
                 menuItemId: menuItem.id,
                 itemId: item.ingredientItemId,
-                quantity: parseFloat(item.ingredientQty) || 1
+                quantity: parseFloat(item.ingredientQty) || 1,
+                unitUsed: item.ingredientUnitUsed || null
               }
             })
           }

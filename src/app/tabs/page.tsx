@@ -64,13 +64,13 @@ export default async function ActiveTabsPage({ searchParams }: { searchParams: P
           </div>
           <div className="flex flex-wrap justify-end gap-2 sm:gap-4 items-center mt-4 sm:mt-0">
             {session.user.role === "OWNER" && (
-               <Link href="/dashboard"><Button variant="outline" className="border-border text-slate-600 dark:text-slate-300 hover:bg-foreground/5 hover:text-foreground backdrop-blur-md font-black uppercase text-[10px] tracking-widest px-6 h-12 rounded-xl">Back to Dashboard</Button></Link>
+               <Link href="/dashboard"><Button variant="outline" className="border-border text-muted-foreground hover:bg-foreground/5 hover:text-foreground backdrop-blur-md font-black uppercase text-[10px] tracking-widest px-6 h-12 rounded-xl">Back to Dashboard</Button></Link>
             )}
             {session.user.role === "CAFE_STAFF" && (
-               <Link href="/cafe"><Button variant="outline" className="border-border text-slate-600 dark:text-slate-300 hover:bg-foreground/5 hover:text-foreground backdrop-blur-md font-black uppercase text-[10px] tracking-widest px-6 h-12 rounded-xl">Back to Cafe Hub</Button></Link>
+               <Link href="/cafe"><Button variant="outline" className="border-border text-muted-foreground hover:bg-foreground/5 hover:text-foreground backdrop-blur-md font-black uppercase text-[10px] tracking-widest px-6 h-12 rounded-xl">Back to Cafe Hub</Button></Link>
             )}
             {session.user.role === "CHAI_STAFF" && (
-               <Link href="/chai"><Button variant="outline" className="border-border text-slate-600 dark:text-slate-300 hover:bg-foreground/5 hover:text-foreground backdrop-blur-md font-black uppercase text-[10px] tracking-widest px-6 h-12 rounded-xl">Back to Chai Hub</Button></Link>
+               <Link href="/chai"><Button variant="outline" className="border-border text-muted-foreground hover:bg-foreground/5 hover:text-foreground backdrop-blur-md font-black uppercase text-[10px] tracking-widest px-6 h-12 rounded-xl">Back to Chai Hub</Button></Link>
             )}
             <UserControls />
           </div>
@@ -104,8 +104,8 @@ export default async function ActiveTabsPage({ searchParams }: { searchParams: P
                 <TableGrid activeTabs={activeTabs} outletId={outlet.id} isCafe={isCafe} />
             ) : (
                 <div className="flex flex-col items-center justify-center py-20 bg-black/20 rounded-[3rem] border-2 border-dashed border-foreground/5">
-                    <LayoutGrid className="w-16 h-16 text-slate-700 mb-4" />
-                    <p className="text-slate-500 font-bold uppercase tracking-widest">No Outlet Assigned</p>
+                    <LayoutGrid className="w-16 h-16 text-foreground mb-4" />
+                    <p className="text-muted-foreground font-bold uppercase tracking-widest">No Outlet Assigned</p>
                 </div>
             )}
         </div>

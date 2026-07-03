@@ -26,6 +26,7 @@ interface BulkMenuItemRow {
   outletId: string
   ingredientItemId: string
   ingredientQty: string
+  ingredientUnitUsed: string
 }
 
 export function BulkAddMenuDialog({ 
@@ -49,7 +50,8 @@ export function BulkAddMenuDialog({
     category: "GENERAL",
     outletId: "BOTH",
     ingredientItemId: "",
-    ingredientQty: "1"
+    ingredientQty: "1",
+    ingredientUnitUsed: ""
   })
 
   const [rows, setRows] = useState<BulkMenuItemRow[]>([createEmptyRow()])
@@ -63,7 +65,16 @@ export function BulkAddMenuDialog({
   }
 
   const handleUpdateRow = (id: string, field: keyof BulkMenuItemRow, value: string) => {
-    setRows(rows.map(r => r.id === id ? { ...r, [field]: value } : r))
+    setRows(rows.map(r => {
+      if (r.id === id) {
+        const newRow = { ...r, [field]: value }
+        if (field === "ingredientItemId") {
+          newRow.ingredientUnitUsed = ""
+        }
+        return newRow
+      }
+      return r
+    }))
   }
 
   const processCSV = () => {
@@ -83,7 +94,8 @@ export function BulkAddMenuDialog({
           category: parts[2] || "GENERAL",
           outletId: parts[3] || "BOTH",
           ingredientItemId: parts[4] || "",
-          ingredientQty: parts[5] || "1"
+          ingredientQty: parts[5] || "1",
+          ingredientUnitUsed: parts[6] || ""
         })
       }
     })
@@ -140,7 +152,7 @@ export function BulkAddMenuDialog({
                <MenuSquare className="w-8 h-8 sm:w-10 sm:h-10 text-indigo-500" />
              </div>
             <DialogTitle className="text-3xl sm:text-4xl font-black text-foreground tracking-tighter uppercase leading-none">Bulk Menu Entry</DialogTitle>
-            <DialogDescription className="text-slate-400 font-medium mt-4 tracking-tight leading-relaxed text-sm">
+            <DialogDescription className="text-muted-foreground font-medium mt-4 tracking-tight leading-relaxed text-sm">
               Quickly create POS items and optionally map an auto-deduction ingredient.
             </DialogDescription>
           </DialogHeader>
@@ -210,12 +222,35 @@ export function BulkAddMenuDialog({
                         <select value={row.ingredientItemId} onChange={(e) => handleUpdateRow(row.id, "ingredientItemId", e.target.value)} className="h-9 w-full rounded-md border border-transparent hover:border-border/50 bg-transparent text-xs outline-none px-2 shadow-none cursor-pointer">
                           <option value="">None</option>
                           {globalItems.map(item => (
-                            <option key={item.id} value={item.id}>{item.name}</option>
+                            <option key={item.id} value={item.id}>
+                              {item.name} ({item.recipeUnit ? `${item.unit} / ${item.recipeUnit}` : item.unit})
+                            </option>
                           ))}
                         </select>
                       </td>
-                      <td className="p-2">
-                        <Input type="number" step="0.01" min="0" value={row.ingredientQty} onChange={(e) => handleUpdateRow(row.id, "ingredientQty", e.target.value)} disabled={!row.ingredientItemId} className="h-9 text-xs bg-transparent border-transparent hover:border-border/50 shadow-none disabled:opacity-30" />
+                      <td className="p-2 relative flex items-center">
+                        <Input type="number" step="0.01" min="0" value={row.ingredientQty} onChange={(e) => handleUpdateRow(row.id, "ingredientQty", e.target.value)} disabled={!row.ingredientItemId} className="h-9 text-xs bg-transparent border-transparent hover:border-border/50 shadow-none disabled:opacity-30 pr-12" />
+                        {row.ingredientItemId && (() => {
+                          const selectedItem = globalItems.find(i => i.id === row.ingredientItemId);
+                          if (!selectedItem) return null;
+                          if (selectedItem.recipeUnit) {
+                            return (
+                              <select 
+                                value={row.ingredientUnitUsed || selectedItem.unit}
+                                onChange={(e) => handleUpdateRow(row.id, "ingredientUnitUsed", e.target.value)}
+                                className="absolute right-1 top-1/2 -translate-y-1/2 text-[9px] bg-background/80 text-muted-foreground font-bold outline-none rounded p-1 cursor-pointer"
+                              >
+                                <option value={selectedItem.unit}>{selectedItem.unit}</option>
+                                <option value={selectedItem.recipeUnit}>{selectedItem.recipeUnit}</option>
+                              </select>
+                            )
+                          }
+                          return (
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[9px] text-muted-foreground font-bold pointer-events-none">
+                              {selectedItem.unit}
+                            </span>
+                          )
+                        })()}
                       </td>
                       <td className="p-2 text-right">
                         <Button variant="ghost" size="icon" onClick={() => handleRemoveRow(row.id)} className="h-8 w-8 text-red-500/50 hover:text-red-500 hover:bg-red-500/10">

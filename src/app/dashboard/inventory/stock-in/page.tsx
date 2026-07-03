@@ -101,14 +101,14 @@ export default async function StockInPage() {
                     <TableHead className="font-bold text-muted-foreground uppercase tracking-widest text-[10px] h-12 bg-muted/20 dark:bg-black/40 sticky top-0 z-20 text-right">Qty In</TableHead>
                     <TableHead className="font-bold text-muted-foreground uppercase tracking-widest text-[10px] h-12 bg-muted/20 dark:bg-black/40 sticky top-0 z-20">Received By</TableHead>
                     {isOwner && (
-                      <TableHead className="font-bold text-slate-400 uppercase tracking-widest text-[10px] h-12 bg-black/40 sticky top-0 z-20 text-center">Revert</TableHead>
+                      <TableHead className="font-bold text-muted-foreground uppercase tracking-widest text-[10px] h-12 bg-black/40 sticky top-0 z-20 text-center">Revert</TableHead>
                     )}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                    {recentLogs.length === 0 ? (
                      <TableRow className="border-b border-foreground/10">
-                      <TableCell colSpan={isOwner ? 5 : 4} className="h-40 text-center text-slate-500">
+                      <TableCell colSpan={isOwner ? 5 : 4} className="h-40 text-center text-muted-foreground">
                         <span className="flex flex-col items-center justify-center">
                           <Search className="w-8 h-8 opacity-20 mb-2" />
                           No recent incoming stock logged.
@@ -119,7 +119,7 @@ export default async function StockInPage() {
                     recentLogs.map((log) => (
                       <TableRow key={log.id} className="border-b border-border/10 hover:bg-muted/30 transition-colors group">
                         <TableCell className="text-muted-foreground font-medium whitespace-nowrap text-sm">
-                          <span className="text-foreground/80 dark:text-slate-300">{formatDateIST(log.createdAt)}</span> <span className="opacity-80 dark:opacity-50">{formatTimeIST(log.createdAt)}</span>
+                          <span className="text-foreground/80 ">{formatDateIST(log.createdAt)}</span> <span className="opacity-80 dark:opacity-50">{formatTimeIST(log.createdAt)}</span>
                         </TableCell>
                         <TableCell>
                           <div className="font-bold text-foreground/90 group-hover:text-foreground transition-colors">{log.Item.name}</div>

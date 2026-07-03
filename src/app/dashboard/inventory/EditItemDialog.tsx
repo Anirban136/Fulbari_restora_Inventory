@@ -117,6 +117,34 @@ export function EditItemDialog({
                   <option value="pcs" className="bg-background text-foreground">Pieces (pcs)</option>
                 </select>
               </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="recipeUnit" className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] ml-1">RECIPE UNIT (Optional)</Label>
+                <select 
+                  name="recipeUnit" 
+                  id="recipeUnit" 
+                  defaultValue={item.recipeUnit || ""}
+                  className="w-full h-14 px-6 py-2 rounded-2xl border border-border bg-foreground/[0.03] text-foreground focus:outline-none focus:ring-4 focus:ring-primary/10 focus:border-primary/50 transition-all font-black uppercase tracking-widest text-xs appearance-none cursor-pointer shadow-inner"
+                >
+                  <option value="" className="bg-background text-muted-foreground/30">Same as Base Unit</option>
+                  <option value="kg" className="bg-background text-foreground">Kilogram (kg)</option>
+                  <option value="gm" className="bg-background text-foreground">Gram (gm)</option>
+                  <option value="lit" className="bg-background text-foreground">Litre (lit)</option>
+                  <option value="ml" className="bg-background text-foreground">Millilitre (ml)</option>
+                  <option value="packet" className="bg-background text-foreground">Packet</option>
+                  <option value="box" className="bg-background text-foreground">Box</option>
+                  <option value="plate" className="bg-background text-foreground">Plate</option>
+                  <option value="pcs" className="bg-background text-foreground">Pieces (pcs)</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="conversionFactor" className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.3em] ml-1">RECIPES PER BASE UNIT</Label>
+                <Input id="conversionFactor" name="conversionFactor" type="number" step="0.01" defaultValue={item.conversionFactor || 1} className="h-14 bg-foreground/[0.03] border-border text-foreground placeholder:text-muted-foreground/20 rounded-2xl focus-visible:ring-primary/40 font-black text-xs" />
+              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">

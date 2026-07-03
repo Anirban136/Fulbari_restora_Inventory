@@ -60,25 +60,25 @@ export function EditVendorDialog({ vendor }: { vendor: Vendor }) {
              <Edit2 className="w-6 h-6 text-blue-400" />
            </div>
           <DialogTitle className="text-2xl font-black text-foreground">Edit Vendor</DialogTitle>
-          <DialogDescription className="text-slate-400">
+          <DialogDescription className="text-muted-foreground">
             Update contact and billing details for <span className="text-foreground font-bold">{vendor.name}</span>.
           </DialogDescription>
         </DialogHeader>
         <form action={handleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <Label htmlFor={`edit_vendor_name_${vendor.id}`} className="text-xs font-bold text-slate-400 uppercase tracking-widest">Vendor Name</Label>
+            <Label htmlFor={`edit_vendor_name_${vendor.id}`} className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Vendor Name</Label>
             <Input id={`edit_vendor_name_${vendor.id}`} name="name" defaultValue={vendor.name} placeholder="e.g. ABC Wholesale" required className="h-12 bg-foreground/5 border-border text-foreground placeholder:text-muted-foreground/40 rounded-xl focus-visible:ring-blue-500/50" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor={`edit_contact_${vendor.id}`} className="text-xs font-bold text-slate-400 uppercase tracking-widest">Contact Number</Label>
+            <Label htmlFor={`edit_contact_${vendor.id}`} className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Contact Number</Label>
             <Input id={`edit_contact_${vendor.id}`} name="contact" defaultValue={vendor.contact || ""} placeholder="e.g. +91 9876543210" className="h-12 bg-foreground/5 border-border text-foreground placeholder:text-muted-foreground/40 rounded-xl focus-visible:ring-blue-500/50" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor={`edit_email_${vendor.id}`} className="text-xs font-bold text-slate-400 uppercase tracking-widest">Email Address</Label>
+            <Label htmlFor={`edit_email_${vendor.id}`} className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Email Address</Label>
             <Input id={`edit_email_${vendor.id}`} name="email" type="email" defaultValue={vendor.email || ""} placeholder="abc@wholesale.com" className="h-12 bg-foreground/5 border-border text-foreground placeholder:text-muted-foreground/40 rounded-xl focus-visible:ring-blue-500/50" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor={`edit_address_${vendor.id}`} className="text-xs font-bold text-slate-400 uppercase tracking-widest">Address</Label>
+            <Label htmlFor={`edit_address_${vendor.id}`} className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Address</Label>
             <Input id={`edit_address_${vendor.id}`} name="address" defaultValue={vendor.address || ""} placeholder="Vendor location..." className="h-12 bg-foreground/5 border-border text-foreground placeholder:text-muted-foreground/40 rounded-xl focus-visible:ring-blue-500/50" />
           </div>
           <Button type="submit" disabled={loading} className="w-full h-14 text-lg font-bold bg-blue-600 hover:bg-blue-500 text-white mt-4 rounded-xl shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all">

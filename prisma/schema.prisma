@@ -61,6 +61,8 @@ model Item {
   id           String               @id @default(cuid())
   name         String
   unit         String
+  recipeUnit   String?
+  conversionFactor Float?           @default(1)
   currentStock Float                @default(0)
   costPerUnit  Float?
   sellPrice    Float?
@@ -125,6 +127,7 @@ model MenuItemIngredient {
   menuItemId String
   itemId     String
   quantity   Float
+  unitUsed   String?
   Item       Item     @relation(fields: [itemId], references: [id])
   MenuItem   MenuItem @relation(fields: [menuItemId], references: [id], onDelete: Cascade)
 }

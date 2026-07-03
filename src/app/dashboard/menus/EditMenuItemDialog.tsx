@@ -26,9 +26,12 @@ export function EditMenuItemDialog({
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [selectedOutletId, setSelectedOutletId] = useState(menuItem.outletId || "")
-  const [ingredients, setIngredients] = useState<{ itemId: string, quantity: number }[]>(
-    menuItem.ingredients?.map((i: any) => ({ itemId: i.itemId, quantity: i.quantity })) || []
-  )
+  const [ingredients, setIngredients] = useState<{ itemId: string, quantity: number, unitUsed?: string }>([])
+  useEffect(() => {
+    if (open) {
+      setIngredients(menuItem.ingredients?.map((i: any) => ({ itemId: i.itemId, quantity: i.quantity, unitUsed: i.unitUsed })) || [])
+    }
+  }, [open, menuItem])
 
   const cafeCategories = ["Breakfast", "Tea & Coffee", "Maggie & Pasta", "Burger & Sandwich", "Momo", "Snacks", "Mocktail", "Others"]
   const chaiCategories = ["Tea & Coffee", "Cigarette", "Beverages", "Others"]
@@ -53,9 +56,12 @@ export function EditMenuItemDialog({
     setIngredients(ingredients.filter((_, i) => i !== index))
   }
 
-  const updateIngredient = (index: number, field: "itemId" | "quantity", value: string | number) => {
+  const updateIngredient = (index: number, field: "itemId" | "quantity" | "unitUsed", value: string | number) => {
     const newIngs = [...ingredients]
     newIngs[index] = { ...newIngs[index], [field]: value }
+    if (field === "itemId") {
+      newIngs[index].unitUsed = undefined // Reset unit when item changes
+    }
     setIngredients(newIngs)
   }
 
@@ -107,6 +113,7 @@ export function EditMenuItemDialog({
             >
               <option value="" disabled className="bg-background text-muted-foreground">Select Hub...</option>
               {outlets.map(o => <option key={o.id} value={o.id} className="bg-background text-foreground">{o.name}</option>)}
+              <option value="BOTH" className="bg-indigo-600 text-white font-bold">★ Both (Chai Hub & Coffee Hub)</option>
             </select>
           </div>
 
@@ -171,11 +178,13 @@ export function EditMenuItemDialog({
                     >
                       <option value="" disabled className="bg-background text-muted-foreground">Pick Product...</option>
                       {globalItems.map(item => (
-                        <option key={item.id} value={item.id} className="bg-background text-foreground">{item.name}</option>
+                        <option key={item.id} value={item.id} className="bg-background text-foreground">
+                          {item.name} ({item.recipeUnit ? `${item.unit} / ${item.recipeUnit}` : item.unit})
+                        </option>
                       ))}
                     </select>
                   </div>
-                  <div className="col-span-3">
+                  <div className="col-span-3 relative flex items-center">
                     <Input 
                       type="number"
                       step="0.01"
@@ -183,8 +192,29 @@ export function EditMenuItemDialog({
                       value={ing.quantity}
                       onChange={(e) => updateIngredient(index, "quantity", parseFloat(e.target.value))}
                       required
-                      className="h-11 bg-foreground/10 border-border text-xs text-center font-black"
+                      className="h-11 bg-foreground/10 border-border text-xs text-center font-black pr-14"
                     />
+                    {ing.itemId && (() => {
+                      const selectedItem = globalItems.find(i => i.id === ing.itemId);
+                      if (!selectedItem) return null;
+                      if (selectedItem.recipeUnit) {
+                        return (
+                          <select 
+                            value={ing.unitUsed || selectedItem.unit}
+                            onChange={(e) => updateIngredient(index, "unitUsed", e.target.value)}
+                            className="absolute right-1 top-1/2 -translate-y-1/2 text-[10px] bg-foreground/10 hover:bg-foreground/20 text-muted-foreground font-bold outline-none rounded p-1 cursor-pointer transition-colors"
+                          >
+                            <option value={selectedItem.unit}>{selectedItem.unit}</option>
+                            <option value={selectedItem.recipeUnit}>{selectedItem.recipeUnit}</option>
+                          </select>
+                        )
+                      }
+                      return (
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-bold pointer-events-none">
+                          {selectedItem.unit}
+                        </span>
+                      )
+                    })()}
                   </div>
                   <div className="col-span-2">
                     <Button 
@@ -214,7 +244,7 @@ export function EditMenuItemDialog({
                 className="w-full h-10 px-4 py-1 text-xs rounded-lg border border-border bg-foreground/5 text-muted-foreground"
               >
                 <option value="" className="bg-background">None</option>
-                {globalItems.map(item => <option key={item.id} value={item.id} className="bg-background">{item.name}</option>)}
+                {globalItems.map(item => <option key={item.id} value={item.id} className="bg-background">{item.name} ({item.unit})</option>)}
               </select>
             </div>
           </div>

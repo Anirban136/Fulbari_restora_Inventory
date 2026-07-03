@@ -144,7 +144,15 @@ export async function closeTab(data: FormData) {
      if (menuItem.ingredients && menuItem.ingredients.length > 0) {
        for (const ingredient of menuItem.ingredients) {
          const piecesMultiplier = tabItem.isBox ? (ingredient.Item.piecesPerBox || 1) : 1
-         const totalDuction = ingredient.quantity * orderQty * piecesMultiplier
+         let baseDeduction = ingredient.quantity
+
+         // Apply dual-unit conversion if the unitUsed matches recipeUnit
+         if (ingredient.unitUsed && ingredient.unitUsed === ingredient.Item.recipeUnit) {
+           const conversion = ingredient.Item.conversionFactor || 1;
+           baseDeduction = baseDeduction / conversion;
+         }
+
+         const totalDuction = baseDeduction * orderQty * piecesMultiplier
          try {
            await prisma.outletStock.upsert({
              where: { outletId_itemId: { outletId: tab.outletId, itemId: ingredient.itemId } },

@@ -118,7 +118,7 @@ export default async function WasteTrackingPage({ searchParams }: { searchParams
               <TableBody>
                  {recentLogs.length === 0 ? (
                    <TableRow className="border-b border-foreground/10">
-                    <TableCell colSpan={isOwner ? 6 : 5} className="h-40 text-center text-slate-500">
+                    <TableCell colSpan={isOwner ? 6 : 5} className="h-40 text-center text-muted-foreground">
                       <span className="flex flex-col items-center justify-center">
                         <Search className="w-8 h-8 opacity-20 mb-2" />
                         No recent waste logs found.
@@ -128,22 +128,22 @@ export default async function WasteTrackingPage({ searchParams }: { searchParams
                  ) : (
                   recentLogs.map((log) => (
                     <TableRow key={log.id} className="border-b border-foreground/5 hover:bg-foreground/5 transition-colors group">
-                      <TableCell className="text-slate-500 font-medium whitespace-nowrap text-sm">
-                        <span className="text-slate-300">{formatDateIST(log.createdAt)}</span> <span className="opacity-50">{formatTimeIST(log.createdAt)}</span>
+                      <TableCell className="text-muted-foreground font-medium whitespace-nowrap text-sm">
+                        <span className="text-foreground">{formatDateIST(log.createdAt)}</span> <span className="opacity-50">{formatTimeIST(log.createdAt)}</span>
                       </TableCell>
                       <TableCell>
                         <div className="font-bold text-foreground/90 group-hover:text-foreground transition-colors">{log.Item.name}</div>
                         <div className="text-[10px] text-muted-foreground uppercase tracking-widest font-black mt-1">{log.notes}</div>
                       </TableCell>
                       <TableCell>
-                        <div className="text-sm font-bold text-slate-300">{log.Vendor?.name || "None"}</div>
+                        <div className="text-sm font-bold text-foreground">{log.Vendor?.name || "None"}</div>
                       </TableCell>
                       <TableCell className="text-right">
                         <span className="inline-flex text-red-400 font-black tracking-widest text-sm drop-shadow-[0_0_8px_rgba(239,68,68,0.3)]">
                           -{log.quantity} <span className="text-[10px] ml-1 opacity-70 uppercase font-black">{log.Item.piecesPerBox ? 'pcs' : log.Item.unit}</span>
                         </span>
                       </TableCell>
-                      <TableCell className="text-slate-500 text-sm font-medium">{log.User.name}</TableCell>
+                      <TableCell className="text-muted-foreground text-sm font-medium">{log.User.name}</TableCell>
                       {isOwner && (
                         <TableCell className="text-center">
                           <Dialog>

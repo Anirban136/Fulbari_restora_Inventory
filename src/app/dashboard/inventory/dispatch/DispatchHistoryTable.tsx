@@ -131,7 +131,7 @@ export function DispatchHistoryTable({
           <TableBody>
             {filteredDispatches.length === 0 ? (
               <TableRow className="border-b border-foreground/10 hover:bg-transparent">
-                <TableCell colSpan={isOwner ? 5 : 4} className="h-40 text-center text-slate-500">
+                <TableCell colSpan={isOwner ? 5 : 4} className="h-40 text-center text-muted-foreground">
                   <span className="flex flex-col items-center justify-center">
                     <Search className="w-8 h-8 opacity-20 mb-2" />
                     No shipments found matching these filters.
@@ -143,8 +143,8 @@ export function DispatchHistoryTable({
                 const destinationOutlet = outlets.find(o => o.id === log.outletId)
                 return (
                   <TableRow key={log.id} className="border-b border-foreground/5 hover:bg-foreground/5 transition-colors group">
-                    <TableCell className="text-slate-500 font-medium whitespace-nowrap text-xs">
-                      <span className="text-slate-300 block">{formatDateIST(log.createdAt)}</span>
+                    <TableCell className="text-muted-foreground font-medium whitespace-nowrap text-xs">
+                      <span className="text-foreground block">{formatDateIST(log.createdAt)}</span>
                       <span className="opacity-50 text-[10px]">{formatTimeIST(log.createdAt)}</span>
                     </TableCell>
                     <TableCell>
@@ -157,7 +157,7 @@ export function DispatchHistoryTable({
                         destinationOutlet?.type === 'RESTAURANT' ? "bg-rose-500/10 text-rose-500" :
                         destinationOutlet?.type === 'CAFE' ? "bg-amber-500/10 text-amber-500" :
                         destinationOutlet?.type === 'CHAI_JOINT' ? "bg-blue-500/10 text-blue-500" :
-                        "bg-foreground/5 text-slate-400"
+                        "bg-foreground/5 text-muted-foreground"
                       )}>
                         {destinationOutlet?.name}
                       </span>
@@ -190,7 +190,7 @@ export function DispatchHistoryTable({
                                    <Edit className="w-6 h-6 text-blue-400" />
                                  </div>
                                  <DialogTitle className="text-xl font-black text-foreground text-left">Edit Dispatch Quantity</DialogTitle>
-                                 <DialogDescription className="text-slate-400 leading-relaxed text-left">
+                                 <DialogDescription className="text-muted-foreground leading-relaxed text-left">
                                    Modify the dispatched quantity of <span className="text-foreground font-bold">{log.Item.name}</span> to <span className="text-foreground font-bold">{destinationOutlet?.name}</span>. Currently dispatched: <span className="text-blue-400 font-bold">{log.quantity} {log.Item.piecesPerBox ? 'pcs' : log.Item.unit}</span>.
                                  </DialogDescription>
                                </DialogHeader>
@@ -229,7 +229,7 @@ export function DispatchHistoryTable({
                                    <Undo2 className="w-6 h-6 text-amber-400" />
                                  </div>
                                  <DialogTitle className="text-xl font-black text-foreground text-left">Revert Dispatch?</DialogTitle>
-                                 <DialogDescription className="text-slate-400 leading-relaxed text-left">
+                                 <DialogDescription className="text-muted-foreground leading-relaxed text-left">
                                    This will reverse the dispatch of <span className="text-blue-400 font-bold">{log.quantity} {log.Item.piecesPerBox ? 'pcs' : log.Item.unit}</span> of <span className="text-foreground font-bold">{log.Item.name}</span> to <span className="text-foreground font-bold">{destinationOutlet?.name}</span>. central stock will be restored.
                                  </DialogDescription>
                                </DialogHeader>

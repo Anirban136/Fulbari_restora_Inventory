@@ -76,7 +76,7 @@ export function PayVendorDialog({ vendor, balanceDue, wasteDeductions = 0 }: Pay
           <DialogTitle className="text-xl font-black text-foreground">
             Pay {vendor.name}
           </DialogTitle>
-          <DialogDescription className="text-slate-400 leading-relaxed">
+          <DialogDescription className="text-muted-foreground leading-relaxed">
             Outstanding balance: <span className="text-emerald-400 font-bold">₹{balanceDue.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
           </DialogDescription>
         </DialogHeader>
@@ -112,17 +112,17 @@ export function PayVendorDialog({ vendor, balanceDue, wasteDeductions = 0 }: Pay
           {/* Divider */}
           <div className="flex items-center gap-4">
             <div className="flex-1 h-px bg-border"></div>
-            <span className="text-[10px] text-slate-500 uppercase tracking-widest font-bold">or custom amount</span>
+            <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-bold">or custom amount</span>
             <div className="flex-1 h-px bg-border"></div>
           </div>
 
           {/* Custom Amount Input */}
           <div className="space-y-2">
-            <Label htmlFor="customAmount" className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            <Label htmlFor="customAmount" className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
               Custom Amount (₹)
             </Label>
             <div className="relative">
-              <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 id="customAmount"
                 type="number"
@@ -140,7 +140,7 @@ export function PayVendorDialog({ vendor, balanceDue, wasteDeductions = 0 }: Pay
 
           {/* Optional Notes */}
           <div className="space-y-2">
-            <Label htmlFor="payNotes" className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            <Label htmlFor="payNotes" className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
               Notes (Optional)
             </Label>
             <Input

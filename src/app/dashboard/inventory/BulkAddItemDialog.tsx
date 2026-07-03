@@ -135,7 +135,7 @@ export function BulkAddItemDialog({ existingCategories = [] }: { existingCategor
                <PackageOpen className="w-8 h-8 sm:w-10 sm:h-10 text-indigo-500" />
              </div>
             <DialogTitle className="text-3xl sm:text-4xl font-black text-foreground tracking-tighter uppercase leading-none">Bulk Item Entry</DialogTitle>
-            <DialogDescription className="text-slate-400 font-medium mt-4 tracking-tight leading-relaxed text-sm">
+            <DialogDescription className="text-muted-foreground font-medium mt-4 tracking-tight leading-relaxed text-sm">
               Add multiple items to the <span className="text-indigo-500 font-black uppercase">Global Repository</span> efficiently.
             </DialogDescription>
           </DialogHeader>

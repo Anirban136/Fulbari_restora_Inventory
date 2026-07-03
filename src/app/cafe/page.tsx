@@ -281,7 +281,7 @@ export default async function CafeDashboard({ searchParams }: { searchParams: Pr
                <div className="glass-panel rounded-[2.5rem] overflow-hidden border-border bg-foreground/5 shadow-xl">
                  <div className="flex-1 overflow-auto max-h-[700px] p-6 lg:p-8 space-y-4 custom-scrollbar-premium">
                     {recentTabs.length === 0 ? (
-                      <div className="flex flex-col items-center justify-center text-slate-500 py-32 opacity-20">
+                      <div className="flex flex-col items-center justify-center text-muted-foreground py-32 opacity-20">
                         <Receipt className="w-16 h-16 mb-4" />
                         <p className="font-black tracking-[0.4em] uppercase text-xs">No transactions recorded</p>
                       </div>
@@ -354,7 +354,7 @@ export default async function CafeDashboard({ searchParams }: { searchParams: Pr
                                    )}
                                    {(tab.status === "CLOSED" || tab.status === "CANCELLED") && (
                                     <form action={reopenTab.bind(null, tab.id)}>
-                                      <Button type="submit" variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-slate-400 hover:text-amber-400 hover:bg-amber-500/10 border border-foreground/5 hover:border-amber-500/20 transition-all">
+                                      <Button type="submit" variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-muted-foreground hover:text-amber-400 hover:bg-amber-500/10 border border-foreground/5 hover:border-amber-500/20 transition-all">
                                         <Edit className="w-4 h-4" />
                                       </Button>
                                     </form>
@@ -376,14 +376,14 @@ export default async function CafeDashboard({ searchParams }: { searchParams: Pr
                     <h2 className="text-sm font-black text-foreground uppercase tracking-[0.3em] flex items-center gap-3">
                       <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></div> Live Stock
                     </h2>
-                    <span className="text-[10px] font-black text-slate-500 uppercase tracking-tighter italic opacity-50">Real-time update</span>
+                    <span className="text-[10px] font-black text-muted-foreground uppercase tracking-tighter italic opacity-50">Real-time update</span>
                   </div>
 
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-3 overflow-auto custom-scrollbar-premium max-h-[600px] pr-2">
                      {localStock.length === 0 ? (
                        <div className="flex flex-col items-center justify-center py-10 opacity-30 gap-4">
                           <PackageOpen className="w-10 h-10" />
-                          <p className="text-slate-600 text-[10px] font-black uppercase tracking-widest text-center">Pantry Empty</p>
+                          <p className="text-muted-foreground text-[10px] font-black uppercase tracking-widest text-center">Pantry Empty</p>
                        </div>
                      ) : (
                        localStock.map(stock => (
@@ -396,7 +396,7 @@ export default async function CafeDashboard({ searchParams }: { searchParams: Pr
                                   </p>
                                   <div className="flex items-center gap-1.5">
                                      <div className="w-1.5 h-1.5 rounded-full bg-emerald-500/40 group-hover:bg-emerald-500 transition-colors"></div>
-                                     <span className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Available</span>
+                                     <span className="text-[8px] font-bold text-muted-foreground uppercase tracking-widest">Available</span>
                                   </div>
                                </div>
                                <div className="flex flex-col items-end">
@@ -409,7 +409,7 @@ export default async function CafeDashboard({ searchParams }: { searchParams: Pr
                                      </span>
                                   </div>
                                   {stock.Item.piecesPerBox && (
-                                     <span className="text-[8px] font-black text-slate-600 uppercase tracking-tighter">
+                                     <span className="text-[8px] font-black text-muted-foreground uppercase tracking-tighter">
                                        {(stock.quantity / stock.Item.piecesPerBox).toFixed(1)} {stock.Item.unit}
                                      </span>
                                   )}
@@ -442,8 +442,8 @@ export default async function CafeDashboard({ searchParams }: { searchParams: Pr
                     {incomingDispatches.map(log => (
                       <div key={log.id} className="flex items-center justify-between p-5 rounded-2xl border border-foreground/5 bg-foreground/[0.02] hover:bg-foreground/[0.04] transition-all">
                         <div>
-                          <p className="text-[9px] font-black text-slate-500 mb-1 uppercase tracking-widest">{formatTimeIST(log.createdAt)}</p>
-                          <span className="font-black text-slate-200 text-sm uppercase">{log.Item.name}</span>
+                          <p className="text-[9px] font-black text-muted-foreground mb-1 uppercase tracking-widest">{formatTimeIST(log.createdAt)}</p>
+                          <span className="font-black text-foreground text-sm uppercase">{log.Item.name}</span>
                         </div>
                         <div className="text-right">
                           <span className="font-black text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-lg text-sm">

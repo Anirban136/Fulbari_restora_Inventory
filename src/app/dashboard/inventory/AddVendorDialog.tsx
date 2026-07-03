@@ -50,25 +50,25 @@ export function AddVendorDialog() {
              <Users className="w-6 h-6 text-primary" />
            </div>
           <DialogTitle className="text-2xl font-black text-foreground">Add New Vendor</DialogTitle>
-          <DialogDescription className="text-slate-400">
+          <DialogDescription className="text-muted-foreground">
             Register a new supplier to link with catalog items.
           </DialogDescription>
         </DialogHeader>
         <form action={handleSubmit} className="space-y-5">
           <div className="space-y-2">
-            <Label htmlFor="vendor_name" className="text-xs font-bold text-slate-400 uppercase tracking-widest">Vendor Name</Label>
+            <Label htmlFor="vendor_name" className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Vendor Name</Label>
             <Input id="vendor_name" name="name" placeholder="e.g. ABC Wholesale" required className="h-12 bg-foreground/5 border-border text-foreground placeholder:text-muted-foreground/40 rounded-xl focus-visible:ring-primary/50" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="contact" className="text-xs font-bold text-slate-400 uppercase tracking-widest">Contact Number</Label>
+            <Label htmlFor="contact" className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Contact Number</Label>
             <Input id="contact" name="contact" placeholder="e.g. +91 9876543210" className="h-12 bg-foreground/5 border-border text-foreground placeholder:text-muted-foreground/40 rounded-xl focus-visible:ring-primary/50" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="address" className="text-xs font-bold text-slate-400 uppercase tracking-widest">Address</Label>
+            <Label htmlFor="address" className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Address</Label>
             <Input id="address" name="address" placeholder="Vendor location..." className="h-12 bg-foreground/5 border-border text-foreground placeholder:text-muted-foreground/40 rounded-xl focus-visible:ring-primary/50" />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="openingBalance" className="text-xs font-bold text-slate-400 uppercase tracking-widest text-amber-500">Opening Balance (₹)</Label>
+            <Label htmlFor="openingBalance" className="text-xs font-bold text-muted-foreground uppercase tracking-widest text-amber-500">Opening Balance (₹)</Label>
             <Input id="openingBalance" name="openingBalance" type="number" step="0.01" placeholder="Initial debt (if any)" className="h-12 bg-amber-500/5 border-amber-500/20 text-foreground placeholder:text-muted-foreground/40 rounded-xl focus-visible:ring-amber-500/50" />
           </div>
           <Button type="submit" disabled={loading} className="w-full h-14 text-lg font-bold bg-primary text-primary-foreground hover:bg-primary/90 mt-4 rounded-xl shadow-lg transition-all active:scale-[0.98]">

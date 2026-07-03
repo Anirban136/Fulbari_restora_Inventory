@@ -14,7 +14,7 @@ export function WasteTimeFilter() {
         const val = e.target.value
         router.push(val === "all" ? "/dashboard/inventory/waste" : `/dashboard/inventory/waste?filter=${val}`)
       }}
-      className="h-8 px-3 rounded-lg border border-foreground/10 bg-black/40 text-xs font-bold text-slate-300 focus:outline-none focus:ring-1 focus:ring-red-500/50 shadow-inner"
+      className="h-8 px-3 rounded-lg border border-foreground/10 bg-black/40 text-xs font-bold text-foreground focus:outline-none focus:ring-1 focus:ring-red-500/50 shadow-inner"
     >
       <option value="all" className="bg-background text-foreground">All Time</option>
       <option value="today" className="bg-background text-foreground">Today</option>

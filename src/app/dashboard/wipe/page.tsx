@@ -52,7 +52,7 @@ export default function WipePage() {
       </div>
       <div>
         <h1 className="text-3xl font-black text-foreground mb-2">Reset Test Data</h1>
-        <p className="text-slate-400 max-w-md mx-auto">
+        <p className="text-muted-foreground max-w-md mx-auto">
           This will securely wipe all your test orders, inventory items, vendors, and menus so you can start fresh. <br/> <strong className="text-emerald-400">Your accounts, passwords, and outlets will be kept safe.</strong>
         </p>
       </div>
@@ -73,16 +73,16 @@ export default function WipePage() {
               <ShieldCheck className="w-6 h-6" />
             </div>
             <DialogTitle className="text-2xl font-bold text-foreground">Security Verification</DialogTitle>
-            <DialogDescription className="text-slate-400 text-base">
+            <DialogDescription className="text-muted-foreground text-base">
               This action is destructive and cannot be undone. To proceed, please enter your <strong className="text-foreground">Admin PIN</strong> for confirmation.
             </DialogDescription>
           </DialogHeader>
           
           <div className="grid gap-4 py-4">
             <div className="grid gap-2">
-              <Label htmlFor="pin" className="text-slate-300 ml-1">Admin PIN</Label>
+              <Label htmlFor="pin" className="text-foreground ml-1">Admin PIN</Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
                 <Input
                   id="pin"
                   type="password"
@@ -108,7 +108,7 @@ export default function WipePage() {
               type="button" 
               variant="outline" 
               onClick={() => setShowConfirm(false)}
-              className="rounded-xl border-foreground/10 hover:bg-foreground/5 text-slate-300"
+              className="rounded-xl border-foreground/10 hover:bg-foreground/5 text-foreground"
             >
               Cancel
             </Button>

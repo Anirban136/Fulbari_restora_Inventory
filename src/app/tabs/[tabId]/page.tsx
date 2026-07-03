@@ -71,7 +71,7 @@ export default async function TabTerminal({ params }: { params: Promise<{ tabId:
               <span className="text-3xl font-black text-foreground">₹{tab.totalAmount.toFixed(0)}</span>
             </div>
             <div className="flex justify-between items-center mt-2">
-              <span className="text-xs text-slate-500 uppercase tracking-widest">Payment</span>
+              <span className="text-xs text-muted-foreground uppercase tracking-widest">Payment</span>
               <span className={`text-xs font-bold uppercase tracking-widest ${isCafe ? "text-orange-400" : "text-sky-400"}`}>{tab.paymentMode || "N/A"}</span>
             </div>
           </div>
@@ -172,7 +172,7 @@ export default async function TabTerminal({ params }: { params: Promise<{ tabId:
 
         <div className="flex-1 overflow-auto p-4">
           {tab.Items.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-slate-500 animate-in fade-in duration-500">
+            <div className="h-full flex flex-col items-center justify-center text-muted-foreground animate-in fade-in duration-500">
               <ShoppingCart className="w-16 h-16 mb-4 opacity-20" />
               <p className="font-medium tracking-wide">Awaiting Order</p>
             </div>

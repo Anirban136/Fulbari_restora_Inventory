@@ -55,7 +55,7 @@ export default async function PasscodeManagementPage() {
                     </div>
                   </td>
                   <td className="px-8 py-6">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-foreground/5 border border-foreground/10 text-slate-400">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest bg-foreground/5 border border-foreground/10 text-muted-foreground">
                       {u.role.replace('_', ' ')}
                     </span>
                   </td>

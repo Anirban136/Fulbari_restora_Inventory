@@ -67,7 +67,7 @@ export function AddManualBillDialog({ vendor }: AddManualBillDialogProps) {
           <DialogTitle className="text-xl font-black text-foreground">
             Add Manual Bill
           </DialogTitle>
-          <DialogDescription className="text-slate-400 leading-relaxed">
+          <DialogDescription className="text-muted-foreground leading-relaxed">
             Record a historical or external purchase for <span className="text-amber-400 font-bold">{vendor.name}</span>. This will increase the balance due.
           </DialogDescription>
         </DialogHeader>
@@ -76,11 +76,11 @@ export function AddManualBillDialog({ vendor }: AddManualBillDialogProps) {
           <input type="hidden" name="vendorId" value={vendor.id} />
 
           <div className="space-y-2">
-            <Label htmlFor="amount" className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            <Label htmlFor="amount" className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
               Bill Amount (₹)
             </Label>
             <div className="relative">
-              <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <IndianRupee className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
                 id="amount"
                 name="amount"
@@ -95,7 +95,7 @@ export function AddManualBillDialog({ vendor }: AddManualBillDialogProps) {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="notes" className="text-xs font-bold text-slate-400 uppercase tracking-widest">
+            <Label htmlFor="notes" className="text-xs font-bold text-muted-foreground uppercase tracking-widest">
               Description / Reference
             </Label>
             <Input

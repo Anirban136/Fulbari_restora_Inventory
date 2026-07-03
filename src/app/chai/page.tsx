@@ -400,7 +400,7 @@ export default async function ChaiDashboard({ searchParams }: { searchParams: Pr
                                    )}
                                    {(tab.status === "CLOSED" || tab.status === "CANCELLED") && (
                                     <form action={reopenTab.bind(null, tab.id)}>
-                                      <Button type="submit" variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 border border-foreground/5 hover:border-blue-500/20 transition-all">
+                                      <Button type="submit" variant="ghost" size="icon" className="h-10 w-10 rounded-xl text-muted-foreground hover:text-blue-400 hover:bg-blue-500/10 border border-foreground/5 hover:border-blue-500/20 transition-all">
                                         <Edit className="w-4 h-4" />
                                       </Button>
                                     </form>

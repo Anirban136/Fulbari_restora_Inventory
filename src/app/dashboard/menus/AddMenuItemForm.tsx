@@ -21,7 +21,7 @@ export function AddMenuItemForm({
   existingCategories: string[]
 }) {
   const [selectedOutletId, setSelectedOutletId] = useState("")
-  const [ingredients, setIngredients] = useState<{ itemId: string, quantity: number }[]>([])
+  const [ingredients, setIngredients] = useState<{ itemId: string, quantity: number, unitUsed?: string }>([])
   const [loading, setLoading] = useState(false)
   const listId = useId()
 
@@ -57,9 +57,12 @@ export function AddMenuItemForm({
     setIngredients(ingredients.filter((_, i) => i !== index))
   }
 
-  const updateIngredient = (index: number, field: "itemId" | "quantity", value: string | number) => {
+  const updateIngredient = (index: number, field: "itemId" | "quantity" | "unitUsed", value: string | number) => {
     const newIngs = [...ingredients]
     newIngs[index] = { ...newIngs[index], [field]: value }
+    if (field === "itemId") {
+      newIngs[index].unitUsed = undefined // Reset unit when item changes
+    }
     setIngredients(newIngs)
   }
 
@@ -186,11 +189,13 @@ export function AddMenuItemForm({
                   >
                     <option value="" disabled className="bg-background text-muted-foreground">Pick Item...</option>
                     {globalItems.map(item => (
-                      <option key={item.id} value={item.id} className="bg-background text-foreground">{item.name} ({item.unit})</option>
+                      <option key={item.id} value={item.id} className="bg-background text-foreground">
+                        {item.name} ({item.recipeUnit ? `${item.unit} / ${item.recipeUnit}` : item.unit})
+                      </option>
                     ))}
                   </select>
                 </div>
-                <div className="col-span-3">
+                <div className="col-span-3 relative flex items-center">
                   <Input 
                     type="number"
                     step="0.01"
@@ -199,8 +204,29 @@ export function AddMenuItemForm({
                     value={ing.quantity}
                     onChange={(e) => updateIngredient(index, "quantity", parseFloat(e.target.value))}
                     required
-                    className="h-11 bg-foreground/10 border-border text-xs text-center font-bold"
+                    className="h-11 bg-foreground/10 border-border text-xs text-center font-bold pr-14"
                   />
+                  {ing.itemId && (() => {
+                    const selectedItem = globalItems.find(i => i.id === ing.itemId);
+                    if (!selectedItem) return null;
+                    if (selectedItem.recipeUnit) {
+                      return (
+                        <select 
+                          value={ing.unitUsed || selectedItem.unit}
+                          onChange={(e) => updateIngredient(index, "unitUsed", e.target.value)}
+                          className="absolute right-1 top-1/2 -translate-y-1/2 text-[10px] bg-foreground/10 hover:bg-foreground/20 text-muted-foreground font-bold outline-none rounded p-1 cursor-pointer transition-colors"
+                        >
+                          <option value={selectedItem.unit}>{selectedItem.unit}</option>
+                          <option value={selectedItem.recipeUnit}>{selectedItem.recipeUnit}</option>
+                        </select>
+                      )
+                    }
+                    return (
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-bold pointer-events-none">
+                        {selectedItem.unit}
+                      </span>
+                    )
+                  })()}
                 </div>
                 <div className="col-span-2">
                   <Button 

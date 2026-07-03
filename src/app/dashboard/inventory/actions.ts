@@ -156,12 +156,17 @@ export async function addItem(data: FormData) {
   const minStock = minStockRaw ? parseFloat(minStockRaw) : 0
   const piecesPerBoxRaw = data.get("piecesPerBox") as string
   const piecesPerBox = piecesPerBoxRaw ? parseInt(piecesPerBoxRaw) : null
+  const recipeUnit = data.get("recipeUnit") as string
+  const conversionFactorRaw = data.get("conversionFactor") as string
+  const conversionFactor = conversionFactorRaw ? parseFloat(conversionFactorRaw) : 1
 
   await (prisma.item as any).create({
     data: { 
       name, 
       category,
       unit, 
+      recipeUnit: recipeUnit || null,
+      conversionFactor,
       costPerUnit,
       sellPrice,
       minStock,
@@ -189,6 +194,8 @@ export async function addBulkItems(items: any[]) {
     sellPrice: item.sellPrice ? parseFloat(item.sellPrice) : null,
     minStock: item.minStock ? parseFloat(item.minStock) : 0,
     piecesPerBox: item.piecesPerBox ? parseInt(item.piecesPerBox) : null,
+    recipeUnit: item.recipeUnit || null,
+    conversionFactor: item.conversionFactor ? parseFloat(item.conversionFactor) : 1,
   }))
 
   try {
@@ -229,6 +236,10 @@ export async function updateItem(data: FormData) {
   const piecesPerBoxRaw = data.get("piecesPerBox") as string
   const piecesPerBox = piecesPerBoxRaw ? parseInt(piecesPerBoxRaw) : null
 
+  const recipeUnit = data.get("recipeUnit") as string
+  const conversionFactorRaw = data.get("conversionFactor") as string
+  const conversionFactor = conversionFactorRaw ? parseFloat(conversionFactorRaw) : 1
+
   const existingItem = await prisma.item.findUnique({ where: { id: itemId } })
   if (!existingItem) throw new Error("Item not found")
 
@@ -238,6 +249,8 @@ export async function updateItem(data: FormData) {
       name, 
       category,
       unit, 
+      recipeUnit: recipeUnit || null,
+      conversionFactor,
       costPerUnit,
       sellPrice,
       minStock,

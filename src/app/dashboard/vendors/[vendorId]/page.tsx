@@ -185,10 +185,10 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
                 </div>
                 <div>
                   <h1 className="text-2xl font-black text-foreground tracking-tight">{vendor.name}</h1>
-                  <p className="text-xs text-slate-500 uppercase tracking-widest font-bold">Vendor Audit History</p>
+                  <p className="text-xs text-muted-foreground uppercase tracking-widest font-bold">Vendor Audit History</p>
                 </div>
               </div>
-              <div className="flex flex-wrap gap-4 text-sm text-slate-400">
+              <div className="flex flex-wrap gap-4 text-sm text-muted-foreground">
                 {vendor.contact && (
                   <span className="flex items-center gap-1.5">
                     <Phone className="w-3.5 h-3.5 text-emerald-500/70" /> {vendor.contact}
@@ -229,7 +229,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
             <IndianRupee className="w-5 h-5 text-amber-400" />
             {totalPurchased.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </span>
-          <p className="text-[10px] text-slate-500 mt-1 uppercase">All-time purchases</p>
+          <p className="text-[10px] text-muted-foreground mt-1 uppercase">All-time purchases</p>
         </div>
 
         <div className="glass-panel p-5 rounded-2xl border-emerald-500/10">
@@ -243,7 +243,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
             <IndianRupee className="w-5 h-5 text-emerald-400" />
             {totalPaid.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </span>
-          <p className="text-[10px] text-slate-500 mt-1 uppercase">All-time payments</p>
+          <p className="text-[10px] text-muted-foreground mt-1 uppercase">All-time payments</p>
         </div>
 
         <div className={`glass-panel p-5 rounded-2xl ${balanceDue > 0 ? 'border-red-500/10' : 'border-emerald-500/10'}`}>
@@ -257,7 +257,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
             <IndianRupee className="w-5 h-5" />
             {Math.abs(balanceDue).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </span>
-          <p className="text-[10px] text-slate-500 mt-1 uppercase">{balanceDue > 0 ? 'Outstanding' : 'Settled ✓'}</p>
+          <p className="text-[10px] text-muted-foreground mt-1 uppercase">{balanceDue > 0 ? 'Outstanding' : 'Settled ✓'}</p>
         </div>
 
         <div className="glass-panel p-5 rounded-2xl border-purple-500/10">
@@ -268,7 +268,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
             <span className="text-[10px] font-black text-purple-400 uppercase tracking-widest">Transactions</span>
           </div>
           <span className="text-2xl font-black text-foreground">{totalTransactions}</span>
-          <p className="text-[10px] text-slate-500 mt-1 uppercase">Total entries</p>
+          <p className="text-[10px] text-muted-foreground mt-1 uppercase">Total entries</p>
         </div>
 
         <div className="glass-panel p-5 rounded-2xl border-red-500/10">
@@ -282,7 +282,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
             <IndianRupee className="w-5 h-5 text-red-400" />
             {totalWaste.toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
           </span>
-          <p className="text-[10px] text-slate-500 mt-1 uppercase">Waste Return</p>
+          <p className="text-[10px] text-muted-foreground mt-1 uppercase">Waste Return</p>
         </div>
       </div>
 
@@ -291,13 +291,13 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
         <div className="px-6 py-4 border-b border-foreground/5 flex items-center justify-between">
           <h3 className="text-lg font-black text-foreground tracking-tight flex items-center gap-2">
             Transaction Ledger
-            <span className="text-xs font-medium text-slate-500 bg-foreground/5 px-2 py-0.5 rounded-full">{totalTransactions} entries</span>
+            <span className="text-xs font-medium text-muted-foreground bg-foreground/5 px-2 py-0.5 rounded-full">{totalTransactions} entries</span>
           </h3>
         </div>
 
         <div className="p-0 max-h-[65vh] overflow-auto custom-scrollbar-premium">
           {ledger.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-20 text-slate-500">
+            <div className="flex flex-col items-center justify-center py-20 text-muted-foreground">
               <Package className="w-12 h-12 opacity-20 mb-3" />
               <p className="text-sm">No transactions with this vendor yet.</p>
             </div>
@@ -311,7 +311,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
                 <div key={month}>
                   {/* Month Header */}
                   <div className="sticky top-0 z-10 bg-background/90 backdrop-blur-md px-6 py-3 border-b border-border flex items-center justify-between">
-                    <span className="text-sm font-black text-slate-300 uppercase tracking-widest">{month}</span>
+                    <span className="text-sm font-black text-foreground uppercase tracking-widest">{month}</span>
                     <div className="flex items-center gap-4 text-xs font-bold">
                       <span className="text-amber-400 flex items-center gap-1">
                         <TrendingUp className="w-3 h-3" />
@@ -333,13 +333,13 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
                   <Table>
                     <TableHeader>
                       <TableRow className="border-b border-foreground/5 hover:bg-transparent">
-                        <TableHead className="text-[10px] font-bold text-slate-500 uppercase tracking-widest h-10 px-6">Date</TableHead>
-                        <TableHead className="text-[10px] font-bold text-slate-500 uppercase tracking-widest h-10 px-6">Type</TableHead>
-                        <TableHead className="text-[10px] font-bold text-slate-500 uppercase tracking-widest h-10 px-6">Description</TableHead>
-                        <TableHead className="text-[10px] font-bold text-slate-500 uppercase tracking-widest h-10 px-6">By</TableHead>
-                        <TableHead className="text-[10px] font-bold text-slate-500 uppercase tracking-widest h-10 px-6 text-right">Debit (₹)</TableHead>
-                        <TableHead className="text-[10px] font-bold text-slate-500 uppercase tracking-widest h-10 px-6 text-right">Credit (₹)</TableHead>
-                        <TableHead className="text-[10px] font-bold text-slate-500 uppercase tracking-widest h-10 px-6 text-right">Balance (₹)</TableHead>
+                        <TableHead className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest h-10 px-6">Date</TableHead>
+                        <TableHead className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest h-10 px-6">Type</TableHead>
+                        <TableHead className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest h-10 px-6">Description</TableHead>
+                        <TableHead className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest h-10 px-6">By</TableHead>
+                        <TableHead className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest h-10 px-6 text-right">Debit (₹)</TableHead>
+                        <TableHead className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest h-10 px-6 text-right">Credit (₹)</TableHead>
+                        <TableHead className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest h-10 px-6 text-right">Balance (₹)</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -347,8 +347,8 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
                         <TableRow key={entry.id} className="border-b border-border hover:bg-foreground/[0.03] transition-colors">
                           {/* Date */}
                           <TableCell className="px-6 py-4">
-                            <div className="text-xs text-slate-300 font-medium">{formatDateIST(entry.date)}</div>
-                            <div className="text-[10px] text-slate-500">{formatTimeIST(entry.date)}</div>
+                            <div className="text-xs text-foreground font-medium">{formatDateIST(entry.date)}</div>
+                            <div className="text-[10px] text-muted-foreground">{formatTimeIST(entry.date)}</div>
                           </TableCell>
 
                           {/* Type Badge */}
@@ -373,9 +373,9 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
 
                           {/* Description */}
                           <TableCell className="px-6 py-4">
-                            <div className="text-sm text-slate-200 font-medium">{entry.description}</div>
+                            <div className="text-sm text-foreground font-medium">{entry.description}</div>
                             {entry.type === 'PURCHASE' && entry.rate !== undefined && entry.rate > 0 && (
-                              <div className="text-[10px] text-slate-500 mt-0.5">
+                              <div className="text-[10px] text-muted-foreground mt-0.5">
                                 {entry.isPieceBased ? (
                                     <>
                                         @ ₹{entry.rate.toFixed(2)} /piece 
@@ -390,7 +390,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
 
                           {/* User */}
                           <TableCell className="px-6 py-4">
-                            <span className="text-xs text-slate-400">{entry.user}</span>
+                            <span className="text-xs text-muted-foreground">{entry.user}</span>
                           </TableCell>
 
                           {/* Debit */}
@@ -400,7 +400,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
                                 {entry.debit.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                               </span>
                             ) : (
-                              <span className="text-xs text-slate-600">—</span>
+                              <span className="text-xs text-muted-foreground">—</span>
                             )}
                           </TableCell>
 
@@ -411,7 +411,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
                                 {entry.credit.toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                               </span>
                             ) : (
-                              <span className="text-xs text-slate-600">—</span>
+                              <span className="text-xs text-muted-foreground">—</span>
                             )}
                           </TableCell>
 
@@ -435,7 +435,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
         {ledger.length > 0 && (
           <div className="px-6 py-4 border-t border-border bg-muted/40 backdrop-blur-md">
             <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Closing Balance</span>
+              <span className="text-xs font-bold text-muted-foreground uppercase tracking-widest">Closing Balance</span>
               <div className="flex items-center gap-6">
                 <div className="text-right">
                   <span className="text-[10px] text-amber-400/60 uppercase block">Total Debit</span>
@@ -450,7 +450,7 @@ export default async function VendorDetailPage({ params }: { params: Promise<{ v
                   <span className="text-sm font-black text-red-400">₹{totalWaste.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
                 </div>
                 <div className="text-right pl-4 border-l border-foreground/10">
-                  <span className="text-[10px] text-slate-500 uppercase block">Net Balance</span>
+                  <span className="text-[10px] text-muted-foreground uppercase block">Net Balance</span>
                   <span className={`text-lg font-black ${balanceDue > 0 ? 'text-red-400' : 'text-emerald-400'}`}>
                     ₹{Math.abs(balanceDue).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
                   </span>
