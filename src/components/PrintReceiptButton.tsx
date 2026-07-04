@@ -10,7 +10,10 @@ const PRINTER_SERVICES = [
   '49535343-fe7d-4ae5-8fa9-9fafd205e455',
   'e7810a71-73ae-499d-8c15-faa9aef0c3f2',
   '0000ffe0-0000-1000-8000-00805f9b34fb',
+  '0000ffe1-0000-1000-8000-00805f9b34fb', // Very common HM-10 serial modules
+  '0000ae30-0000-1000-8000-00805f9b34fb', // Common in budget Chinese printers (PT-210, MPT-II)
   '0000fee7-0000-1000-8000-00805f9b34fb',
+  '0000af30-0000-1000-8000-00805f9b34fb',
 ]
 
 interface PrintReceiptButtonProps {
