@@ -21,7 +21,7 @@ export function AddMenuItemForm({
   existingCategories: string[]
 }) {
   const [selectedOutletId, setSelectedOutletId] = useState("")
-  const [ingredients, setIngredients] = useState<{ itemId: string, quantity: number, unitUsed?: string }>([])
+  const [ingredients, setIngredients] = useState<{ itemId: string, quantity: number, unitUsed?: string }[]>([])
   const [loading, setLoading] = useState(false)
   const listId = useId()
 

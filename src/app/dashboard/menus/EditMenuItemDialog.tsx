@@ -26,7 +26,7 @@ export function EditMenuItemDialog({
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const [selectedOutletId, setSelectedOutletId] = useState(menuItem.outletId || "")
-  const [ingredients, setIngredients] = useState<{ itemId: string, quantity: number, unitUsed?: string }>([])
+  const [ingredients, setIngredients] = useState<{ itemId: string, quantity: number, unitUsed?: string }[]>([])
   useEffect(() => {
     if (open) {
       setIngredients(menuItem.ingredients?.map((i: any) => ({ itemId: i.itemId, quantity: i.quantity, unitUsed: i.unitUsed })) || [])

@@ -117,7 +117,6 @@ export function EditItemDialog({
                   <option value="pcs" className="bg-background text-foreground">Pieces (pcs)</option>
                 </select>
               </div>
-              </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

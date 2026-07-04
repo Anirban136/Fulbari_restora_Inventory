@@ -111,7 +111,6 @@ export function AddItemDialog({ existingCategories = [], variant = "default" }: 
                   <option value="pcs" className="bg-background text-foreground">Pieces (pcs)</option>
                 </select>
               </div>
-              </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
