@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef, useCallback } from "react"
+import { useState, useRef, useCallback, useEffect } from "react"
 import { Printer, Loader2, CheckCircle2, AlertCircle, Bluetooth, BluetoothOff } from "lucide-react"
 
 // Known service UUIDs for thermal printers
@@ -155,6 +155,11 @@ function generateReceiptBytes(data: {
   return encoder.encode(r)
 }
 
+// Persistent global variables to keep Bluetooth connection active across component unmounts
+let globalDevice: any = null
+let globalChar: any = null
+let globalDeviceName: string = ""
+
 export function PrintReceiptButton({
   outletName, tokenNumber, tableName, customerName, tabId,
   items, totalAmount, paymentMode, closedAt,
@@ -169,6 +174,16 @@ export function PrintReceiptButton({
   const deviceRef = useRef<any>(null)
 
   const isAndroid = typeof navigator !== 'undefined' && /android/i.test(navigator.userAgent)
+
+  // Restore printer connection if already connected globally
+  useEffect(() => {
+    if (globalDevice && globalDevice.gatt?.connected && globalChar) {
+      setBtStatus("connected")
+      setDeviceName(globalDeviceName)
+      charRef.current = globalChar
+      deviceRef.current = globalDevice
+    }
+  }, [])
 
   // ---- CONNECT PRINTER ----
   async function handleConnect() {
@@ -247,7 +262,15 @@ export function PrintReceiptButton({
         setDeviceName("")
         charRef.current = null
         deviceRef.current = null
+        
+        globalDevice = null
+        globalChar = null
+        globalDeviceName = ""
       })
+
+      globalDevice = device
+      globalChar = foundChar
+      globalDeviceName = device.name || device.id || 'Printer'
 
       setBtStatus("connected")
     } catch (e: any) {
@@ -324,6 +347,9 @@ export function PrintReceiptButton({
       setErrorMsg(e.message || 'Print failed')
       setBtStatus("disconnected")
       charRef.current = null
+      globalDevice = null
+      globalChar = null
+      globalDeviceName = ""
       setTimeout(() => setPrintStatus("idle"), 5000)
     }
   }
