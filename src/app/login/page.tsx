@@ -27,6 +27,9 @@ export default function LoginPage() {
       setError("Invalid PIN code.");
       setIsLoading(false);
     } else {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("pin_verified", "true");
+      }
       router.push("/dashboard");
       router.refresh();
     }

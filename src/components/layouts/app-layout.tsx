@@ -1,5 +1,7 @@
 "use client"
 
+import { useEffect } from "react"
+import { useSession, signOut } from "next-auth/react"
 import { UnifiedSidebar } from "@/components/navigation/unified-sidebar"
 import { cn } from "@/lib/utils"
 
@@ -10,6 +12,14 @@ export default function AppLayout({
   children: React.ReactNode
   user: any
 }) {
+  const { status } = useSession()
+
+  useEffect(() => {
+    if (status === "loading") return
+    if (status === "authenticated" && typeof window !== "undefined" && sessionStorage.getItem("pin_verified") !== "true") {
+      signOut({ callbackUrl: "/login" })
+    }
+  }, [status])
   return (
     <div className="flex h-[100dvh] lg:h-auto lg:min-h-screen bg-background selection:bg-emerald-500/30 overflow-hidden lg:overflow-visible">
       {/* Background Glows */}
