@@ -169,7 +169,7 @@ export function EditMenuItemDialog({
             <div className="space-y-3">
               {ingredients.map((ing, index) => (
                 <div key={index} className="grid grid-cols-12 gap-3 items-center">
-                  <div className="col-span-7">
+                  <div className="col-span-6">
                     <select
                       value={ing.itemId}
                       onChange={(e) => updateIngredient(index, "itemId", e.target.value)}
@@ -184,7 +184,7 @@ export function EditMenuItemDialog({
                       ))}
                     </select>
                   </div>
-                  <div className="col-span-3 relative flex items-center">
+                  <div className="col-span-2">
                     <Input 
                       type="number"
                       step="0.01"
@@ -192,27 +192,31 @@ export function EditMenuItemDialog({
                       value={ing.quantity}
                       onChange={(e) => updateIngredient(index, "quantity", parseFloat(e.target.value))}
                       required
-                      className="h-11 bg-foreground/10 border-border text-xs text-center font-black pr-14"
+                      className="h-11 bg-foreground/10 border-border text-xs text-center font-black w-full"
                     />
-                    {ing.itemId && (() => {
+                  </div>
+                  <div className="col-span-2">
+                    {(() => {
                       const selectedItem = globalItems.find(i => i.id === ing.itemId);
-                      if (!selectedItem) return null;
-                      if (selectedItem.recipeUnit) {
-                        return (
-                          <select 
-                            value={ing.unitUsed || selectedItem.unit}
-                            onChange={(e) => updateIngredient(index, "unitUsed", e.target.value)}
-                            className="absolute right-1 top-1/2 -translate-y-1/2 text-[10px] bg-foreground/10 hover:bg-foreground/20 text-muted-foreground font-bold outline-none rounded p-1 cursor-pointer transition-colors"
-                          >
-                            <option value={selectedItem.unit}>{selectedItem.unit}</option>
-                            <option value={selectedItem.recipeUnit}>{selectedItem.recipeUnit}</option>
-                          </select>
-                        )
-                      }
+                      const hasRecipeUnit = !!selectedItem?.recipeUnit;
                       return (
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-muted-foreground font-bold pointer-events-none">
-                          {selectedItem.unit}
-                        </span>
+                        <select 
+                          value={ing.unitUsed || selectedItem?.unit || ""}
+                          onChange={(e) => updateIngredient(index, "unitUsed", e.target.value)}
+                          disabled={!hasRecipeUnit}
+                          className="w-full h-11 px-1 rounded-xl border border-border bg-foreground/10 text-[10px] text-center font-bold cursor-pointer disabled:opacity-75 disabled:cursor-not-allowed outline-none focus:ring-1 focus:ring-primary/50"
+                        >
+                          {selectedItem ? (
+                            <>
+                              <option value={selectedItem.unit}>{selectedItem.unit}</option>
+                              {selectedItem.recipeUnit && (
+                                <option value={selectedItem.recipeUnit}>{selectedItem.recipeUnit}</option>
+                              )}
+                            </>
+                          ) : (
+                            <option value="">Unit</option>
+                          )}
+                        </select>
                       )
                     })()}
                   </div>
