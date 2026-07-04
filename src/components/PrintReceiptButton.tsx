@@ -162,6 +162,7 @@ function generateReceiptBytes(data: {
 let globalDevice: any = null
 let globalChar: any = null
 let globalDeviceName: string = ""
+let globalSerialPort: any = null
 
 export function PrintReceiptButton({
   outletName, tokenNumber, tableName, customerName, tabId,
@@ -185,10 +186,43 @@ export function PrintReceiptButton({
       setDeviceName(globalDeviceName)
       charRef.current = globalChar
       deviceRef.current = globalDevice
+    } else if (globalSerialPort) {
+      setBtStatus("connected")
+      setDeviceName(globalDeviceName)
     }
   }, [])
 
-  // ---- CONNECT PRINTER ----
+  // ---- CONNECT VIA USB / COM (SERIAL API) ----
+  async function handleSerialConnect() {
+    if (btStatus === "connected") return
+    setBtStatus("connecting")
+    setErrorMsg("")
+
+    try {
+      if (!(navigator as any).serial) {
+        throw new Error('Serial API not supported. Use Chrome/Edge on Desktop.')
+      }
+
+      const port = await (navigator as any).serial.requestPort()
+      await port.open({ baudRate: 9600 }) // Standard thermal printer baud rate
+      
+      globalSerialPort = port
+      globalDeviceName = "USB/COM Printer"
+      
+      setDeviceName("USB/COM Printer")
+      setBtStatus("connected")
+    } catch (e: any) {
+      console.error('[Serial]', e)
+      if (e.name === 'NotFoundError') {
+        setBtStatus("disconnected")
+      } else {
+        setBtStatus("error")
+        setErrorMsg(e.message || 'Serial connection failed')
+      }
+    }
+  }
+
+  // ---- CONNECT PRINTER (BLUETOOTH) ----
   async function handleConnect() {
     if (btStatus === "connected") return // Already connected
 
@@ -331,8 +365,8 @@ export function PrintReceiptButton({
       return
     }
 
-    // Desktop: Web Bluetooth (must be connected first)
-    if (!charRef.current) {
+    // Desktop: Web Bluetooth or Serial (must be connected first)
+    if (!charRef.current && !globalSerialPort) {
       setPrintStatus("error")
       setErrorMsg("Connect printer first!")
       setTimeout(() => setPrintStatus("idle"), 3000)
@@ -341,7 +375,15 @@ export function PrintReceiptButton({
 
     try {
       const bytesToPrint = generateReceiptBytes({ ...baseData, isKitchenCopy: isKitchen })
-      await sendChunks(charRef.current, bytesToPrint)
+      
+      if (globalSerialPort) {
+        const writer = globalSerialPort.writable.getWriter()
+        await writer.write(bytesToPrint)
+        writer.releaseLock()
+      } else {
+        await sendChunks(charRef.current, bytesToPrint)
+      }
+      
       setPrintStatus("success")
       setTimeout(() => setPrintStatus("idle"), 4000)
     } catch (e: any) {
@@ -352,6 +394,7 @@ export function PrintReceiptButton({
       charRef.current = null
       globalDevice = null
       globalChar = null
+      globalSerialPort = null
       globalDeviceName = ""
       setTimeout(() => setPrintStatus("idle"), 5000)
     }
@@ -361,46 +404,58 @@ export function PrintReceiptButton({
 
   return (
     <div className="flex flex-col items-center gap-3 w-full">
-      {/* Connect Printer Button (desktop only) */}
+      {/* Connect Printer Buttons (desktop only) */}
       {!isAndroid && (
-        <button
-          onClick={handleConnect}
-          disabled={btStatus === "connecting" || btStatus === "connected"}
-          className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border text-sm font-bold uppercase tracking-wider transition-all active:scale-[0.98] ${
-            btStatus === "connected"
-              ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-500 cursor-default"
-              : btStatus === "connecting"
-              ? "bg-amber-500/10 border-amber-500/20 text-amber-500 cursor-wait opacity-70"
-              : btStatus === "error"
-              ? "bg-red-500/10 border-red-500/30 text-red-500 hover:bg-red-500/20"
-              : "bg-foreground/5 border-border text-muted-foreground hover:bg-foreground/10"
-          }`}
-        >
-          {btStatus === "connected" ? (
-            <>
-              <Bluetooth className="w-4 h-4 text-emerald-500" />
-              <span className="flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse"></span>
-                {deviceName || "Printer"} Connected
-              </span>
-            </>
-          ) : btStatus === "connecting" ? (
-            <>
-              <Loader2 className="w-4 h-4 animate-spin" />
-              Searching for printer...
-            </>
-          ) : btStatus === "error" ? (
-            <>
-              <BluetoothOff className="w-4 h-4" />
-              Retry Connection
-            </>
-          ) : (
-            <>
-              <Bluetooth className="w-4 h-4" />
-              Connect Printer
-            </>
+        <div className="w-full flex flex-col gap-2">
+          <button
+            onClick={handleConnect}
+            disabled={btStatus === "connecting" || btStatus === "connected"}
+            className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl border text-sm font-bold uppercase tracking-wider transition-all active:scale-[0.98] ${
+              btStatus === "connected"
+                ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-500 cursor-default"
+                : btStatus === "connecting"
+                ? "bg-amber-500/10 border-amber-500/20 text-amber-500 cursor-wait opacity-70"
+                : btStatus === "error"
+                ? "bg-red-500/10 border-red-500/30 text-red-500 hover:bg-red-500/20"
+                : "bg-foreground/5 border-border text-muted-foreground hover:bg-foreground/10"
+            }`}
+          >
+            {btStatus === "connected" ? (
+              <>
+                <Bluetooth className="w-4 h-4 text-emerald-500" />
+                <span className="flex items-center gap-2">
+                  <span className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)] animate-pulse"></span>
+                  {deviceName || "Printer"} Connected
+                </span>
+              </>
+            ) : btStatus === "connecting" ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                Searching for printer...
+              </>
+            ) : btStatus === "error" ? (
+              <>
+                <BluetoothOff className="w-4 h-4" />
+                Retry Connection
+              </>
+            ) : (
+              <>
+                <Bluetooth className="w-4 h-4" />
+                Connect Printer (BLE)
+              </>
+            )}
+          </button>
+          
+          {btStatus !== "connected" && (
+            <button
+              onClick={handleSerialConnect}
+              disabled={btStatus === "connecting"}
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-border bg-foreground/5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground hover:bg-foreground/10 transition-all active:scale-[0.98]"
+            >
+              Or connect via USB / COM Port
+            </button>
           )}
-        </button>
+        </div>
       )}
 
       {/* Error message */}
