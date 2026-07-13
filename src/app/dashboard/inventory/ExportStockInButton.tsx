@@ -40,6 +40,8 @@ export function ExportStockInButton() {
     DISPATCH: true,
     WASTE: true,
     ADJUSTMENT: true,
+    CONSUMPTION: true,
+    REVERSAL: true,
   })
 
   const toggleType = (key: keyof typeof types) => {
@@ -166,55 +168,81 @@ export function ExportStockInButton() {
             {/* Checkbox Filtering */}
             <div className="space-y-3">
               <Label className="text-[10px] font-black text-muted-foreground uppercase tracking-[0.25em] ml-1">Activity Types</Label>
-              <div className="bg-foreground/[0.02] border border-border/50 rounded-2xl p-5 space-y-4 shadow-inner">
+              <div className="bg-foreground/[0.02] border border-border/50 rounded-2xl p-5 space-y-3.5 shadow-inner">
                 
-                <label className="flex items-center gap-3.5 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    checked={types.STOCK_IN}
-                    onChange={() => toggleType("STOCK_IN")}
-                    className="w-5 h-5 rounded border-border text-blue-500 focus:ring-blue-500/30 focus:ring-offset-0 bg-foreground/[0.03] cursor-pointer accent-blue-500"
-                  />
-                  <span className="text-xs font-black text-foreground/80 group-hover:text-foreground uppercase tracking-widest transition-colors">
-                    Stock In (Intake)
-                  </span>
-                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={types.STOCK_IN}
+                      onChange={() => toggleType("STOCK_IN")}
+                      className="w-4 h-4 rounded border-border text-blue-500 focus:ring-blue-500/30 focus:ring-offset-0 bg-foreground/[0.03] cursor-pointer accent-blue-500"
+                    />
+                    <span className="text-[10px] font-black text-foreground/80 group-hover:text-foreground uppercase tracking-wider transition-colors">
+                      Stock In
+                    </span>
+                  </label>
 
-                <label className="flex items-center gap-3.5 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    checked={types.DISPATCH}
-                    onChange={() => toggleType("DISPATCH")}
-                    className="w-5 h-5 rounded border-border text-blue-500 focus:ring-blue-500/30 focus:ring-offset-0 bg-foreground/[0.03] cursor-pointer accent-blue-500"
-                  />
-                  <span className="text-xs font-black text-foreground/80 group-hover:text-foreground uppercase tracking-widest transition-colors">
-                    Dispatches (Outlets)
-                  </span>
-                </label>
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={types.DISPATCH}
+                      onChange={() => toggleType("DISPATCH")}
+                      className="w-4 h-4 rounded border-border text-blue-500 focus:ring-blue-500/30 focus:ring-offset-0 bg-foreground/[0.03] cursor-pointer accent-blue-500"
+                    />
+                    <span className="text-[10px] font-black text-foreground/80 group-hover:text-foreground uppercase tracking-wider transition-colors">
+                      Dispatches
+                    </span>
+                  </label>
 
-                <label className="flex items-center gap-3.5 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    checked={types.WASTE}
-                    onChange={() => toggleType("WASTE")}
-                    className="w-5 h-5 rounded border-border text-blue-500 focus:ring-blue-500/30 focus:ring-offset-0 bg-foreground/[0.03] cursor-pointer accent-blue-500"
-                  />
-                  <span className="text-xs font-black text-foreground/80 group-hover:text-foreground uppercase tracking-widest transition-colors">
-                    Waste / Spoilage
-                  </span>
-                </label>
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={types.WASTE}
+                      onChange={() => toggleType("WASTE")}
+                      className="w-4 h-4 rounded border-border text-blue-500 focus:ring-blue-500/30 focus:ring-offset-0 bg-foreground/[0.03] cursor-pointer accent-blue-500"
+                    />
+                    <span className="text-[10px] font-black text-foreground/80 group-hover:text-foreground uppercase tracking-wider transition-colors">
+                      Waste / Spoilage
+                    </span>
+                  </label>
 
-                <label className="flex items-center gap-3.5 cursor-pointer group">
-                  <input
-                    type="checkbox"
-                    checked={types.ADJUSTMENT}
-                    onChange={() => toggleType("ADJUSTMENT")}
-                    className="w-5 h-5 rounded border-border text-blue-500 focus:ring-blue-500/30 focus:ring-offset-0 bg-foreground/[0.03] cursor-pointer accent-blue-500"
-                  />
-                  <span className="text-xs font-black text-foreground/80 group-hover:text-foreground uppercase tracking-widest transition-colors">
-                    Manual Adjustments
-                  </span>
-                </label>
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={types.ADJUSTMENT}
+                      onChange={() => toggleType("ADJUSTMENT")}
+                      className="w-4 h-4 rounded border-border text-blue-500 focus:ring-blue-500/30 focus:ring-offset-0 bg-foreground/[0.03] cursor-pointer accent-blue-500"
+                    />
+                    <span className="text-[10px] font-black text-foreground/80 group-hover:text-foreground uppercase tracking-wider transition-colors">
+                      Adjustments
+                    </span>
+                  </label>
+
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={types.CONSUMPTION}
+                      onChange={() => toggleType("CONSUMPTION")}
+                      className="w-4 h-4 rounded border-border text-blue-500 focus:ring-blue-500/30 focus:ring-offset-0 bg-foreground/[0.03] cursor-pointer accent-blue-500"
+                    />
+                    <span className="text-[10px] font-black text-foreground/80 group-hover:text-foreground uppercase tracking-wider transition-colors">
+                      POS Sales (Qty)
+                    </span>
+                  </label>
+
+                  <label className="flex items-center gap-3 cursor-pointer group">
+                    <input
+                      type="checkbox"
+                      checked={types.REVERSAL}
+                      onChange={() => toggleType("REVERSAL")}
+                      className="w-4 h-4 rounded border-border text-blue-500 focus:ring-blue-500/30 focus:ring-offset-0 bg-foreground/[0.03] cursor-pointer accent-blue-500"
+                    />
+                    <span className="text-[10px] font-black text-foreground/80 group-hover:text-foreground uppercase tracking-wider transition-colors">
+                      Reversals
+                    </span>
+                  </label>
+                </div>
 
               </div>
             </div>

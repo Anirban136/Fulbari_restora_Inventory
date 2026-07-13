@@ -16,25 +16,29 @@ export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) {
+      console.log("Export API: Unauthorized access attempt")
       return NextResponse.json({ error: "Authentication required." }, { status: 401 })
     }
 
     const role = session.user.role
     if (role !== "OWNER" && role !== "ADMIN" && role !== "INV_MANAGER") {
+      console.log(`Export API: Forbidden role: ${role}`)
       return NextResponse.json({ error: "Insufficient permissions." }, { status: 403 })
     }
 
     const { searchParams } = new URL(req.url)
     const startParam = searchParams.get("start") // YYYY-MM-DD
     const endParam = searchParams.get("end")     // YYYY-MM-DD
-    const typesParam = searchParams.get("types")   // Comma-separated: "STOCK_IN,DISPATCH,WASTE,ADJUSTMENT"
+    const typesParam = searchParams.get("types")   // Comma-separated list
+
+    console.log(`Export API parameters: start=${startParam}, end=${endParam}, types=${typesParam}`)
 
     // 1. Build where clause for ledger entries
     const ledgerWhere: any = {}
 
-    // Type filter
-    let allowedTypes = ["STOCK_IN", "DISPATCH", "WASTE", "ADJUSTMENT"]
-    if (typesParam) {
+    // Type filter (include CONSUMPTION and REVERSAL by default)
+    let allowedTypes = ["STOCK_IN", "DISPATCH", "WASTE", "ADJUSTMENT", "CONSUMPTION", "REVERSAL"]
+    if (typesParam && typesParam !== "undefined" && typesParam !== "null" && typesParam.trim() !== "") {
       const parsedTypes = typesParam.split(",").map(t => t.trim()).filter(Boolean)
       if (parsedTypes.length > 0) {
         allowedTypes = parsedTypes
@@ -42,18 +46,33 @@ export async function GET(req: NextRequest) {
     }
     ledgerWhere.type = { in: allowedTypes }
 
-    // Date range filter
-    if (startParam || endParam) {
+    // Date range filter adjusted to IST (UTC+5.5) timezone boundaries
+    const hasStart = startParam && startParam !== "undefined" && startParam !== "null" && startParam.trim() !== ""
+    const hasEnd = endParam && endParam !== "undefined" && endParam !== "null" && endParam.trim() !== ""
+
+    if (hasStart || hasEnd) {
       ledgerWhere.createdAt = {}
-      if (startParam) {
-        // Start of the day in UTC
-        ledgerWhere.createdAt.gte = new Date(`${startParam}T00:00:00.000Z`)
+      
+      if (hasStart) {
+        // YYYY-MM-DD 00:00:00 IST is YYYY-MM-DD 00:00:00 UTC minus 5.5 hours (330 mins)
+        const dateUTC = new Date(`${startParam}T00:00:00.000Z`)
+        if (!isNaN(dateUTC.getTime())) {
+          dateUTC.setMinutes(dateUTC.getMinutes() - 330)
+          ledgerWhere.createdAt.gte = dateUTC
+        }
       }
-      if (endParam) {
-        // End of the day in UTC
-        ledgerWhere.createdAt.lte = new Date(`${endParam}T23:59:59.999Z`)
+      
+      if (hasEnd) {
+        // YYYY-MM-DD 23:59:59.999 IST is YYYY-MM-DD 23:59:59.999 UTC minus 5.5 hours (330 mins)
+        const dateUTC = new Date(`${endParam}T23:59:59.999Z`)
+        if (!isNaN(dateUTC.getTime())) {
+          dateUTC.setMinutes(dateUTC.getMinutes() - 330)
+          ledgerWhere.createdAt.lte = dateUTC
+        }
       }
     }
+
+    console.log("Export API built prisma filter:", JSON.stringify(ledgerWhere))
 
     // 2. Fetch all items
     const items = await prisma.item.findMany({
@@ -72,6 +91,8 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: "desc" },
     })
 
+    console.log(`Export API: Queried ${items.length} items and found ${ledgerEntries.length} matching transactions`)
+
     // 4. Process data for Sheet 1: Items Summary
     const summaryRows = items.map((item) => {
       const itemLedgers = ledgerEntries.filter((l) => l.itemId === item.id)
@@ -80,6 +101,8 @@ export async function GET(req: NextRequest) {
       const dispatchLedgers = itemLedgers.filter((l) => l.type === "DISPATCH")
       const wasteLedgers = itemLedgers.filter((l) => l.type === "WASTE")
       const adjustmentLedgers = itemLedgers.filter((l) => l.type === "ADJUSTMENT")
+      const consumptionLedgers = itemLedgers.filter((l) => l.type === "CONSUMPTION")
+      const reversalLedgers = itemLedgers.filter((l) => l.type === "REVERSAL")
 
       const totalStockInQty = stockInLedgers.reduce((sum, l) => sum + l.quantity, 0)
       const totalStockInValue = stockInLedgers.reduce((sum, l) => {
@@ -90,6 +113,8 @@ export async function GET(req: NextRequest) {
       const totalDispatchQty = dispatchLedgers.reduce((sum, l) => sum + l.quantity, 0)
       const totalWasteQty = wasteLedgers.reduce((sum, l) => sum + l.quantity, 0)
       const totalAdjustmentQty = adjustmentLedgers.reduce((sum, l) => sum + l.quantity, 0)
+      const totalConsumptionQty = consumptionLedgers.reduce((sum, l) => sum + l.quantity, 0)
+      const totalReversalQty = reversalLedgers.reduce((sum, l) => sum + l.quantity, 0)
 
       const lastLedger = itemLedgers[0]
       const lastActivityDate = lastLedger ? new Date(lastLedger.createdAt).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" }) : "N/A"
@@ -104,6 +129,8 @@ export async function GET(req: NextRequest) {
         "Value Stocked In (₹)": parseFloat(totalStockInValue.toFixed(2)),
         "Qty Dispatched": totalDispatchQty,
         "Qty Wasted": totalWasteQty,
+        "Qty Consumed": totalConsumptionQty,
+        "Qty Reversed": totalReversalQty,
         "Qty Adjusted": totalAdjustmentQty,
         "Last Activity Date": lastActivityDate,
         "Last Activity Type": lastActivityType,
@@ -124,7 +151,7 @@ export async function GET(req: NextRequest) {
         "Unit": l.Item.unit || "pieces",
         "Unit Cost/Rate (₹)": parseFloat(unitCost.toFixed(4)),
         "Total Cost/Value (₹)": parseFloat(totalCost.toFixed(2)),
-        "Outlet (If Dispatched)": l.Outlet?.name || "N/A",
+        "Outlet (If Dispatched/Consumed)": l.Outlet?.name || "N/A",
         "Vendor (If Stock-In)": l.Vendor?.name || "N/A",
         "Recorded By": l.User.name || "System",
         "Notes": l.notes || "",
@@ -134,8 +161,8 @@ export async function GET(req: NextRequest) {
     // 6. Process data for Sheet 3: Report Metadata
     const metadataRows = [
       { "Filter Parameter": "Report Title", "Applied Value": "Inventory Ledger Report" },
-      { "Filter Parameter": "From Date (Start)", "Applied Value": startParam || "All Time" },
-      { "Filter Parameter": "To Date (End)", "Applied Value": endParam || "All Time" },
+      { "Filter Parameter": "From Date (Start)", "Applied Value": hasStart ? startParam : "All Time" },
+      { "Filter Parameter": "To Date (End)", "Applied Value": hasEnd ? endParam : "All Time" },
       { "Filter Parameter": "Exported Transaction Types", "Applied Value": allowedTypes.join(", ") },
       { "Filter Parameter": "Total Products in Catalog", "Applied Value": items.length },
       { "Filter Parameter": "Total Transactions Exported", "Applied Value": ledgerEntries.length },
@@ -157,6 +184,8 @@ export async function GET(req: NextRequest) {
       { wch: 22 }, // Value Stocked In (₹)
       { wch: 16 }, // Qty Dispatched
       { wch: 14 }, // Qty Wasted
+      { wch: 14 }, // Qty Consumed
+      { wch: 14 }, // Qty Reversed
       { wch: 14 }, // Qty Adjusted
       { wch: 18 }, // Last Activity Date
       { wch: 18 }, // Last Activity Type
@@ -174,7 +203,7 @@ export async function GET(req: NextRequest) {
       { wch: 10 }, // Unit
       { wch: 18 }, // Unit Cost/Rate (₹)
       { wch: 20 }, // Total Cost/Value (₹)
-      { wch: 24 }, // Outlet
+      { wch: 32 }, // Outlet
       { wch: 22 }, // Vendor
       { wch: 18 }, // Recorded By
       { wch: 40 }, // Notes
@@ -193,9 +222,9 @@ export async function GET(req: NextRequest) {
     const excelBuffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" })
 
     // Filename formatting
-    const dateRangeStr = startParam && endParam 
+    const dateRangeStr = hasStart && hasEnd 
       ? `${startParam}-to-${endParam}` 
-      : (startParam ? `since-${startParam}` : (endParam ? `until-${endParam}` : "all-time"))
+      : (hasStart ? `since-${startParam}` : (hasEnd ? `until-${endParam}` : "all-time"))
     
     return new NextResponse(excelBuffer, {
       headers: {
