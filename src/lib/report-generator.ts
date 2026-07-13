@@ -253,7 +253,94 @@ export async function generateInventoryReportPDF(data: any, fromDate: string, to
   drawMetric(startX + colWidth * 2, metricsY, "ITEMS DISPATCHED", String(totalDispatchQty), [251, 191, 36]); // Amber
   drawMetric(startX + colWidth * 3, metricsY, "STOCK WASTE", String(totalWasteQty), [239, 68, 68]); // Red
 
-  // --- 4. DETAILED TRANSACTION AUDIT TABLE ---
+  // --- 4. PRODUCT STOCK-IN & ACTIVITY SUMMARY TABLE ---
+  const summaryList = Array.isArray(data?.summary) ? data.summary : [];
+  const activeSummary = summaryList.filter((item: any) => 
+    item.qtyStockedIn > 0 || 
+    item.qtyDispatched > 0 || 
+    item.qtyWasted > 0 || 
+    item.qtyAdjusted !== 0 || 
+    item.qtyConsumed > 0 || 
+    item.qtyReversed > 0
+  );
+
+  const summaryTableRows = activeSummary.map((item: any) => [
+    item.name,
+    item.category || "General",
+    `${item.currentStock} ${item.unit}`,
+    item.qtyStockedIn > 0 ? `+${item.qtyStockedIn}` : "—",
+    item.valueStockedIn > 0 ? formatCurrency(item.valueStockedIn) : "—",
+    item.qtyDispatched > 0 ? `${item.qtyDispatched}` : "—",
+    item.qtyWasted > 0 ? `${item.qtyWasted}` : "—",
+  ]);
+
+  doc.setFontSize(10);
+  doc.setTextColor(16, 185, 129); // Emerald
+  doc.setFont("helvetica", "bold");
+  doc.text("PRODUCT STOCK-IN & ACTIVITY SUMMARY", 10, 91);
+
+  autoTable(doc, {
+    startY: 95,
+    head: [["PRODUCT NAME", "CATEGORY", "CURR STOCK", "STOCKED IN", "STOCKED VALUE", "DISPATCHED", "WASTED"]],
+    body: summaryTableRows,
+    theme: 'plain',
+    headStyles: { 
+      fillColor: [16, 185, 129], 
+      textColor: [0, 0, 0],
+      fontSize: 7.5, fontStyle: 'bold', halign: 'center', cellPadding: 3
+    },
+    styles: { 
+      fontSize: 7.5, cellPadding: 3.5, textColor: [255, 255, 255], 
+      lineColor: [39, 39, 42], lineWidth: 0.1, font: "helvetica",
+      valign: 'middle'
+    },
+    alternateRowStyles: { 
+      fillColor: [18, 18, 20] 
+    },
+    columnStyles: {
+      0: { fontStyle: 'bold', cellWidth: 46 }, // Product Name
+      1: { cellWidth: 26 }, // Category
+      2: { cellWidth: 22 }, // Current Stock
+      3: { cellWidth: 20 }, // Qty Stocked In
+      4: { cellWidth: 28 }, // Value Stocked In
+      5: { cellWidth: 22 }, // Qty Dispatched
+      6: { cellWidth: 18 }  // Qty Wasted
+    },
+    willDrawPage: (data) => {
+      if (data.pageNumber > 1) {
+        doc.setFillColor(9, 9, 11);
+        doc.rect(0, 0, pageWidth, pageHeight, 'F');
+        doc.setFillColor(16, 185, 129);
+        doc.rect(0, 0, pageWidth, 5, 'F');
+      }
+    }
+  });
+
+  const table1FinalY = (doc as any).lastAutoTable?.finalY ?? 140;
+
+  // --- 5. DETAILED TRANSACTION AUDIT TABLE ---
+  let table2StartY = table1FinalY + 16;
+  const isSecondTableHeaderOnNewPage = table1FinalY + 16 > pageHeight - 30;
+
+  if (isSecondTableHeaderOnNewPage) {
+    doc.addPage();
+    doc.setFillColor(9, 9, 11);
+    doc.rect(0, 0, pageWidth, pageHeight, 'F');
+    doc.setFillColor(16, 185, 129);
+    doc.rect(0, 0, pageWidth, 5, 'F');
+    
+    doc.setFontSize(10);
+    doc.setTextColor(16, 185, 129); // Emerald
+    doc.setFont("helvetica", "bold");
+    doc.text("CHRONOLOGICAL TRANSACTION LOGS", 10, 18);
+    table2StartY = 22;
+  } else {
+    doc.setFontSize(10);
+    doc.setTextColor(16, 185, 129); // Emerald
+    doc.setFont("helvetica", "bold");
+    doc.text("CHRONOLOGICAL TRANSACTION LOGS", 10, table1FinalY + 12);
+  }
+
   const tableRows = logs.map((log: any) => [
     new Date(log.createdAt).toLocaleString("en-IN", { 
       day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kolkata" 
@@ -268,7 +355,7 @@ export async function generateInventoryReportPDF(data: any, fromDate: string, to
   ]);
 
   autoTable(doc, {
-    startY: 92,
+    startY: table2StartY,
     head: [["DATE / TIME", "PRODUCT NAME", "TYPE", "QTY", "RATE", "VALUE", "DEST / SOURCE", "NOTES"]],
     body: tableRows,
     theme: 'plain',
@@ -296,7 +383,8 @@ export async function generateInventoryReportPDF(data: any, fromDate: string, to
       7: { cellWidth: 40 }  // Notes
     },
     willDrawPage: (data) => {
-      if (data.pageNumber > 1) {
+      // Ensure background is drawn on new pages added by autoTable
+      if (data.pageNumber > 1 && (!isSecondTableHeaderOnNewPage || data.pageNumber > doc.getNumberOfPages() - 1)) {
         doc.setFillColor(9, 9, 11);
         doc.rect(0, 0, pageWidth, pageHeight, 'F');
         doc.setFillColor(16, 185, 129);
