@@ -197,3 +197,139 @@ export async function generateTransactionPDF(data: any, fromDate: string, toDate
 
   doc.save(`FR_Audit_${fromDate}.pdf`);
 }
+
+export async function generateInventoryReportPDF(data: any, fromDate: string, toDate: string) {
+  const logs = Array.isArray(data?.logs) ? data.logs : [];
+  const doc = new jsPDF();
+  const pageWidth = doc.internal.pageSize.width;
+  const pageHeight = doc.internal.pageSize.height;
+
+  // --- 1. DARK ELITE BACKGROUND ---
+  doc.setFillColor(9, 9, 11); // Zinc-950
+  doc.rect(0, 0, pageWidth, pageHeight, 'F');
+
+  // --- 2. HEADER: WEB-STYLE ACCENT ---
+  doc.setFillColor(16, 185, 129); // Emerald-500
+  doc.rect(0, 0, pageWidth, 5, 'F'); // Top accent bar
+
+  doc.setFontSize(26);
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.text("FULBARI RESTORA", pageWidth / 2, 22, { align: "center" });
+  
+  doc.setFontSize(9);
+  doc.setTextColor(16, 185, 129); // Emerald
+  doc.text("CENTRAL INVENTORY LEDGER AUDIT", pageWidth / 2, 29, { align: "center", charSpace: 2 });
+  
+  doc.setFontSize(9);
+  doc.setTextColor(113, 113, 122); // Zinc-400
+  doc.text(`AUDIT PERIOD: ${fromDate} TO ${toDate}`, pageWidth / 2, 35, { align: "center" });
+
+  // --- 3. SUMMARY BOX ---
+  const totalStockInQty = logs.filter((l: any) => l.type === "STOCK_IN").reduce((sum: number, l: any) => sum + l.quantity, 0);
+  const totalStockInValue = logs.filter((l: any) => l.type === "STOCK_IN").reduce((sum: number, l: any) => sum + l.value, 0);
+  const totalDispatchQty = logs.filter((l: any) => l.type === "DISPATCH").reduce((sum: number, l: any) => sum + l.quantity, 0);
+  const totalWasteQty = logs.filter((l: any) => l.type === "WASTE").reduce((sum: number, l: any) => sum + l.quantity, 0);
+
+  doc.setFillColor(24, 24, 27); // Zinc-900
+  doc.roundedRect(10, 42, pageWidth - 20, 42, 4, 4, 'F');
+
+  const drawMetric = (x: number, y: number, label: string, value: string, color: [number, number, number]) => {
+    doc.setFontSize(7.5);
+    doc.setTextColor(113, 113, 122); // Zinc-400
+    doc.text(label, x, y, { align: 'center' });
+    doc.setFontSize(14);
+    doc.setTextColor(color[0], color[1], color[2]);
+    doc.setFont("helvetica", "bold");
+    doc.text(value, x, y + 8, { align: 'center' });
+  };
+
+  const colWidth = (pageWidth - 20) / 4;
+  const startX = 10 + colWidth / 2;
+  const metricsY = 54;
+
+  drawMetric(startX, metricsY, "ITEMS STOCKED IN", String(totalStockInQty), [16, 185, 129]); // Emerald
+  drawMetric(startX + colWidth, metricsY, "STOCK VALUE", formatCurrency(totalStockInValue), [59, 130, 246]); // Blue
+  drawMetric(startX + colWidth * 2, metricsY, "ITEMS DISPATCHED", String(totalDispatchQty), [251, 191, 36]); // Amber
+  drawMetric(startX + colWidth * 3, metricsY, "STOCK WASTE", String(totalWasteQty), [239, 68, 68]); // Red
+
+  // --- 4. DETAILED TRANSACTION AUDIT TABLE ---
+  const tableRows = logs.map((log: any) => [
+    new Date(log.createdAt).toLocaleString("en-IN", { 
+      day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", timeZone: "Asia/Kolkata" 
+    }),
+    log.itemName,
+    log.type,
+    `${log.quantity} ${log.unit}`,
+    log.rate > 0 ? formatCurrency(log.rate) : "—",
+    log.value > 0 ? formatCurrency(log.value) : "—",
+    log.type === "DISPATCH" ? (log.outletName || "Outlet") : (log.vendorName || "N/A"),
+    log.notes
+  ]);
+
+  autoTable(doc, {
+    startY: 92,
+    head: [["DATE / TIME", "PRODUCT NAME", "TYPE", "QTY", "RATE", "VALUE", "DEST / SOURCE", "NOTES"]],
+    body: tableRows,
+    theme: 'plain',
+    headStyles: { 
+      fillColor: [16, 185, 129], 
+      textColor: [0, 0, 0],
+      fontSize: 7.5, fontStyle: 'bold', halign: 'center', cellPadding: 3
+    },
+    styles: { 
+      fontSize: 7.5, cellPadding: 3.5, textColor: [255, 255, 255], 
+      lineColor: [39, 39, 42], lineWidth: 0.1, font: "helvetica",
+      valign: 'middle'
+    },
+    alternateRowStyles: { 
+      fillColor: [18, 18, 20] 
+    },
+    columnStyles: {
+      0: { cellWidth: 26 }, // Date
+      1: { fontStyle: 'bold', cellWidth: 32 }, // Product Name
+      2: { cellWidth: 18 }, // Type
+      3: { cellWidth: 16 }, // Qty
+      4: { cellWidth: 16 }, // Rate
+      5: { cellWidth: 18 }, // Value
+      6: { cellWidth: 24 }, // Outlet / Vendor
+      7: { cellWidth: 40 }  // Notes
+    },
+    willDrawPage: (data) => {
+      if (data.pageNumber > 1) {
+        doc.setFillColor(9, 9, 11);
+        doc.rect(0, 0, pageWidth, pageHeight, 'F');
+        doc.setFillColor(16, 185, 129);
+        doc.rect(0, 0, pageWidth, 5, 'F');
+      }
+    }
+  });
+
+  // --- 5. SIGN-OFF FOOTER ---
+  const finalY = ((doc as any).lastAutoTable?.finalY ?? 150) + 25;
+  const needNewPage = finalY > pageHeight - 35;
+  
+  if (needNewPage) {
+    doc.addPage();
+    doc.setFillColor(9, 9, 11);
+    doc.rect(0, 0, pageWidth, pageHeight, 'F');
+    doc.setFillColor(16, 185, 129);
+    doc.rect(0, 0, pageWidth, 5, 'F');
+  }
+
+  const sigY = needNewPage ? 40 : finalY;
+  doc.setDrawColor(63, 63, 70); // Zinc-700
+  doc.line(20, sigY, 80, sigY);
+  doc.line(pageWidth - 80, sigY, pageWidth - 20, sigY);
+  
+  doc.setFontSize(8);
+  doc.setTextColor(113, 113, 122); // Zinc-400
+  doc.text("MANAGER AUDIT", 50, sigY + 8, { align: "center" });
+  doc.text("OWNER SIGN-OFF", pageWidth - 50, sigY + 8, { align: "center" });
+
+  doc.setFontSize(7);
+  doc.text("RESOURCES GENERATED FROM FULBARI ECOSYSTEM HUB", pageWidth/2, pageHeight - 12, { align: 'center' });
+
+  doc.save(`inventory-ledger-report-${fromDate}-to-${toDate}.pdf`);
+}
+

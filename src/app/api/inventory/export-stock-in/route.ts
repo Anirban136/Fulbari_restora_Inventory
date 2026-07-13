@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/lib/prisma"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import * as XLSX from "xlsx"
 
 export const dynamic = "force-dynamic"
 
@@ -31,12 +30,12 @@ export async function GET(req: NextRequest) {
     const endParam = searchParams.get("end")     // YYYY-MM-DD
     const typesParam = searchParams.get("types")   // Comma-separated list
 
-    console.log(`Export API parameters: start=${startParam}, end=${endParam}, types=${typesParam}`)
+    console.log(`Export API (JSON) parameters: start=${startParam}, end=${endParam}, types=${typesParam}`)
 
     // 1. Build where clause for ledger entries
     const ledgerWhere: any = {}
 
-    // Type filter (include CONSUMPTION and REVERSAL by default)
+    // Type filter
     let allowedTypes = ["STOCK_IN", "DISPATCH", "WASTE", "ADJUSTMENT", "CONSUMPTION", "REVERSAL"]
     if (typesParam && typesParam !== "undefined" && typesParam !== "null" && typesParam.trim() !== "") {
       const parsedTypes = typesParam.split(",").map(t => t.trim()).filter(Boolean)
@@ -93,7 +92,7 @@ export async function GET(req: NextRequest) {
 
     console.log(`Export API: Queried ${items.length} items and found ${ledgerEntries.length} matching transactions`)
 
-    // 4. Process data for Sheet 1: Items Summary
+    // 4. Process data for Items Summary
     const summaryRows = items.map((item) => {
       const itemLedgers = ledgerEntries.filter((l) => l.itemId === item.id)
       
@@ -121,119 +120,56 @@ export async function GET(req: NextRequest) {
       const lastActivityType = lastLedger ? lastLedger.type : "N/A"
 
       return {
-        "Product Name": item.name,
-        "Category": item.category || "Uncategorized",
-        "Base Unit": item.unit || "pieces",
-        "Current Stock": item.currentStock || 0,
-        "Qty Stocked In": totalStockInQty,
-        "Value Stocked In (₹)": parseFloat(totalStockInValue.toFixed(2)),
-        "Qty Dispatched": totalDispatchQty,
-        "Qty Wasted": totalWasteQty,
-        "Qty Consumed": totalConsumptionQty,
-        "Qty Reversed": totalReversalQty,
-        "Qty Adjusted": totalAdjustmentQty,
-        "Last Activity Date": lastActivityDate,
-        "Last Activity Type": lastActivityType,
+        id: item.id,
+        name: item.name,
+        category: item.category || "Uncategorized",
+        unit: item.unit || "pieces",
+        currentStock: item.currentStock || 0,
+        qtyStockedIn: totalStockInQty,
+        valueStockedIn: totalStockInValue,
+        qtyDispatched: totalDispatchQty,
+        qtyWasted: totalWasteQty,
+        qtyConsumed: totalConsumptionQty,
+        qtyReversed: totalReversalQty,
+        qtyAdjusted: totalAdjustmentQty,
+        lastActivityDate,
+        lastActivityType,
       }
     })
 
-    // 5. Process data for Sheet 2: Detailed Logs
+    // 5. Process data for Detailed Logs
     const detailedRows = ledgerEntries.map((l) => {
       const unitCost = extractUnitCost(l.notes, l.Item.costPerUnit)
       const totalCost = l.quantity * unitCost
 
       return {
-        "Date & Time": new Date(l.createdAt).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }),
-        "Product Name": l.Item.name,
-        "Category": l.Item.category || "Uncategorized",
-        "Transaction Type": l.type,
-        "Quantity": l.quantity,
-        "Unit": l.Item.unit || "pieces",
-        "Unit Cost/Rate (₹)": parseFloat(unitCost.toFixed(4)),
-        "Total Cost/Value (₹)": parseFloat(totalCost.toFixed(2)),
-        "Outlet (If Dispatched/Consumed)": l.Outlet?.name || "N/A",
-        "Vendor (If Stock-In)": l.Vendor?.name || "N/A",
-        "Recorded By": l.User.name || "System",
-        "Notes": l.notes || "",
+        id: l.id,
+        createdAt: l.createdAt,
+        itemName: l.Item.name,
+        category: l.Item.category || "Uncategorized",
+        type: l.type,
+        quantity: l.quantity,
+        unit: l.Item.unit || "pieces",
+        rate: unitCost,
+        value: totalCost,
+        outletName: l.Outlet?.name || null,
+        vendorName: l.Vendor?.name || null,
+        userName: l.User.name || "System",
+        notes: l.notes || "",
       }
     })
 
-    // 6. Process data for Sheet 3: Report Metadata
-    const metadataRows = [
-      { "Filter Parameter": "Report Title", "Applied Value": "Inventory Ledger Report" },
-      { "Filter Parameter": "From Date (Start)", "Applied Value": hasStart ? startParam : "All Time" },
-      { "Filter Parameter": "To Date (End)", "Applied Value": hasEnd ? endParam : "All Time" },
-      { "Filter Parameter": "Exported Transaction Types", "Applied Value": allowedTypes.join(", ") },
-      { "Filter Parameter": "Total Products in Catalog", "Applied Value": items.length },
-      { "Filter Parameter": "Total Transactions Exported", "Applied Value": ledgerEntries.length },
-      { "Filter Parameter": "Generated At", "Applied Value": new Date().toLocaleString("en-IN", { timeZone: "Asia/Kolkata" }) },
-      { "Filter Parameter": "Generated By", "Applied Value": `${session.user.name} (${session.user.role})` },
-    ]
-
-    // 7. Create Workbook
-    const wb = XLSX.utils.book_new()
-
-    // Sheet 1: Summary
-    const wsSummary = XLSX.utils.json_to_sheet(summaryRows)
-    wsSummary["!cols"] = [
-      { wch: 28 }, // Product Name
-      { wch: 20 }, // Category
-      { wch: 12 }, // Base Unit
-      { wch: 14 }, // Current Stock
-      { wch: 16 }, // Qty Stocked In
-      { wch: 22 }, // Value Stocked In (₹)
-      { wch: 16 }, // Qty Dispatched
-      { wch: 14 }, // Qty Wasted
-      { wch: 14 }, // Qty Consumed
-      { wch: 14 }, // Qty Reversed
-      { wch: 14 }, // Qty Adjusted
-      { wch: 18 }, // Last Activity Date
-      { wch: 18 }, // Last Activity Type
-    ]
-    XLSX.utils.book_append_sheet(wb, wsSummary, "Inventory Summary")
-
-    // Sheet 2: Detailed Logs
-    const wsDetailed = XLSX.utils.json_to_sheet(detailedRows)
-    wsDetailed["!cols"] = [
-      { wch: 22 }, // Date & Time
-      { wch: 28 }, // Product Name
-      { wch: 20 }, // Category
-      { wch: 18 }, // Transaction Type
-      { wch: 12 }, // Quantity
-      { wch: 10 }, // Unit
-      { wch: 18 }, // Unit Cost/Rate (₹)
-      { wch: 20 }, // Total Cost/Value (₹)
-      { wch: 32 }, // Outlet
-      { wch: 22 }, // Vendor
-      { wch: 18 }, // Recorded By
-      { wch: 40 }, // Notes
-    ]
-    XLSX.utils.book_append_sheet(wb, wsDetailed, "Detailed Logs")
-
-    // Sheet 3: Report Metadata
-    const wsMetadata = XLSX.utils.json_to_sheet(metadataRows)
-    wsMetadata["!cols"] = [
-      { wch: 28 }, // Parameter
-      { wch: 50 }, // Value
-    ]
-    XLSX.utils.book_append_sheet(wb, wsMetadata, "Report Metadata")
-
-    // 8. Output Buffer
-    const excelBuffer = XLSX.write(wb, { type: "buffer", bookType: "xlsx" })
-
-    // Filename formatting
-    const dateRangeStr = hasStart && hasEnd 
-      ? `${startParam}-to-${endParam}` 
-      : (hasStart ? `since-${startParam}` : (hasEnd ? `until-${endParam}` : "all-time"))
-    
-    return new NextResponse(excelBuffer, {
-      headers: {
-        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-        "Content-Disposition": `attachment; filename="inventory-ledger-report-${dateRangeStr}.xlsx"`,
+    return NextResponse.json({
+      range: {
+        from: hasStart ? startParam : "All Time",
+        to: hasEnd ? endParam : "All Time",
       },
+      types: allowedTypes,
+      summary: summaryRows,
+      logs: detailedRows,
     })
   } catch (error) {
     console.error("GET /api/inventory/export-stock-in error:", error)
-    return NextResponse.json({ error: "Failed to generate Excel report." }, { status: 500 })
+    return NextResponse.json({ error: "Failed to query inventory ledger data." }, { status: 500 })
   }
 }
