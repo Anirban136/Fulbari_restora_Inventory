@@ -4,6 +4,7 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { AddItemDialog } from "./AddItemDialog"
 import { BulkAddItemDialog } from "./BulkAddItemDialog"
+import { ExportStockInButton } from "./ExportStockInButton"
 import { GlobalCatalogFeed } from "./GlobalCatalogFeed"
 import { Layers } from "lucide-react"
 import { HeroHeader } from "@/components/ui/hero-header"
@@ -39,6 +40,7 @@ export default async function GlobalCatalogPage() {
         icon={<Layers className="w-6 h-6 text-foreground" />}
         sideComponent={
           <div className="flex flex-col sm:flex-row gap-4 items-center shrink-0">
+            <ExportStockInButton />
             <BulkAddItemDialog existingCategories={existingCategories} />
             <AddItemDialog existingCategories={existingCategories} />
           </div>
