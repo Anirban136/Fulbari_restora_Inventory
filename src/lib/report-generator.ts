@@ -31,6 +31,7 @@ function normalizePaymentAmounts(tab: any) {
 
 export async function generateTransactionPDF(data: any, fromDate: string, toDate: string) {
   const transactions = Array.isArray(data?.transactions) ? data.transactions : [];
+  const bulkSales = Array.isArray(data?.bulkSales) ? data.bulkSales : [];
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
   const pageHeight = doc.internal.pageSize.height;
@@ -55,7 +56,8 @@ export async function generateTransactionPDF(data: any, fromDate: string, toDate
   doc.text(`AUDIT PERIOD: ${fromDate} TO ${toDate}`, pageWidth / 2, 38, { align: "center" });
 
   // --- 3. NUMERIC SUMMARY GRID (Replaces Pie Charts) ---
-  const totalCash = transactions.reduce((sum: number, t: any) => sum + normalizePaymentAmounts(t).cashAmount, 0);
+  const bulkTotal = bulkSales.reduce((sum: number, b: any) => sum + (Number(b.salesAmount) || 0), 0);
+  const totalCash = transactions.reduce((sum: number, t: any) => sum + normalizePaymentAmounts(t).cashAmount, 0) + bulkTotal;
   const totalUPI = transactions.reduce((sum: number, t: any) => sum + normalizePaymentAmounts(t).upiAmount, 0);
   const grandTotal = totalCash + totalUPI;
   const cafeTotal = transactions
@@ -69,7 +71,7 @@ export async function generateTransactionPDF(data: any, fromDate: string, toDate
     .reduce((s: number, t: any) => {
       const { cashAmount, upiAmount } = normalizePaymentAmounts(t);
       return s + cashAmount + upiAmount;
-    }, 0);
+    }, 0) + bulkTotal;
 
   // Centered Dashboard Box
   doc.setFillColor(24, 24, 27); // Zinc-900
@@ -138,6 +140,34 @@ export async function generateTransactionPDF(data: any, fromDate: string, toDate
     }
     
     dailyData[bizDayStr].total += cashAmount + upiAmount;
+  });
+
+  bulkSales.forEach((b: any) => {
+    const amount = Number(b.salesAmount) || 0;
+    if (amount <= 0) return;
+
+    // The logic inside bulkSales doesn't need to offset if it's already a logical date
+    // but we can parse it in UTC.
+    const logicalDate = new Date(b.date);
+    const bizDayStr = logicalDate.toLocaleString('en-IN', { 
+      day: '2-digit', month: 'short', year: 'numeric', timeZone: 'UTC' 
+    });
+
+    if (!dailyData[bizDayStr]) {
+      dailyData[bizDayStr] = {
+        cafeCash: 0, cafeUPI: 0, chaiCash: 0, chaiUPI: 0,
+        totalCash: 0, totalUPI: 0, total: 0
+      };
+    }
+
+    const isCafe = String(b?.Outlet?.name ?? "").toUpperCase().includes("CAFE");
+    if (isCafe) {
+      dailyData[bizDayStr].cafeCash += amount;
+    } else {
+      dailyData[bizDayStr].chaiCash += amount;
+    }
+    dailyData[bizDayStr].totalCash += amount;
+    dailyData[bizDayStr].total += amount;
   });
 
   const tableRows = Object.entries(dailyData).map(([date, stats]: [string, any]) => [

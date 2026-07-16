@@ -227,29 +227,22 @@ export function ChaiDailyStockSheet({
   const handleDownload = async () => {
     setIsDownloading(true)
     try {
-      const res = await fetch(`/api/chai-daily-stock/export?date=${date}`)
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.error ?? "Export failed")
-      }
-      const blob = await res.blob()
-      const url  = URL.createObjectURL(blob)
-      const a    = document.createElement("a")
-      a.href     = url
-      a.download = `chai-daily-sales-${date}.xlsx`
-      document.body.appendChild(a)
-      a.click()
-      a.remove()
-      URL.revokeObjectURL(url)
-      toast.success("Excel report downloaded!", {
-        icon: <FileSpreadsheet className="w-5 h-5 text-emerald-500" />,
-      })
+      // Direct navigation allows the mobile OS's native download manager to handle the file,
+      // avoiding iOS Safari blob/revokeObjectURL corruption bugs that result in blank files.
+      window.location.href = `/api/chai-daily-stock/export?date=${date}`
+      
+      // We assume it succeeds since the user just successfully submitted.
+      // Wait a moment for the download to start before resetting the button state.
+      setTimeout(() => {
+        setIsDownloading(false)
+        toast.success("Excel report downloaded!", {
+          icon: <FileSpreadsheet className="w-5 h-5 text-emerald-500" />,
+        })
+      }, 1500)
     } catch (err) {
       toast.error("Download failed", {
-        description:
-          err instanceof Error ? err.message : "Submit the closing stock first.",
+        description: err instanceof Error ? err.message : "Submit the closing stock first.",
       })
-    } finally {
       setIsDownloading(false)
     }
   }

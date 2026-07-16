@@ -55,6 +55,20 @@ export default async function DashboardOverview() {
     })
   ])
 
+  // Get Chai Hub Daily Stock (Bulk Sales) for logical today
+  const now = new Date();
+  const istOffset = 5.5 * 3600000;
+  const logicalDate = new Date(now.getTime() + istOffset);
+  if (logicalDate.getUTCHours() < 4) {
+    logicalDate.setUTCDate(logicalDate.getUTCDate() - 1);
+  }
+  const todayLogicalDate = new Date(Date.UTC(logicalDate.getUTCFullYear(), logicalDate.getUTCMonth(), logicalDate.getUTCDate()));
+
+  const dailyStockSales = await prisma.chaiHubDailyStock.findMany({
+    where: { date: todayLogicalDate },
+    include: { Outlet: true }
+  })
+
   // Filter low stock items in JS - strictly check global catalog
   const criticalAlerts = lowStockItems.filter(item => item.currentStock <= item.minStock)
 
@@ -119,6 +133,39 @@ export default async function DashboardOverview() {
       itemSales[item.menuItemId].qty += item.quantity
       itemSales[item.menuItemId].rev += itemRev
     })
+  })
+
+  // Add Bulk Sales from Chai Daily Stock
+  dailyStockSales.forEach(stock => {
+    if (!stock.salesAmount || stock.salesAmount <= 0) return;
+
+    const outletName = stock.Outlet?.name || "Chai Joint"; // Default fallback
+    const isChai = outletName.toUpperCase().includes("CHAI");
+    const isCafe = outletName.toUpperCase().includes("CAFE");
+    const isChaiOrCafe = isChai || isCafe;
+
+    totalRevenue += stock.salesAmount;
+
+    if (isChaiOrCafe) {
+      chaiCafeTotal += stock.salesAmount;
+      chaiCafeCash += stock.salesAmount; // Bulk sales are considered cash
+    }
+
+    if (!outletStats[outletName]) {
+      outletStats[outletName] = { total: 0, cash: 0, online: 0, split: 0 }
+    }
+    outletStats[outletName].total += stock.salesAmount;
+    outletStats[outletName].cash += stock.salesAmount;
+
+    const cat = stock.category || "Misc"
+    if (!categorySales[cat]) categorySales[cat] = 0
+    categorySales[cat] += stock.salesAmount
+
+    if (!itemSales[stock.menuItemId]) {
+      itemSales[stock.menuItemId] = { name: stock.menuItemName, qty: 0, rev: 0 }
+    }
+    itemSales[stock.menuItemId].qty += stock.salesQty || 0
+    itemSales[stock.menuItemId].rev += stock.salesAmount
   })
 
   const sortedCategories = Object.entries(categorySales).sort((a, b) => b[1] - a[1])

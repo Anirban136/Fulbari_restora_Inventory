@@ -78,6 +78,17 @@ export async function GET(req: Request) {
     orderBy: { closedAt: "asc" }
   })
 
+  // Fetch bulk sales from Chai Daily Stock
+  const bulkSales = await prisma.chaiHubDailyStock.findMany({
+    where: {
+      date: { gte: startUTC, lte: endUTC },
+      ...(whereClause.outletId ? { outletId: whereClause.outletId } : {})
+    },
+    include: {
+      Outlet: true
+    }
+  })
+
   // Create CSV String
   const headers = [
     "Date",
@@ -123,12 +134,41 @@ export async function GET(req: Request) {
     }).join(",") + "\n"
   })
 
+  // Add Bulk Sales to CSV
+  bulkSales.forEach(stock => {
+    if (!stock.salesAmount || stock.salesAmount <= 0) return;
+    
+    // Logical date is at 00:00:00 UTC, which is 5:30 AM IST. 
+    // We just want the date part for the CSV.
+    const datePart = new Date(stock.date).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' });
+
+    const row = [
+      datePart,
+      "Daily Close",
+      `BULK-${stock.id}`,
+      stock.Outlet?.name || "Chai Joint",
+      "System",
+      "Bulk Sale (Daily Close)",
+      "CLOSED",
+      "CASH",
+      stock.salesAmount.toFixed(2),
+      `"${stock.salesQty}x ${stock.menuItemName}"`
+    ]
+
+    csvContent += row.join(",") + "\n";
+  })
+
   // Daily Summary for Ranges
   if (fromDateStr && toDateStr) {
     const dailyMap: Record<string, number> = {};
     tabs.forEach(tab => {
         const dateStr = new Date(tab.closedAt || tab.openedAt).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' });
         dailyMap[dateStr] = (dailyMap[dateStr] || 0) + tab.totalAmount;
+    });
+    bulkSales.forEach(stock => {
+        if (!stock.salesAmount || stock.salesAmount <= 0) return;
+        const dateStr = new Date(stock.date).toLocaleDateString('en-IN', { timeZone: 'Asia/Kolkata' });
+        dailyMap[dateStr] = (dailyMap[dateStr] || 0) + stock.salesAmount;
     });
 
     csvContent += "\nSUMMARY BY DATE,,\n";
@@ -139,11 +179,12 @@ export async function GET(req: Request) {
   }
 
   // Calculate Subtotals
-  const totalCash = tabs.filter(t => t.paymentMode === "CASH").reduce((sum, t) => sum + t.totalAmount, 0);
+  const bulkCashTotal = bulkSales.reduce((sum, stock) => sum + (stock.salesAmount || 0), 0);
+  const totalCash = tabs.filter(t => t.paymentMode === "CASH").reduce((sum, t) => sum + t.totalAmount, 0) + bulkCashTotal;
   const totalOnline = tabs.filter(t => t.paymentMode === "ONLINE" || t.paymentMode === "UPI").reduce((sum, t) => sum + t.totalAmount, 0);
   const totalSplit = tabs.filter(t => t.paymentMode === "SPLIT").reduce((sum, t) => sum + t.totalAmount, 0);
   const totalComplementary = tabs.filter(t => t.paymentMode === "COMPLEMENTARY").reduce((sum, t) => sum + t.totalAmount, 0);
-  const grandTotal = tabs.filter(t => t.paymentMode !== "COMPLEMENTARY").reduce((sum, t) => sum + t.totalAmount, 0);
+  const grandTotal = tabs.filter(t => t.paymentMode !== "COMPLEMENTARY").reduce((sum, t) => sum + t.totalAmount, 0) + bulkCashTotal;
 
   // Append Summary Rows
   csvContent += "\nOVERALL RANGE TOTALS,,\n";

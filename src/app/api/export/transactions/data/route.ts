@@ -56,11 +56,22 @@ export async function GET(req: Request) {
         }
       }
     },
-    orderBy: { closedAt: "asc" }
+  })
+
+  // Fetch bulk sales from Chai Daily Stock
+  const bulkSales = await prisma.chaiHubDailyStock.findMany({
+    where: {
+      date: { gte: startUTC, lte: endUTC },
+      ...(whereClause.outletId ? { outletId: whereClause.outletId } : {})
+    },
+    include: {
+      Outlet: true
+    }
   })
 
   return NextResponse.json({
     range: { from: fromDateStr, to: toDateStr },
-    transactions: tabs
+    transactions: tabs,
+    bulkSales
   })
 }
